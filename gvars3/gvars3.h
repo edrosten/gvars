@@ -225,8 +225,8 @@ class GVars2
 		int& GetInt(const std::string& name, int default_val=0, bool silent = false);
 		double& GetDouble(const std::string& name, double default_val=0.0, bool silent = false); 
 		std::string& GetString(const std::string& name, const std::string& default_val="", bool silent = false); 
-		TooN::Vector<>& GetVector(const std::string& name, const TooN::Vector<>& default_val=v1, bool silent = false); 
-		TooN::Matrix<>& GetMatrix(const std::string& name, const TooN::Matrix<>& default_val=m1, bool silent = false); 
+		TooN::Vector<>& GetVector(const std::string& name, const TooN::Vector<>& default_val=TooN::Vector<>(), bool silent = false); 
+		TooN::Matrix<>& GetMatrix(const std::string& name, const TooN::Matrix<>& default_val=TooN::Matrix<>(), bool silent = false); 
 
 
 		int& GetInt(const std::string& name, const std::string& default_val, bool silent = false);
@@ -241,8 +241,6 @@ class GVars2
 		//char* ReadlineCommandGenerator(const char *szText, int nState);
 
 	private:
-		static TooN::Vector<1> v1;
-		static TooN::Matrix<1> m1;
 };
 
 }
