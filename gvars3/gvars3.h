@@ -1,3 +1,5 @@
+#ifndef GV3_INV_GVARS3_H
+#define GV3_INV_GVARS3_H
 #include <map>
 #include <set>
 #include <string>
@@ -244,3 +246,4 @@ class GVars2
 };
 
 }
+#endif
