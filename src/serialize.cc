@@ -118,6 +118,7 @@ namespace serialize
 		n=s.find("]");
 		if(n==s.npos)
 			return false;
+
 		s.erase(n, s.npos-n );
 
 		//Now, we can read some numbers! Turn into a stream, and build an STL-vector of doubles.
@@ -136,6 +137,9 @@ namespace serialize
 
 		for(int i=0;i<vd.size();i++)
 			v[i]=vd[i];
+		
+		vec.resize(v.size());
+		vec = v;
 
 		return true;
 	}
