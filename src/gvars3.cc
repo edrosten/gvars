@@ -33,10 +33,6 @@ namespace GVars3
 
 	bool GV3::set_var(string name, string val)
 	{
-		cerr << name << endl;
-		cerr << typeof_tags.empty() << endl;
-		cerr << typeof_tags.size() << endl;
-
 		if(typeof_tags.count(name))
 			return typeof_tags[name]->set_from_string(name, val);
 		else
