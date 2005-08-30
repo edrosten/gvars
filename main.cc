@@ -47,7 +47,7 @@ int main(void)
   GV2.GetString("TestString2", "hello world");
 
 
-  gvar2_double a_double;
+  GVars3::gvar2_double a_double;
   GV2.Register(a_double, "test_double", 0., true);
   
   char* pcLine;

@@ -21,6 +21,8 @@ namespace GVars3
 
 	string GV3::get_var(string name)
 	{
+		
+	
 		if(typeof_tags.find(name) != typeof_tags.end())
 			return typeof_tags[name]->get_as_string(name);
 		else if(unmatched_tags.find(name) != unmatched_tags.end())
@@ -31,7 +33,11 @@ namespace GVars3
 
 	bool GV3::set_var(string name, string val)
 	{
-		if(typeof_tags.find(name) != typeof_tags.end())
+		cerr << name << endl;
+		cerr << typeof_tags.empty() << endl;
+		cerr << typeof_tags.size() << endl;
+
+		if(typeof_tags.count(name))
 			return typeof_tags[name]->set_from_string(name, val);
 		else
 		{
