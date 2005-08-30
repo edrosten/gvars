@@ -28,7 +28,7 @@ IFLAGS= -I /usr/X11R6/Lesstif-0.93.94/include/\
 
 CXXFLAGS=$(OFLAGS) $(IFLAGS) -DHOSTTYPE_I386 -pthread
 
-INSTALL_LIBS=$(HOME)/usr/arch/Linux/lib
+INSTALL_LIBS=$(HOME)/usr/arch/Linux-suse/lib
 INSTALL_HDRS=$(HOME)/usr/include/
 
 V=4
@@ -37,7 +37,8 @@ V=4
 test: libGUI.so.$V
 
 libGUI.so.$V: libGUI.a
-	ld -shared -soname $@ -o $@ -lc $(OBJS)
+	ld -shared -soname $@ -o $@ -lc $(OBJS)	  -L/usr/X11R6/lib	-lX11 -lXm -lXft -lfltk
+
 	
 install:libGUI.so.$V libGUI.a
 	cp libGUI.so.$V $(INSTALL_LIBS)
@@ -66,4 +67,4 @@ test2:test2.o
 	$(CXX) -o test2 test2.o gvars3.o
 
 clean:
-	rm -f *.a *.o *.so *.so.? test test2
+	rm -f *.a src/*.o *.so *.so.? test test2
