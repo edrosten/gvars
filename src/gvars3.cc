@@ -21,11 +21,9 @@ namespace GVars3
 
 	string GV3::get_var(string name)
 	{
-		
-	
-		if(typeof_tags.find(name) != typeof_tags.end())
+		if(typeof_tags.count(name))
 			return typeof_tags[name]->get_as_string(name);
-		else if(unmatched_tags.find(name) != unmatched_tags.end())
+		else if(unmatched_tags.count(name))
 			return unmatched_tags[name];
 		else
 			return "(Not present in GVar list.)";
@@ -47,12 +45,12 @@ namespace GVars3
 		o << "//Registered GVars:" << endl;
 		
 		for(map<string, BaseMap*>::iterator i=typeof_tags.begin(); i != typeof_tags.end(); i++)
-			cout << i->first << "  =  " << get_var(i->first) << endl;
+			cout << i->first << "=" << get_var(i->first) << endl;
 
 		o << "//Unmatched tags:" << endl;
 
 		for(map<string,string>::iterator i=unmatched_tags.begin(); i != unmatched_tags.end(); i++)
-			o << i->first << "  =  " << i->second << endl;
+			o << i->first << "=" << i->second << endl;
 		o << "// End of GVar list." << endl;
 
 	}

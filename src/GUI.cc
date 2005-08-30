@@ -25,18 +25,17 @@ bool setvar(string s)
 
 	if(n != string::npos)
 	{    
-		
 		string var = s.substr(0, n);
 		string val = s.substr(n+1);
 
 		//Strip whitespace from around var;
-		int s=0, e = var.length(); 
+		int s=0, e = var.length()-1; 
 		for(; isspace(var[s]) && s < var.length(); s++);
 		for(; isspace(var[e]) && e >=0; e--);
-		
-		if(e > s)
+
+		if(e >= s)
 		{
-			var = var.substr(s, e-s);
+			var = var.substr(s, e-s+1);
 			GV3::set_var(var, val);
 			return true;
 		}
@@ -275,39 +274,47 @@ void GUI::ParseLine(string s, bool bSilentFailure )
   // assigns 2 to B
   // And as before, use double brace to protect.
 
-  {   // Round expansion wrapper follows:
-    int nOpenBracePos = s.find("(");
-    //int nCloseBracePos = s.rfind(")");
-    int nCloseBracePos = FindCloseBrace(s, nOpenBracePos, '(', ')');
-    if( (nOpenBracePos  !=s.npos) && 
-	(nCloseBracePos !=s.npos) &&
-	(nCloseBracePos > nOpenBracePos))
-      {   // Brace Pair found!!
-	//cout << "Found brace pair. " << endl;
-	string sBegin = s.substr(0,nOpenBracePos);
-	string sVarName = s.substr(nOpenBracePos+1,nCloseBracePos-nOpenBracePos-1);
-	string sEnd = s.substr(nCloseBracePos+1);
-	
-	int nLength = sVarName.size();   // Check if it's a double brace: {{foo}} in which case remove one pair, but don't expand.
-	bool bIsDoubleQuoted = false;
-	
-	if(nLength>2)
-	  if((sVarName[0]=='(') && (sVarName[nLength-1]==')'))
-	    {
-	      s = sBegin + sVarName + sEnd;  // Just remove the first set of braces.
-	      bIsDoubleQuoted = true;
-	    };
-	
-	if(!bIsDoubleQuoted)
-	  {
-	    //string sExpanded = mpGV2->StringValue(sVarName, true);
-	    string sExpanded = GV3::get_var(sVarName);
-	    s = sBegin + sExpanded + sEnd;
-	    //cout << "DEBUG : xx" << s << "xx" << endl;
-	  };
-      }
-  }
-  
+	{   // Round expansion wrapper follows:
+
+		int nOpenBracePos = s.find("(");
+		//int nCloseBracePos = s.rfind(")");
+		int nCloseBracePos = FindCloseBrace(s, nOpenBracePos, '(', ')');
+
+//		cerr << "((( " << nOpenBracePos << "  " << nCloseBracePos << endl;
+		
+
+		if((nOpenBracePos  !=s.npos) && (nCloseBracePos !=s.npos) && (nCloseBracePos > nOpenBracePos))
+		{   // Brace Pair found!!
+//cerr << "Found (\n";
+			//cout << "Found brace pair. " << endl;
+			string sBegin = s.substr(0,nOpenBracePos);
+			string sVarName = s.substr(nOpenBracePos+1,nCloseBracePos-nOpenBracePos-1);
+			string sEnd = s.substr(nCloseBracePos+1);
+
+//cerr << "varname = --" << sVarName << "--\n";
+
+			int nLength = sVarName.size();   // Check if it's a double brace: {{foo}} in which case remove one pair, but don't expand.
+			bool bIsDoubleQuoted = false;
+
+			if(nLength>2)
+				if((sVarName[0]=='(') && (sVarName[nLength-1]==')'))
+				{
+					s = sBegin + sVarName + sEnd;  // Just remove the first set of braces.
+					bIsDoubleQuoted = true;
+				};
+
+			if(!bIsDoubleQuoted)
+			{
+//cerr << "varname = --" << sVarName << "--\n";
+//cerr << "***************" << GV3::get_var(sVarName) << endl;
+				//string sExpanded = mpGV2->StringValue(sVarName, true);
+				string sExpanded = GV3::get_var(sVarName);
+				s = sBegin + sExpanded + sEnd;
+				//cout << "DEBUG : xx" << s << "xx" << endl;
+			};
+		}
+	}
+
 
 
 	// Old ParseLine code follows, here no braces can be left (unless in arg.)
