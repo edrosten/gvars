@@ -32,7 +32,6 @@ class BaseMap
 		virtual ~BaseMap(){};
 };
 
-
 template<class T> class gvar2
 {
 	friend class GV3;
@@ -44,12 +43,13 @@ template<class T> class gvar2
 
 		T* operator->()
 		{
-			return *data;
+			return data;
 		}
 
 	private:
 		T* data;
 };
+
 
 typedef gvar2<double> gvar2_double;
 typedef gvar2<int> gvar2_int;
@@ -58,8 +58,19 @@ typedef gvar2<std::string> gvar2_string;
 template<class T> class gvar3: public gvar2<T>
 {
 	friend class GV3;
+	public:
+	inline gvar3(const std::string& name, const T& default_val = T(), bool silent=false);
+	inline gvar3(const std::string& name, const std::string& default_val, bool silent);
+	inline gvar3(){};
 };
 
+template<> class gvar3<std::string>: public gvar2<std::string>
+{
+	friend class GV3;
+	public:
+	inline gvar3(const std::string& name, const std::string& default_val = "", bool silent=false);
+	inline gvar3(){};
+};
 
 
 template<class T> class TypedMap: public BaseMap
@@ -183,6 +194,23 @@ class GV3
 		static void print_var_list(std::ostream& o);
 		static std::vector<std::string> tag_list();
 };
+
+
+
+template<class T> gvar3<T>::gvar3(const std::string& name, const T& default_val, bool silent)
+{
+	GV3::Register(*this, name, default_val, silent);
+}
+
+template<class T> gvar3<T>::gvar3(const std::string& name, const std::string& default_val, bool silent)
+{
+	GV3::Register(*this, name, default_val, silent);
+}
+gvar3<std::string>::gvar3(const std::string& name, const std::string& default_val, bool silent)
+{
+	GV3::Register(*this, name, default_val, silent);
+}
+
 
 #include <gvars3/gv3_implementation.hh>
 
