@@ -438,7 +438,7 @@ class slider_bar: public slider_type
 			if(crnt != cached_value)
 			{
 				cached_value = crnt;
-				double newval;
+				double newval=0;
 				serialize::from_string(crnt, newval);
 
 				//Update range if necessary
