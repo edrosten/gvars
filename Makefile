@@ -36,7 +36,7 @@ V=4
 test: libGUI.so.$V
 
 libGUI.so.$V: libGUI.a
-	$(CXX) -shared -o $@ -lc $(OBJS)	  -L/usr/X11R6/lib	-lX11 -lXm -lXft -lfltk -lpthread
+	$(CXX) -shared -o $@ -lc $(OBJS)	  -L/usr/X11R6/lib	-lX11 -lXm -lXft -lfltk -lpthread -lreadline
 
 	
 install:libGUI.so.$V libGUI.a
