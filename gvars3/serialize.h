@@ -25,6 +25,17 @@ namespace GVars3
 			return !i.bad();
 		}
 
+
+		template<int N> std::string to_string(const TooN::Vector<N>& m)
+		{
+			std::ostringstream o;
+			o << "[ ";
+			o << m;
+			o << "]";
+			return o.str();
+		}
+
+
 		std::string to_string(const TooN::Matrix<>& m);
 		bool from_string(std::string s, TooN::Matrix<>& m);
 		std::string to_string(const TooN::Vector<>& m);
