@@ -57,8 +57,8 @@ libGUI.a:$(OBJS)
 
 
 test:libGUI.a main.o
-	$(CXX) -o test main.o libGUI.a -lreadline -lncurses \
-			  -L/usr/X11R6/lib	-lX11 -lXm -lXft -lfltk -lpthread
+	$(CXX) -o test main.o libGUI.a -lreadline -lncurses -lpthread\
+			  #-L/usr/X11R6/lib	-lX11 -lXm -lXft -lfltk -lpthread
 			  #-L$(HOME)/usr/arch/Linux/lib -lfltk
 			  #/home/cabinet1/er258/usr/src/fltk-1.1.5rc1/lib/libfltk.a\
 			  #

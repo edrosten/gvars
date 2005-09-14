@@ -35,7 +35,9 @@ void func(void* ptr, string sCommand, string sParams)
 
 int main(void)
 {
-  GUI_Fltk.start_thread();
+  #ifdef GV3_HAVE_FLTK
+	  GUI_Fltk.start_thread();
+  #endif
 
   GUI.LoadFile("autoexec.cfg");
   GUI.RegisterCommand("Something", func, NULL);
