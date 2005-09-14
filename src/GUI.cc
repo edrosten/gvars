@@ -20,7 +20,7 @@ namespace GVars3
 bool setvar(string s)
 {
 	//Execution failed. Maybe its an assignment.
-	unsigned int n;
+	int n;
 	n=s.find("=");
 
 	if(n != string::npos)
