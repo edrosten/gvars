@@ -39,7 +39,7 @@ test: libGUI.so.$V
 libGUI.so.$V: libGUI.a
 	$(CXX) -shared -o $@ -lc $(OBJS)	  -L/usr/X11R6/lib	-lX11 -lXm -lXft -lfltk -lpthread -lreadline -pthread
 
-CXXFLAGS+=-pthread
+CXXFLAGS+=-pthread -fPIC
 
 install:libGUI.so.$V libGUI.a
 	cp libGUI.so.$V $(INSTALL_LIBS)
