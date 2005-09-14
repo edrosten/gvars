@@ -22,9 +22,9 @@ template<class T> T* GV3::get_by_val(const std::string& name, const T& default_v
 		}
 		else
 		{
-			if(!serialize::from_string(i->second, *d))
-				std::cerr << __FUNCTION__ << "GV3:Parse error setting " << type_name<T>() << " from " << i->second << std::endl;
-
+			int e = serialize::from_string(i->second, *d);
+			parse_warning(e, type_name<T>(), name, i->second);
+			
 			unmatched_tags.erase(i);
 		}
 	}
@@ -35,8 +35,8 @@ template<class T> T* GV3::get_by_val(const std::string& name, const T& default_v
 template<class T> T* GV3::get_by_str(const std::string& name, const std::string& default_val, bool silent)
 {
 	T	def=T();
-	if(!serialize::from_string(default_val, def))
-		std::cerr << __FUNCTION__ << "GV3:Parse error setting " << type_name<T>() << " from " << default_val << std::endl;
+	int e = !serialize::from_string(default_val, def);
+	parse_warning(e, type_name<T>(), name, default_val);
 
 	return get_by_val(name, def, silent);
 }

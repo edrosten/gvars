@@ -29,10 +29,15 @@ namespace GVars3
 			return "(Not present in GVar list.)";
 	}
 
-	bool GV3::set_var(string name, string val)
+	bool GV3::set_var(string name, string val, bool silent)
 	{
 		if(typeof_tags.count(name))
-			return typeof_tags[name]->set_from_string(name, val);
+		{
+			int e = typeof_tags[name]->set_from_string(name, val);
+			if(!silent)
+				parse_warning(e, typeof_tags[name]->name(), name, val);
+			return e==0;
+		}
 		else
 		{
 			unmatched_tags[name]=val;
@@ -63,4 +68,15 @@ namespace GVars3
 
 		return v;
 	}
+
+	void parse_warning(int e, string type, string name, string from)
+	{
+	if(e > 0)
+		std::cerr << "GV3:Parse error setting " << type << " " << name << " from " << from << std::endl;
+	else if (e < 0)
+		std::cerr << "GV3:Parse warning setting " << type << " " << name << " from " << from << ": "
+				  << "junk is -->" << from.c_str()-e  << "<--" << std::endl;
+	}
+
+
 };

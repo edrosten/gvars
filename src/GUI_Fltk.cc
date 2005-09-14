@@ -453,7 +453,7 @@ class slider_bar: public slider_type
 		{	
 			ostringstream ost;
 			ost << value();
-			gv2->SetVar(varname, ost.str());
+			gv2->SetVar(varname, ost.str(), 1);
 			cached_value = ost.str();
 		}
 

@@ -9,6 +9,10 @@ namespace GVars3
 {
 	namespace serialize
 	{
+		/// Checks a stream and returns a statis code
+		/// @param input stream to check.
+		int check_stream(std::istream& i);
+			
 		//Define a serializer for everything that works with iostreams
 		//override to add new types with unusual serializers
 		template<class T> std::string to_string(const T& val)
@@ -18,11 +22,11 @@ namespace GVars3
 			return o.str();
 		}
 
-		template<class T> bool from_string(std::string s, T& result)
+		template<class T> int from_string(std::string s, T& result)
 		{	
 			std::istringstream i(s);
 			i >> result;
-			return !i.bad();
+			return check_stream(i);
 		}
 
 
@@ -35,12 +39,13 @@ namespace GVars3
 			return o.str();
 		}
 
+		std::string to_string(const std::string& s);
+		int from_string(std::string s, std::string& so);
 
 		std::string to_string(const TooN::Matrix<>& m);
-		bool from_string(std::string s, TooN::Matrix<>& m);
+		int from_string(std::string s, TooN::Matrix<>& m);
 		std::string to_string(const TooN::Vector<>& m);
-		bool from_string(std::string s, TooN::Vector<>& m);
-
+		int from_string(std::string s, TooN::Vector<>& m);
 	}
 }
 

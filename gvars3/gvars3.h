@@ -14,7 +14,7 @@
 
 namespace GVars3
 {
-
+void parse_warning(int e, std::string type, std::string name, std::string from);
 
 struct type_mismatch{};
 
@@ -26,7 +26,7 @@ class BaseMap
 {
 	public:
 		virtual std::string get_as_string(const std::string& name)=0;
-		virtual bool set_from_string(const std::string& name, const std::string& val)=0;
+		virtual int set_from_string(const std::string& name, const std::string& val)=0;
 		virtual std::string name()=0;
 		virtual std::vector<std::string> list_tags()=0;
 		virtual ~BaseMap(){};
@@ -113,7 +113,7 @@ template<class T> class TypedMap: public BaseMap
 			return &data[n];
 		}
 	
-		virtual bool set_from_string(const std::string& name, const std::string& val)
+		virtual int set_from_string(const std::string& name, const std::string& val)
 		{
 			return	serialize::from_string(val, data[name]); 
 		}
@@ -188,7 +188,7 @@ class GV3
 
 		//Get and set by string only
 		static std::string get_var(std::string name);
-		static bool GV3::set_var(std::string name, std::string val);
+		static bool GV3::set_var(std::string name, std::string val, bool silent=false);
 
 		//Some helper functions
 		static void print_var_list(std::ostream& o);
@@ -248,7 +248,7 @@ class GVars2
 			return GV3::get<std::string>(name, default_val, silent);
 		}
 
-		void SetVar(std::string sVar, std::string sValue);
+		void SetVar(std::string sVar, std::string sValue, bool silent=false);
 		void SetVar(std::string s);
 
 

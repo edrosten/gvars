@@ -569,7 +569,7 @@ void GUI_Motif::ButtonHandler(Widget w, XtPointer xtpCall)
 	  ostringstream ost;
 	  ost.str()="";
 	  ost << (dRawValue / 300.0) * (sms.dMax-sms.dMin) + sms.dMin;
-	  mpGV2->SetVar(sms.sVarName, ost.str());
+	  mpGV2->SetVar(sms.sVarName, ost.str(), 1);
 	  sms.sCachedValue = mpGV2->StringValue(sms.sVarName);
 	};
       //

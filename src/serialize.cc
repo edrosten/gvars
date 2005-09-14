@@ -27,7 +27,7 @@ namespace serialize
 
 
 
-	bool from_string(string s, Matrix<>& mat)
+	int from_string(string s, Matrix<>& mat)
 	{
 		 // Format expected is: [ num .. num; ... ;  num .. num ]
 		int n;
@@ -36,13 +36,13 @@ namespace serialize
 		//Trim up to and including this. Abort if it can't be found.
 		n=s.find("[");
 		if(n==s.npos) 
-			return false;
+			return 1;
 		s.erase(0, n+1 );
 
 		// Trim the closing brace and rest of line. Again, abort if can't be found.
 		n=s.find("]");
 		if(n==s.npos) 
-			return false;
+			return 1;
 		s.erase(n, s.npos-n );
 
 		vector<double> vd;  // Store all the numbers in this here.
@@ -62,7 +62,7 @@ namespace serialize
 
 		nCols=vd.size();
 		if(nCols<1) 
-			return false;
+			return 1;
 
 		while(n!=s.npos)  // This means that n pointed to a semicolon, not the end of the string
 		{               // Ergo: at least another line to go.
@@ -75,7 +75,7 @@ namespace serialize
 				vd.push_back(d);
 
 			if(vd.size()!=nRows*nCols) // Were there the right number of elements?
-				return false;
+				return 1;
 		};
 
 		// Now construct and fill the matrix.
@@ -87,7 +87,7 @@ namespace serialize
 
 		mat = m;
 
-		return true;
+		return 0;
 	}
 
 
@@ -102,7 +102,7 @@ namespace serialize
 	}
 
 
-	bool from_string(string s, Vector<>& vec)
+	int from_string(string s, Vector<>& vec)
 	{
 		// Format expected is: [ num num num .. num ]
 		int n;
@@ -111,13 +111,13 @@ namespace serialize
 		//Trim up to and including this. Abort if it can't be found.
 		n=s.find("[");
 		if(n==s.npos)
-			return false;
+			return 1;
 
 		s.erase(0, n+1 );
 		// Trim the closing brace and rest of line. Again, abort if can't be found.
 		n=s.find("]");
 		if(n==s.npos)
-			return false;
+			return 1;
 
 		s.erase(n, s.npos-n );
 
@@ -130,7 +130,7 @@ namespace serialize
 			vd.push_back(d);
 
 		if(vd.size()<1)// Abort if vector was empty.
-			return false;
+			return 1;
 
 		// Now transfer the STL-vector over to a TooN - Vector.
 		Vector<> v(vd.size());
@@ -141,9 +141,40 @@ namespace serialize
 		vec.resize(v.size());
 		vec = v;
 
-		return true;
+		return 0;
 	}
 
+	std::string to_string(const std::string& s)
+	{
+		return s;
+	}
+
+	int from_string(std::string s, std::string& so)
+	{
+		so = s;
+		return 0;
+	}
+
+
+	int check_stream(std::istream& i)
+	{
+		if(i.bad())
+			return 1;
+
+		if(i.good())
+		{
+			i >> ws;
+			char c = i.get();
+
+			if(!i.eof())
+			{	
+				i.putback(c);
+				return -i.tellg();
+			}
+		}
+
+		return 0;
+	}
 
 }
 

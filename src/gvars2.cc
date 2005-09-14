@@ -6,9 +6,9 @@ using namespace TooN;
 
 namespace GVars3
 {
-	void GVars2::SetVar(std::string sVar, std::string sValue)
+	void GVars2::SetVar(std::string sVar, std::string sValue, bool s)
 	{
-		GV3::set_var(sVar, sValue);
+		GV3::set_var(sVar, sValue, s);
 	}
 
 
