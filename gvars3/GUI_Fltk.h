@@ -1,8 +1,10 @@
 #ifndef __GUI_FLTK_H
 #define __GUI_FLTK_H
 
-#include <gvars3/GUI.h>
+#include <gvars3/config.h>
 
+#ifdef GV3_HAVE_FLTK
+#include <gvars3/GUI.h>
 #include <pthread.h>
 
 #include <map>
@@ -66,4 +68,5 @@ class GUI_Fltk
 		
 }
 
+#endif
 #endif

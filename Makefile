@@ -7,12 +7,12 @@ OBJS=\
 	src/gvars3.o			\
 	src/GUI.o				\
 	src/GStringUtil.o		\
-	src/GUI_Fltk.o			\
 	src/gvars2.o			\
 	src/serialize.o			\
-	src/GUI_Motif.o			\
 	src/inst.o				\
 	src/GUI_readline.o		\
+	src/GUI_Fltk.o			\
+	src/GUI_Motif.o			\
 
 
 
@@ -26,9 +26,9 @@ IFLAGS= \
 		-I/usr/X11R6/include \
 		#-I /usr/X11R6/Lesstif-0.93.94/include/\
 
-CXXFLAGS=$(OFLAGS) $(IFLAGS) -DHOSTTYPE_I386 
+CXXFLAGS=$(OFLAGS) $(IFLAGS) -DHOSTTYPE_I386  -DGV3_HAVE_MOTIF -DGV3_HAVE_FLTK
 
-INSTALL_LIBS=$(HOME)/usr/arch/Linux-suse/lib
+INSTALL_LIBS=$(HOME)/usr/arch/Linux-$(MACHINE)/lib
 INSTALL_HDRS=$(HOME)/usr/include/
 
 V=4
@@ -37,7 +37,9 @@ V=4
 test: libGUI.so.$V
 
 libGUI.so.$V: libGUI.a
-	$(CXX) -shared -o $@ -lc $(OBJS)	  -L/usr/X11R6/lib	-lX11 -lXm -lXft -lfltk -lpthread -lreadline -pthread
+	$(CXX) -shared -o $@ -lc $(OBJS)	\
+	-lpthread -lreadline -pthread\
+	-L/usr/X11R6/lib	-lX11 -lXm -lXft -lfltk 
 
 CXXFLAGS+=-pthread -fPIC
 
@@ -58,7 +60,7 @@ libGUI.a:$(OBJS)
 
 test:libGUI.a main.o
 	$(CXX) -o test main.o libGUI.a -lreadline -lncurses -lpthread\
-			  #-L/usr/X11R6/lib	-lX11 -lXm -lXft -lfltk -lpthread
+			  -L/usr/X11R6/lib64	-lX11 -lXm -lXft -lpthread
 			  #-L$(HOME)/usr/arch/Linux/lib -lfltk
 			  #/home/cabinet1/er258/usr/src/fltk-1.1.5rc1/lib/libfltk.a\
 			  #

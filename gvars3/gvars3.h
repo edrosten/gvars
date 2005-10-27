@@ -54,6 +54,7 @@ template<class T> class gvar2
 typedef gvar2<double> gvar2_double;
 typedef gvar2<int> gvar2_int;
 typedef gvar2<std::string> gvar2_string;
+typedef gvar2<TooN::Vector<-1> > gvar2_Vector;
 
 template<class T> class gvar3: public gvar2<T>
 {
