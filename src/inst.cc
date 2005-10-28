@@ -1,4 +1,15 @@
 #include <gvars3/instances.h>
+#ifdef GV3_HAVE_FLTK
+	#include <gvars3/GUI_Fltk.h>
+#endif
+
+#ifdef GV3_HAVE_FLTK2
+	#include <gvars3/GUI_Fltk2.h>
+#endif
+
+#ifdef GV3_HAVE_MOTIF
+	#include <gvars3/GUI_Motif.h>
+#endif
 
 namespace GVars3
 {
