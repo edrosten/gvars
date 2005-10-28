@@ -1,9 +1,6 @@
 #ifndef __GUI_MOTIF_H
 #define __GUI_MOTIF_H
 
-#include <gvars3/config.h>
-#ifdef GV3_HAVE_MOTIF
-
 #include <gvars3/GUI.h>
 #include <Xm/Xm.h>
 
@@ -77,5 +74,4 @@ class GUI_Motif
 }
 
 
-#endif
 #endif

@@ -1,0 +1,118 @@
+# @configure_input@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+arch= @build_cpu@
+
+
+CC = @CC@
+CXX=@CXX@
+CPPFLAGS = -I. @CPPFLAGS@
+CFLAGS = $(CPPFLAGS) @CFLAGS@
+CXXFLAGS = $(CPPFLAGS) @CXXFLAGS@
+OFLAGS=@OFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ -lm @LDFLAGS@
+INSTALL = @INSTALL@
+AR=ar
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = .
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+MAKEINFO = @MAKEINFO@
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+
+SUBDIRS =
+ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_CLEAN_FILES =
+DIST_COMMON =  README ChangeLog Makefile.am \
+Makefile.in aclocal.m4 configure configure.ac install-sh missing \
+mkinstalldirs
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+
+OBJS=\
+	src/gvars3.o			\
+	src/GUI.o				\
+	src/GStringUtil.o		\
+	src/gvars2.o			\
+	src/serialize.o			\
+	src/inst.o				\
+	src/GUI_readline.o		\
+
+ifeq (@have_fltk@,yes)
+	OBJS+=src/GUI_Fltk.o
+    CPPFLAGS+=-DGUI_HAVE_FLTK
+endif
+
+ifeq (@have_motif@,yes)
+	OBJS+=src/GUI_Motif.o
+    CPPFLAGS+=-DGUI_HAVE_MOTIF
+endif
+
+
+soname=libGUI.so
+soname1=libGUI.so.@major@
+soname2=libGUI.so.@major@.@minor@
+shared=-shared
+archive=libgui.a
+
+sos= $(soname) $(soname1) $(soname2)
+
+all: $(archive) $(soname)
+
+$(soname): $(OBJS)
+	rm -f $(sos)
+	$(CXX) $(shared) -o $(soname2) $(OBJS) $(LIBS)
+	ln -s $(soname2) $(soname1)
+	ln -s $(soname1) $(soname)
+
+$(archive): $(OBJS)
+	$(AR) crvs $(archive) $(OBJS)
+
+clean:
+	rm -f *.a src/*.o *.so *.so.? test *.o
