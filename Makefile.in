@@ -89,6 +89,11 @@ ifeq (@have_fltk@,yes)
     CPPFLAGS+=-DGUI_HAVE_FLTK
 endif
 
+ifeq (@have_fltk2@,yes)
+	OBJS+=src/GUI_Fltk2.o
+    CPPFLAGS+=-DGUI_HAVE_FLTK2
+endif
+
 ifeq (@have_motif@,yes)
 	OBJS+=src/GUI_Motif.o
     CPPFLAGS+=-DGUI_HAVE_MOTIF
@@ -99,7 +104,7 @@ soname=libGUI.so
 soname1=libGUI.so.@major@
 soname2=libGUI.so.@major@.@minor@
 shared=-shared
-archive=libgui.a
+archive=libGUI.a
 
 sos= $(soname) $(soname1) $(soname2)
 

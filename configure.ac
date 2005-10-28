@@ -85,6 +85,9 @@ AC_SUBST(have_fltk,$fltk)
 AC_CHECK_HEADERS(Xm/Xm.h, [options="${options} motif"; motif=yes], [])
 AC_SUBST(have_motif,$motif)
 
+AC_CHECK_HEADERS(fltk/Button.h, [options="${options} fltk2"; fltk2=yes], [])
+AC_SUBST(have_fltk2,$fltk2)
+
 major=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $1}'`
 minor=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $2}'`
 
