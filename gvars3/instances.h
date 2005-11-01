@@ -1,5 +1,4 @@
 #include <gvars3/GUI.h>
-#include <gvars3/config.h>
 
 namespace GVars3
 {

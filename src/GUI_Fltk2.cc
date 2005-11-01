@@ -1,7 +1,5 @@
-#include "gvars3/GUI_Fltk2.h"
-#include "gvars3/GStringUtil.h"
-
-#ifdef GV3_HAVE_FLTK2
+#include <gvars3/GUI_Fltk2.h>
+#include <gvars3/GStringUtil.h>
 
 #include <vector>
 #include <string.h>
@@ -677,5 +675,3 @@ void GUI_Fltk2::AddSpin(string cmd, string args)
 }
 
 }
-
-#endif
