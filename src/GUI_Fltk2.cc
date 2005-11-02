@@ -34,7 +34,7 @@ GUI_Fltk2::GUI_Fltk2(GUI *pGUI, GVars2* pGV2)
 
 void poll_callback(void* v)
 {
-	GUI_Fltk2* t = (GUI_Fltk2*) v;
+	class GUI_Fltk2* t = (class GUI_Fltk2*) v;
 
 	t->poll_windows();
 	fltk::check();
@@ -424,7 +424,7 @@ class slider_bar2: public slider_type
 		slider_bar2(string gvar_name, string title, GVars2 *pgv2, double min, double max)
 		:slider_type(0, 0, 1, 1),gv2(pgv2),varname(gvar_name)
 		{
-			type(slider_type::TICK_BOTH);
+			//type(slider_type::TICK_BOTH);
 			copy_label(title.c_str());
 			align(fltk::ALIGN_LEFT);
 			range(min, max);
