@@ -13,6 +13,7 @@
 #include <fltk/Widget.h>
 #include <fltk/Button.h>
 #include <fltk/CheckButton.h>
+#include <fltk/ToggleButton.h>
 #include <fltk/Slider.h>
 #include <fltk/InvisibleBox.h>
 #include <fltk/ValueInput.h>
@@ -241,6 +242,7 @@ void GUI_Fltk2::AddWindow(string sParams)
 	gui->RegisterCommand(vs[0] + ".AddSlider", AddSliderCB, this);
 	gui->RegisterCommand(vs[0] + ".AddMonitor", AddMonitorCB, this);
 	gui->RegisterCommand(vs[0] + ".AddSpin", AddSpinCB, this);
+	gui->RegisterCommand(vs[0] + ".AddSmallToggleButton", AddSmallToggleCB, this);
 }
 
 void GUI_Fltk2::DestroyWindowCB(void* ptr, string cmd, string args)
@@ -263,6 +265,7 @@ void GUI_Fltk2::DestroyWindow(string cmd)
 	gui->UnRegisterCommand(win_name + ".AddSlider");
 	gui->UnRegisterCommand(win_name + ".AddMonitor");
 	gui->UnRegisterCommand(win_name + ".AddSpin");
+	gui->UnRegisterCommand(win_name + ".AddSmallToggleButton");
 
     windows[win_name].win->destroy();
 	//delete windows[win_name].win;
@@ -671,6 +674,78 @@ void GUI_Fltk2::AddSpin(string cmd, string args)
 
 	fltk::Widget* b = new spin2(vs[0], title, gv2, min, max);
 
+	w.win->add(b);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// real toogle button stuff
+//
+
+void GUI_Fltk2::AddSmallToggleCB(void* ptr, string cmd, string args)
+{
+	fltk::lock();
+	UI.AddSmallToggle(cmd, args);
+	fltk::unlock();
+}
+
+class small_toggle2: public fltk::ToggleButton
+{
+	public:
+		small_toggle2(string gvar_name, string t,  GVars2 *pgv2, string def)
+		:fltk::ToggleButton(0, 0, 1, 1),title(t)
+		{
+			copy_label(title.c_str());
+
+			callback(my_callback);
+			when(fltk::WHEN_CHANGED);
+
+			pgv2->Register(my_int, gvar_name, def, true);
+			value(*my_int);
+		}
+
+		void poll_update()
+		{
+			if(*my_int != value())
+				value((bool)*my_int);
+		}
+
+	private:
+		gvar2_int my_int;
+		string title;
+
+		static void my_callback(fltk::Widget* w, long what_shall_I_do)
+		{
+			small_toggle2* b = (small_toggle2*)w;
+
+			if(what_shall_I_do == POLL_UPDATE)
+				b->poll_update();
+			else
+				*(b->my_int) = b->value();
+		}
+};
+
+void GUI_Fltk2::AddSmallToggle(string cmd, string args)
+{
+	string win_name = remove_suffix(cmd, ".AddSmallToggleButton");
+	string title = "";
+
+	vector<string> vs = ChopAndUnquoteString(args);
+	if(vs.size() != 2 && vs.size() != 3)
+	{
+		cerr << "! GUI_Fltk2::AddSmallToggleButton: Need 2-3 params (name, gvar2_int name, {default}).." << endl;
+		return;
+	}
+
+	if(!check_window(win_name, "AddSmallToggleButton"))
+		return;
+
+	window& w = windows[win_name];
+
+	if(vs.size() == 2)
+		vs.push_back("true");
+
+	fltk::Widget* b = new small_toggle2( vs[1], vs[0], gv2, vs[2]);
 	w.win->add(b);
 }
 
