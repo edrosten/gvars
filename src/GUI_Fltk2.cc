@@ -38,7 +38,6 @@ void poll_callback(void* v)
 	class GUI_Fltk2* t = (class GUI_Fltk2*) v;
 
 	t->poll_windows();
-	fltk::check();
 
 	//Repeat the polling timeout
 	fltk::repeat_timeout(0.02,  poll_callback, v);
@@ -53,11 +52,10 @@ void* GUI_Fltk2::do_stuff_CB(void* v)
 
 	for(;;)
 	{
-		fltk::lock();
+        fltk::lock();
 		fltk::run();
 		fltk::check();
 		fltk::unlock();
-
 		//If no windows are present, sleep and start again
 		usleep(100000);
 
@@ -162,6 +160,7 @@ class GUI_Fltk2_win:public fltk::Window
 			resize(w(), h() + GUI_Fltk2::widget_height + 2 * GUI_Fltk2::widget_padding_y);
 
 			fltk::Window::add(widg);
+			fltk::check();
 		}
 
 		void poll_update()
@@ -189,7 +188,7 @@ void GUI_Fltk2::poll_windows()
 	{
 		if(i->second.showme)
 		{
-			i->second.win->show();
+			//i->second.win->show();
 			i->second.showme = false;
 		}
 		i->second.win->poll_update();
@@ -232,7 +231,9 @@ void GUI_Fltk2::AddWindow(string sParams)
 	w.win = new GUI_Fltk2_win(width, vs[0], sCaption, gui);
 	w.showme = true;
 	w.win->end();
-	//w.win->show();
+	w.win->show();
+
+	fltk::check();
 
 	windows[vs[0]] = w;
 
