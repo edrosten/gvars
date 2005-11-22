@@ -139,7 +139,7 @@ class GUI_Fltk2_win:public fltk::Window
 {
 	public:
 		GUI_Fltk2_win(int w, string name, string caption, GUI* pgui)
-		:fltk::Window(w, 0),win_name(name),labl(caption),gui(pgui)
+		:fltk::Window(w, 10),win_name(name),labl(caption),gui(pgui)
 		{
 			label(caption.c_str());
 			callback(my_callback);
@@ -152,15 +152,14 @@ class GUI_Fltk2_win:public fltk::Window
             if((widg->align() & fltk::ALIGN_LEFT) && !(widg->align() & fltk::ALIGN_INSIDE) )
                 widg->measure_label(lw, lh);
 
+            fltk::Window::add(widg);
+
             //Position the widget
-			widg->resize(GUI_Fltk2::widget_padding_x + lw, h() + GUI_Fltk2::widget_padding_y,
-						 w() - 2 * GUI_Fltk2::widget_padding_x - lw, GUI_Fltk2::widget_height);
-
 			//Resize the window
-			resize(w(), h() + GUI_Fltk2::widget_height + 2 * GUI_Fltk2::widget_padding_y);
-
-			fltk::Window::add(widg);
-			fltk::check();
+			resize(w(), (GUI_Fltk2::widget_height + 2 * GUI_Fltk2::widget_padding_y)*children());
+			widg->resize(GUI_Fltk2::widget_padding_x + lw, (GUI_Fltk2::widget_height + 2 * GUI_Fltk2::widget_padding_y)*(children()-1) + GUI_Fltk2::widget_padding_y,
+						 w() - 2 * GUI_Fltk2::widget_padding_x - lw, GUI_Fltk2::widget_height);
+                        layout();
 		}
 
 		void poll_update()
@@ -186,11 +185,6 @@ void GUI_Fltk2::poll_windows()
 {
 	for(map<string, window>::iterator i=windows.begin(); i != windows.end(); i++)
 	{
-		if(i->second.showme)
-		{
-			//i->second.win->show();
-			i->second.showme = false;
-		}
 		i->second.win->poll_update();
 	}
 }
@@ -229,7 +223,6 @@ void GUI_Fltk2::AddWindow(string sParams)
 
 	window w;
 	w.win = new GUI_Fltk2_win(width, vs[0], sCaption, gui);
-	w.showme = true;
 	w.win->end();
 	w.win->show();
 
