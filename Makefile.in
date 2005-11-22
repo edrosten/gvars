@@ -129,4 +129,4 @@ $(archive): $(OBJS)
 	$(AR) crvs $(archive) $(OBJS)
 
 clean:
-	rm -f *.a src/*.o *.so *.so.? test *.o
+	rm -f *.a src/*.o *.so *.so.? test *.o *.so.?.?
