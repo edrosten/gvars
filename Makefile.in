@@ -116,6 +116,15 @@ $(soname): $(OBJS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
+install:
+	mkdir -p $(includedir)
+	cp -r gvars3 $(includedir)
+	mkdir -p $(libdir)
+	cp $(soname2) $(archive) $(libdir)
+	ln -fs  $(libdir)/$(soname2) $(libdir)/$(soname1)
+	ln -fs  $(libdir)/$(soname1) $(libdir)/$(soname)
+
+
 $(archive): $(OBJS)
 	$(AR) crvs $(archive) $(OBJS)
 
