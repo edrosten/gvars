@@ -1,4 +1,4 @@
-/*                       
+/*
 	This file is part of the GVars3 Library.
 
 	Copyright (C) 2005 The Authors
@@ -15,7 +15,7 @@
 
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 
+	Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
@@ -69,7 +69,7 @@ namespace GVars3
 	void GV3::print_var_list(ostream& o)
 	{
 		o << "//Registered GVars:" << endl;
-		
+
 		for(map<string, BaseMap*>::iterator i=typeof_tags.begin(); i != typeof_tags.end(); i++)
 			cout << i->first << "=" << get_var(i->first) << endl;
 
@@ -99,5 +99,20 @@ namespace GVars3
 				  << "junk is -->" << from.c_str()-e  << "<--" << std::endl;
 	}
 
-
+	int GV3::parseArguments( const int argc, char * argv[], int start, const string prefix ){
+	    while(start < argc){
+	        string opt = argv[start];
+	        if(opt.size() > prefix.size() && opt.find(prefix) == 0){
+	            string name = opt.substr(2);
+	            if(start < argc-1){
+	                string value = argv[start+1];
+	                GV3::set_var(name, value);
+	                start +=2;
+	            }
+	            else break;
+	        }
+	        else break;
+	    }
+	    return start;
+	}
 };
