@@ -54,6 +54,15 @@ namespace GVars3
 	  bool CallCallbacks(std::string sCommand, std::string sParams);
 	  void SetupReadlineCompletion();
 
+	/// parse command line arguments for GVar values. It expects the form --name value and will stop
+	/// parsing when this form is not true anymore. possible cases are a single --, an argument, etc..
+	/// @arg argc total number of arguments from main argc
+	/// @arg argv pointer to array of strings from main argv
+	/// @arg start first argument to look at to be compatible with other parsers
+	/// @arg prefix the prefix to use. note that everything after the prefix will be interpreted as part of the variable name
+	/// @return
+	int parseArguments( const int argc, char * argv[], int start = 1, const std::string prefix = "--" );
+
 	 private:
 	  
 	  void do_builtins();

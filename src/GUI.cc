@@ -610,8 +610,22 @@ void GUI::SetupReadlineCompletion()
 #endif
 }
 
-
-
+int GUI::parseArguments( const int argc, char * argv[], int start, const string prefix ){
+	while(start < argc){
+		string opt = argv[start];
+		if(opt.size() > prefix.size() && opt.find(prefix) == 0){
+			string name = opt.substr(2);
+			if(start < argc-1){
+				string value = argv[start+1];
+				GV3::set_var(name, value);
+				start +=2;
+			}
+			else break;
+		}
+		else break;
+	}
+	return start;
+}
 
 void GUI::RegisterBuiltin(string sCommandName, GUICallbackProc callback)
 {

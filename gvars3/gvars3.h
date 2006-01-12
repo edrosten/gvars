@@ -215,15 +215,6 @@ class GV3
 		//Some helper functions
 		static void print_var_list(std::ostream& o);
 		static std::vector<std::string> tag_list();
-
-		/// parse command line arguments for GVar values. It expects the form --name value and will stop
-		/// parsing when this form is not true anymore. possible cases are a single --, an argument, etc..
-		/// @arg argc total number of arguments from main argc
-		/// @arg argv pointer to array of strings from main argv
-		/// @arg start first argument to look at to be compatible with other parsers
-		/// @arg prefix the prefix to use. note that everything after the prefix will be interpreted as part of the variable name
-		/// @return 
-		static int parseArguments( const int argc, char * argv[], int start = 1, const std::string prefix = "--" );
 };
 
 
