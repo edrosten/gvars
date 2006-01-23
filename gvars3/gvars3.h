@@ -95,76 +95,76 @@ template<> class gvar3<std::string>: public gvar2<std::string>
 };
 
 
-template<class T> class TypedMap: public BaseMap
-{
-	private:
-		friend class GV3;
-
-		//This gives us singletons
-		static TypedMap& instance()
-		{
-			static TypedMap* inst=0;
-
-			if(!inst)
-			{
-				inst = new TypedMap();
-				//Register ourselves with GV3
-				GV3::add_typemap(inst);
-			}
-
-			return *inst;
-		}
-
-		//Get a data member	
-		T* get(const std::string& n)
-		{
-			typename std::map<std::string, T>::iterator i;
-
-			i = data.find(n);
-
-			if(i == data.end())
-				return NULL;
-			else
-				return &(i->second);
-		}
-
-		//Create a data member
-		T* create(const std::string& n)
-		{
-			data[n] = T();
-			return &data[n];
-		}
-	
-		virtual int set_from_string(const std::string& name, const std::string& val)
-		{
-			return	serialize::from_string(val, data[name]); 
-		}
-
-		virtual std::string get_as_string(const std::string& name)
-		{
-			return serialize::to_string(data[name]);
-		}
-
-		virtual std::string name()
-		{
-			return type_name<T>();
-		}
-
-		virtual std::vector<std::string> list_tags()
-		{
-			std::vector<std::string> l;
-			for(typename std::map<std::string,T>::iterator i=data.begin(); i != data.end(); i++)
-				l.push_back(i->first);
-			return l;
-		}
-
-		std::map<std::string, T>		data;
-};
-
-
 class GV3
 {
 	private:
+
+		template<class T> class TypedMap: public BaseMap
+		{
+			private:
+				friend class GV3;
+
+				//This gives us singletons
+				static TypedMap& instance()
+				{
+					static TypedMap* inst=0;
+
+					if(!inst)
+					{
+						inst = new TypedMap();
+						//Register ourselves with GV3
+						GV3::add_typemap(inst);
+					}
+
+					return *inst;
+				}
+
+				//Get a data member	
+				T* get(const std::string& n)
+				{
+					typename std::map<std::string, T>::iterator i;
+
+					i = data.find(n);
+
+					if(i == data.end())
+						return NULL;
+					else
+						return &(i->second);
+				}
+
+				//Create a data member
+				T* create(const std::string& n)
+				{
+					data[n] = T();
+					return &data[n];
+				}
+			
+				virtual int set_from_string(const std::string& name, const std::string& val)
+				{
+					return	serialize::from_string(val, data[name]); 
+				}
+
+				virtual std::string get_as_string(const std::string& name)
+				{
+					return serialize::to_string(data[name]);
+				}
+
+				virtual std::string name()
+				{
+					return type_name<T>();
+				}
+
+				virtual std::vector<std::string> list_tags()
+				{
+					std::vector<std::string> l;
+					for(typename std::map<std::string,T>::iterator i=data.begin(); i != data.end(); i++)
+						l.push_back(i->first);
+					return l;
+				}
+
+				std::map<std::string, T>		data;
+		};
+
 		template<class T> friend class TypedMap;
 
 		template<class T> static T* attempt_get(const std::string& name)
