@@ -56,12 +56,14 @@ namespace GVars3
 
 	/// parse command line arguments for GVar values. It expects the form --name value and will stop
 	/// parsing when this form is not true anymore. possible cases are a single --, an argument, etc..
+	/// if it finds an argument --exec it interprets the next argument as a file name to load via LoadFile
 	/// @arg argc total number of arguments from main argc
 	/// @arg argv pointer to array of strings from main argv
 	/// @arg start first argument to look at to be compatible with other parsers
 	/// @arg prefix the prefix to use. note that everything after the prefix will be interpreted as part of the variable name
+	/// @arg execKeyword keyword to use to trigger execution of the file given as parameter with LoadFile
 	/// @return
-	int parseArguments( const int argc, char * argv[], int start = 1, const std::string prefix = "--" );
+	int parseArguments( const int argc, char * argv[], int start = 1, const std::string prefix = "--", const std::string execKeyword = "exec" );
 
 	 private:
 	  
