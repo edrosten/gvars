@@ -210,7 +210,7 @@ class GV3
 
 		//Get and set by string only
 		static std::string get_var(std::string name);
-		static bool GV3::set_var(std::string name, std::string val, bool silent=false);
+		static bool set_var(std::string name, std::string val, bool silent=false);
 
 		//Some helper functions
 		static void print_var_list(std::ostream& o);

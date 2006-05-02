@@ -32,7 +32,7 @@ namespace GVars3
 class GUI_Motif
 {
  public:
-  GUI_Motif(GUI *pGUI, GVars2 *pGV2);
+  GUI_Motif(class GUI *pGUI, class GVars2 *pGV2);
   void InitXInterface(std::string sDisplay);
   void AddPushButton(std::string sCommand, std::string sParams);
   void AddToggleButton(std::string sCommand, std::string sParams);
@@ -64,8 +64,8 @@ class GUI_Motif
   static void RemoveWindowCB(Widget, void*, void*);
   void RemoveWindow(Widget w);
   
-  GUI *mpGUI;
-  GVars2 *mpGV2;
+  class GUI *mpGUI;
+  class GVars2 *mpGV2;
   
   void* mpMutex;
   
