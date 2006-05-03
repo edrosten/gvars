@@ -116,7 +116,7 @@ $(soname): $(OBJS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
-install:
+install:$(soname) $(archive)
 	mkdir -p $(DESTDIR)/$(includedir)
 	cp -r gvars3 $(DESTDIR)/$(includedir)
 	mkdir -p $(DESTDIR)/$(libdir)
