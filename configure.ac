@@ -1,7 +1,13 @@
 AC_INIT(gvars3, 0.5)
+AC_PROG_AWK
 AC_LANG(C++)
 
 AC_CHECK_HEADERS(iostream)
+
+echo
+echo --------------------------
+echo Checking for prerequisites
+echo --------------------------
 
 ###################################################
 #
@@ -58,10 +64,10 @@ fi
 
 if test "$toondir" = Missing
 then
-	AC_MSG_WARN(TooN is missing. Numerics support disabled.)
+	AC_MSG_WARN(TooN is missing.)
 	if test "$old_toon" != ""
 	then
-	AC_MSG_WARN(You have old versions of TooN installed in $old_toon. These are too old for libCVD.)
+	AC_MSG_WARN(You have old versions of TooN installed in $old_toon. These are too old for gvars.)
 	fi
 	toon=no
 else
@@ -76,23 +82,115 @@ then
 	AC_MSG_ERROR(TooN is required. Visit savannah.nongnu.org/projects/toon)
 fi
 
-optionlist="fltk motif"
+
+foo_LIBS="$LIBS"
+for curse in "" ncurses curses
+do
+	LIBS="$foo_LIBS"
+	if test x$curse != x
+	then 
+		AC_MSG_CHECKING($curse as a requirement for readline)
+		AC_MSG_RESULT()
+		AC_CHECK_LIB($curse, tputs)
+	fi
+		
+	AC_CHECK_LIB(readline,rl_done,[],[])
+
+	if test x$ac_cv_lib_readline_rl_done == xyes
+	then
+		break
+	else
+		unset ac_cv_lib_readline_rl_done
+	fi
+done
+
+
+if test x$ac_cv_lib_readline_rl_done != xyes
+then
+	AC_MSG_ERROR(Readline is not optional. It should be. Sorry.)
+fi
+
+AC_CHECK_LIB(pthread, pthread_join, [], [])
+if test x$ac_cv_lib_pthread_pthread_join != xyes
+then
+	AC_MSG_ERROR(pthread is not optional. It should be. Sorry.)
+fi
+
+LIBS="$LIBS -pthread"
+CPPFLAGS="$CPPFLAGS -pthread"
+
+
+
+################################################################################
+#
+# Basic dialogue box functionality
+#
+
+echo
+echo ------------------------------------------------
+echo "Checking for widget libraries (provides GUI_...)"
+echo ------------------------------------------------
+
+optionlist="fltk motif fltk2"
 options=""
 
-AC_CHECK_HEADERS(FL/Fl.h, [options="${options} fltk"; fltk=yes], [])
-AC_SUBST(have_fltk,$fltk)
+#dnl check_GUI(fltk,FL/Fl.h,fltk)
 
-AC_CHECK_HEADERS(Xm/Xm.h, [options="${options} motif"; motif=yes], [])
-AC_SUBST(have_motif,$motif)
+define(check_GUI,[
+AC_CHECK_HEADERS($2,a_$1=yes)
+AC_CHECK_LIB($3,main)
+if test x$ac_cv_lib_[]$3[]_main == xyes && test x$[]a_$1 == xyes
+then
+	AC_SUBST(have_[]$1, yes)
+	options="$options $1"
+	$1=yes
+fi
+])
 
-AC_CHECK_HEADERS(fltk/Button.h, [options="${options} fltk2"; fltk2=yes], [])
-AC_SUBST(have_fltk2,$fltk2)
+check_GUI(fltk,FL/Fl.h,fltk)
+
+AC_PATH_X
+foo_LIBS="$LIBS"
+foo_CPPFLAGS="$CPPFLAGS"
+test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
+test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
+check_GUI(motif,Xm/Xm.h,Xm)
+if test x$motif != xyes
+then
+	LIBS="$foo_LIBS"
+	CPPFLAGS="$foo_CPPFLAGS"
+fi
+	
+
+
+
+
+check_GUI(fltk2,fltk/Button.h,fltk2)
+
+if test x$fltk$motif$fltk2 == x
+then
+	AC_MSG_WARN(No GUI functionality enabled)
+fi
+
+################################################################################
+#
+# The rest
+#
 
 major=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $1}'`
 minor=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $2}'`
 
 AC_SUBST(major, $major)
 AC_SUBST(minor, $minor)
+
+changequote(,)
+echo Options:
+echo $options
+echo
+echo Missing options:
+echo $options $optionlist |  $AWK 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}'
+echo
+changequote([,])
 
 
 AC_OUTPUT(Makefile)
