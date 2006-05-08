@@ -61,7 +61,7 @@ MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-SUBDIRS =
+5BSUBDIRS =
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES =
@@ -119,6 +119,7 @@ $(soname): $(OBJS)
 install:$(soname) $(archive)
 	mkdir -p $(DESTDIR)/$(includedir)
 	cp -r gvars3 $(DESTDIR)/$(includedir)
+	cp  GVars2.h $(DESTDIR)/$(includedir)
 	mkdir -p $(DESTDIR)/$(libdir)
 	cp $(soname2) $(archive) $(DESTDIR)/$(libdir)
 	ln -fs  $(DESTDIR)/$(libdir)/$(soname2) $(DESTDIR)/$(libdir)/$(soname1)
