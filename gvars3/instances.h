@@ -21,9 +21,13 @@
 
 #include <gvars3/GUI.h>
 
+#ifdef GVARS2_COMPAT
+extern GVars3::GVars2 GV2;
+extern class GVars3::GUI GUI;
+#else
 namespace GVars3
 {
-	extern GVars2 GV2;
-	extern class GUI GUI;
-
+  extern GVars2 GV2;
+  extern class GUI GUI;
 };
+#endif

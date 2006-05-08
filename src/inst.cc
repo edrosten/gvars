@@ -19,7 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef GVAR2_COMPAT
+#ifndef GVARS2_COMPAT
 #include <gvars3/instances.h>
 
 #ifdef GUI_HAVE_FLTK

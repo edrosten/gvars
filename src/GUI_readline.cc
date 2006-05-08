@@ -27,6 +27,9 @@
 #include <readline/history.h>
 
 using namespace std;
+#ifdef GVARS2_COMPAT
+#define GUI ::GUI
+#endif
 
 namespace GVars3
 {
