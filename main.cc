@@ -21,71 +21,55 @@
 
 #include <gvars3/GUI.h>
 #include <gvars3/instances.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <gvars3/GUI_readline.h>
+#include <unistd.h>
 
 using namespace GVars3;
 using namespace std;
 
-class P
+bool bDone;
+
+void foo_callback(void* ptr, string sCommand, string sParams)
 {
-public:
-  static void mfunc(void* ptr, string sCommand, string sParams)
-  {
-    cout << "MFunc: " << sCommand << sParams << " n:"<<endl;
-  };
-
-  int n;
-
-  void Register()
-  {
-    GUI.RegisterCommand("asdfs",mfunc, this);
-
-  };
-
-};
-
-
-void func(void* ptr, string sCommand, string sParams)
-{
-  cout << "Func here! " << sCommand <<  endl;
-
+  cout << "Foo callback here! called with command " << endl <<
+    "\"" << sCommand <<  "\""<< endl <<
+    "and params" << endl <<
+    "\"" << sParams << "\"." << endl;
 }
+
+void quit_callback(void* ptr, string sCommand, string sParams)
+{
+  bDone =true;
+}
+
+
 
 int main(void)
 {
+  bDone = false;
   GUI.LoadFile("autoexec.cfg");
-  GUI.RegisterCommand("Something", func, NULL);
+  GUI.RegisterCommand("foo", foo_callback, NULL);
+  GUI.RegisterCommand("quit", quit_callback, NULL);
+  GUI.RegisterCommand("exit", quit_callback, NULL);
   GUI.SetupReadlineCompletion();
-
+  
+  spawn_readline_thread thread("quit");
+  
   GV2.GetInt("TestInt", 10);
   GV2.GetDouble("TestDouble", 10);
   GV2.GetString("TestString", "hello world");
   GV2.GetString("TestString2", "hello world");
 
-
   gvar2_double a_double;
   gvar2_int an_int;
   GV2.Register(a_double, "test_double", 0., true);
   GV2.Register(an_int, "test_int", 0, true);
-
-  char* pcLine;
-  do
+  
+  while(!bDone)
     {
-      pcLine=readline("ModelEdit >");
-      if(pcLine) {
-	GUI.ParseLine(pcLine);
-	add_history(pcLine);
-      };
-    }
-  while(pcLine);
-
+      usleep(10000);
+    };
   cout << "end." << endl;
-
-
+  
   return 0;
-
-
-
-
 };

@@ -131,3 +131,6 @@ $(archive): $(OBJS)
 
 clean:
 	rm -f *.a src/*.o *.so *.so.? test *.o *.so.?.?
+
+main:
+	$(CXX) $(CXXFLAGS) -o main -lGUI main.cc
