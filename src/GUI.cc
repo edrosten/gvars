@@ -422,37 +422,111 @@ void builtin_qmark(void* ptr, string sCommand, string sParams)
 void builtin_if(void* ptr, string sCommand, string sParams)
 {
   GUI* p = (GUI*)ptr;
-
   vector<string> v = ChopAndUnquoteString(sParams);
-
   if(v.size()<2)
-  {
-	cerr <<"? GUI internal if command: not enough params (syntax: if gvar command)"<< endl; 
-	return;
-  }
+    {
+      cerr <<"? GUI internal if command: not enough params (syntax: if gvar command)"<< endl; 
+      return;
+    }
 
   string sValue = GV3::get_var(v[0]);
-
   if(sValue == "(not in GVar list)")
-	return;
-
+    return;
+  
   // Have to do this to fix whitespace issues on non-registered gvars
   vector<string> vv = ChopAndUnquoteString(sValue); 
-
+  
   if(vv.size()<1) 
   	return;
   else if(vv[0]!="0")
-  {
-	string s;
+    {
+      string s;
 	s = "";
-
 	for(int i=1;i<v.size();i++)
 	  s = s + " " +  v[i];
-
 	p->ParseLine(s);
-  }
+    }
   return;
 }
+
+void builtin_ifnot(void* ptr, string sCommand, string sParams)
+{
+  GUI* p = (GUI*)ptr;
+  vector<string> v = ChopAndUnquoteString(sParams);
+  if(v.size()<2)
+    {
+      cerr <<"? GUI internal ifnot command: not enough params (syntax: if gvar command)"<< endl; 
+      return;
+    }
+
+  string sValue = GV3::get_var(v[0]);
+  if(sValue == "(not in GVar list)")
+    return;
+  
+  // Have to do this to fix whitespace issues on non-registered gvars
+  vector<string> vv = ChopAndUnquoteString(sValue); 
+  
+  if(vv.size()<1) 
+  	return;
+  else if(vv[0]=="0")
+    {
+      string s;
+	s = "";
+	for(int i=1;i<v.size();i++)
+	  s = s + " " +  v[i];
+	p->ParseLine(s);
+    }
+  return;
+}
+
+void builtin_ifeq(void* ptr, string sCommand, string sParams)
+{
+  GUI* p = (GUI*)ptr;
+  vector<string> v = ChopAndUnquoteString(sParams);
+  if(v.size()<3)
+    {
+      cerr <<"? GUI internal ifeq command: not enough params (syntax: if gvar command)"<< endl; 
+      return;
+    }
+
+  string sValue = GV3::get_var(v[0]);
+  string sIfValue = v[1];
+  if(sValue == "(not in GVar list)")
+    return;
+  
+  // Have to do this to fix whitespace issues on non-registered gvars
+  vector<string> vv = ChopAndUnquoteString(sValue); 
+  
+  if(vv.size()<1) 
+  	return;
+  else if(vv[0]==sIfValue)
+    {
+      string s;
+	s = "";
+	for(int i=2;i<v.size();i++)
+	  s = s + " " +  v[i];
+	p->ParseLine(s);
+    }
+  return;
+}
+
+void builtin_toggle(void* ptr, string sCommand, string sParams)
+{
+  GUI* p = (GUI*)ptr;
+  vector<string> v = ChopAndUnquoteString(sParams);
+  if(v.size()!=1) 
+    {
+      cout <<"? GUI internal toggle command: invalid num of params (syntax: toggle gvar)"<< endl; 
+      return;
+    };
+  int nValue = GV3::get<int>(v[0]);
+  if(nValue) 
+    GV3::set_var(v[0],"0");
+  else
+    GV3::set_var(v[0],"1");
+  return;
+  
+};
 
 void builtin_set(void* ptr, string sCommand, string sParams)
 {
@@ -604,6 +678,9 @@ void GUI::do_builtins()
 	RegisterBuiltin("exec", builtin_exec);
 	RegisterBuiltin("echo", builtin_echo);
 	RegisterBuiltin("if", builtin_if);
+	RegisterBuiltin("ifnot", builtin_ifnot);
+	RegisterBuiltin("ifeq", builtin_ifeq);
+	RegisterBuiltin("toggle", builtin_toggle);
 	RegisterBuiltin("set", builtin_set);
 	RegisterBuiltin("?", builtin_qmark);
 	RegisterBuiltin("gvarlist", builtin_gvarlist);
