@@ -60,6 +60,9 @@ namespace GVars3
 			return o.str();
 		}
 
+		template<int N> int from_string(std::string s, TooN::Vector<N>& m);
+
+		int from_string(std::string s, TooN::Vector<>& m);
 		template<int N> int from_string(std::string s, TooN::Vector<N>& m)
 		{
 			TooN::Vector<> t;
@@ -76,7 +79,6 @@ namespace GVars3
 		std::string to_string(const TooN::Matrix<>& m);
 		int from_string(std::string s, TooN::Matrix<>& m);
 		std::string to_string(const TooN::Vector<>& m);
-		int from_string(std::string s, TooN::Vector<>& m);
 	}
 }
 
