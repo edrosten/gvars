@@ -1,5 +1,5 @@
 /*                       
-	GVars2.h: compatibility header for GVars2-based code
+	GUI_Motif.h: compatibility header for GVars2-based code
 
 	This file is part of the GVars3 Library.
 
@@ -21,8 +21,8 @@
 	51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __GVARS2_H
-#define __GVARS2_H
-#include <gvars3/gvars3.h>
-using GVars3::GVars2;
+#ifndef __GUI_MOTIF_WRAPPER_H
+#define __GUI_MOTIF_WRAPPER_H
+#include <gvars3/GUI_Motif.h>
+using GVars3::GUI_Motif;
 #endif

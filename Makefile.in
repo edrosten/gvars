@@ -61,7 +61,7 @@ MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-5BSUBDIRS =
+SUBDIRS =
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES =
@@ -99,6 +99,12 @@ ifeq (@have_motif@,yes)
     CPPFLAGS+=-DGUI_HAVE_MOTIF
 endif
 
+ifeq (@use_gvars2_compat@,yes)
+    CPPFLAGS+=-DGVARS2_COMPAT
+endif
+
+
+
 
 soname=libGUI.so
 soname1=libGUI.so.@major@
@@ -119,7 +125,7 @@ $(soname): $(OBJS)
 install:$(soname) $(archive)
 	mkdir -p $(DESTDIR)/$(includedir)
 	cp -r gvars3 $(DESTDIR)/$(includedir)
-	cp  GVars2.h $(DESTDIR)/$(includedir)
+	if test "@use_gvars2_compat@" == "yes"; then cp gvars2_compat/*.h $(DESTDIR)/$(includedir); fi
 	mkdir -p $(DESTDIR)/$(libdir)
 	cp $(soname2) $(archive) $(DESTDIR)/$(libdir)
 	ln -fs  $(DESTDIR)/$(libdir)/$(soname2) $(DESTDIR)/$(libdir)/$(soname1)
@@ -130,7 +136,7 @@ $(archive): $(OBJS)
 	$(AR) crvs $(archive) $(OBJS)
 
 clean:
-	rm -f *.a src/*.o *.so *.so.? test *.o *.so.?.?
+	rm -f *.a src/*.o *.so *.so.? test *.o *.so.?.? main
 
 main:
 	$(CXX) $(CXXFLAGS) -o main -lGUI main.cc

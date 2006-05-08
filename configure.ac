@@ -82,7 +82,6 @@ then
 	AC_MSG_ERROR(TooN is required. Visit savannah.nongnu.org/projects/toon)
 fi
 
-
 foo_LIBS="$LIBS"
 for curse in "" ncurses curses
 do
@@ -118,6 +117,23 @@ fi
 
 LIBS="$LIBS -pthread"
 CPPFLAGS="$CPPFLAGS -pthread"
+
+
+echo ------------------------------------------------
+echo "Extra GVars2 Compat:"
+echo " (adds GVars2.h, GUI.h, GUI_Motif.h GStringUtil.h wrappers,"
+echo " and removes the global GV2 and GUI instances)"
+# Check if the user (i.e. Georg) wants extra GV2 backwards-compat
+AC_ARG_WITH(gvars2_compat,   [  --with-gvars2-compat    add extra GVars2 backwards compatibility])
+if test "$with_gvars2_compat" == "yes"
+then
+	AC_MSG_NOTICE([Extra GVars2 compat enabled. ])
+        AC_SUBST(use_gvars2_compat,yes)
+else
+	AC_MSG_NOTICE([Extra GVars2 compat not enabled. ])
+        AC_SUBST(use_gvars2_compat,no)
+fi
+
 
 
 
@@ -161,9 +177,6 @@ then
 	CPPFLAGS="$foo_CPPFLAGS"
 fi
 	
-
-
-
 
 check_GUI(fltk2,fltk/Button.h,fltk2)
 
