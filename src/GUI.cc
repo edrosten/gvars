@@ -496,9 +496,6 @@ void builtin_commandlist(void* ptr, string sCommand, string sParams)
 ///////////////////////////////////////
 
 
-
-#ifdef HOSTTYPE_I386
-
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -511,7 +508,6 @@ char * GUI::ReadlineCommandGeneratorCB(const char *szText, int nState)
 
 char * GUI::ReadlineCommandGenerator(const char *szText, int nState)
 {
-  //static vector<string>::iterator iBuiltin;
   static map<string,CallbackVector>::iterator iRegistered;
   static int nTextLength;
   static int nOffset;
@@ -520,30 +516,11 @@ char * GUI::ReadlineCommandGenerator(const char *szText, int nState)
   
   if(!nState)
   {
-//	iBuiltin = mvBuiltinCommands.begin();
 	iRegistered = mmCallBackMap.begin();
 	nTextLength = strlen(szText);
 	nOffset=-1;
   }
   
-/*  while(iBuiltin!=mvBuiltinCommands.end())
-  {
-	pcName = iBuiltin->c_str();
-
-	iBuiltin++;
-
-	if(strncmp(pcName,szText,nTextLength) == 0)
-	{
-	  char *t = (char*) malloc(strlen(pcName)+2);
-	  if(!t) 
-	  	return NULL;
-	  strcpy(t,pcName);
-	  t[strlen(pcName)]=' ';
-	  t[strlen(pcName)+1]=0;
-	  return t;
-	}
-  }
-*/
   while(iRegistered!=mmCallBackMap.end())
     {
       pcName = iRegistered->first.c_str();
@@ -561,10 +538,8 @@ char * GUI::ReadlineCommandGenerator(const char *szText, int nState)
   
   if(nOffset==-1)
     nOffset = nState;
-	
-  //return mpGV2->ReadlineCommandGenerator(szText, nState-nOffset);
+
   return GV3ReadlineCommandGenerator(szText, nState-nOffset);
-  
   
 };
 
@@ -573,41 +548,14 @@ char ** GUI::ReadlineCompletionFunction (const char *text, int start, int end)
   rl_completion_append_character=0;
   char **matches;
   matches = (char **)NULL;
-  
-  /* If this word is at the start of the line, then it is a command
-           to complete.  Otherwise it is the name of a file in the current
-           directory. */
-  //  if (start == 0)
-#ifdef BUILDTYPE_i386nith
-  matches = completion_matches ( (char*) text, (CPFunction*) ReadlineCommandGeneratorCB);
-#else
-#ifdef BUILDTYPE_i386davinci
   matches = rl_completion_matches (text,   ReadlineCommandGeneratorCB);
-#else
-  matches = rl_completion_matches (text,   ReadlineCommandGeneratorCB);
-#endif
-#endif
-  
   return (matches);
 }
 
-#endif
-
 void GUI::SetupReadlineCompletion()
 {
-#ifdef HOSTTYPE_I386
   mpReadlineCompleterGUI = this;
-#ifdef BUILDTYPE_i386nith
-  rl_attempted_completion_function = (CPPFunction *) ReadlineCompletionFunction;
-#else
-#ifdef BUILDTYPE_i386davinci
   rl_attempted_completion_function = ReadlineCompletionFunction;
-#else
-  rl_attempted_completion_function = ReadlineCompletionFunction;
-#endif
-#endif
-
-#endif
 }
 
 int GUI::parseArguments( const int argc, char * argv[], int start, const string prefix, const string execKeyword ){
@@ -661,8 +609,6 @@ void GUI::do_builtins()
 	RegisterBuiltin("gvarlist", builtin_gvarlist);
 	RegisterBuiltin("printvar", builtin_printvar);
 	RegisterBuiltin("commandlist", builtin_commandlist);
-
-	//mpGV2=pGV2;
 }
 
 
