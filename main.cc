@@ -59,6 +59,8 @@ int main(void)
   GV2.GetDouble("TestDouble", 10);
   GV2.GetString("TestString", "hello world");
   GV2.GetString("TestString2", "hello world");
+  gvar2_Vector v;
+  GV2.Register(v, "TestVec", "[20 20]");
 
   gvar2_double a_double;
   gvar2_int an_int;
