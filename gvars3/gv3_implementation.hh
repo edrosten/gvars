@@ -31,7 +31,7 @@ template<class T> T* GV3::register_new_gvar(const std::string& name, const T& de
     {
       if(!silent)
 	std::cerr << "GV3:Register " << type_name<T>() << " " << name << " undefined. Defaults to " 
-		  << serialize::to_string<T>(default_val) << std::endl;
+		  << serialize::to_string(default_val) << std::endl;
       
       //	*d = default_val;   // This crashes with vector<-1> if sizes don't match, which they don't. Replace with:
       robust_assignment(*d, default_val);
