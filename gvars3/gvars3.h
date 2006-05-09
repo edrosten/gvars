@@ -199,6 +199,7 @@ class GV3
 		
 		template<class T> static T* get_by_val(const std::string& name, const T& default_val, bool silent);
 		template<class T> static T* get_by_str(const std::string& name, const std::string& default_val, bool silent);
+		template<class T> static T* register_new_gvar(const std::string &name, const T& default_val, bool silent);
 
 	public:
 		//Get references by name
