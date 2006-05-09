@@ -61,7 +61,7 @@ template<class T> T* GV3::get_by_str(const std::string& name, const std::string&
   if(d!=NULL) return d;
   
   T	def=T();
-  int e = !serialize::from_string(default_val, def);
+  int e = serialize::from_string(default_val, def);
   parse_warning(e, type_name<T>(), name, default_val);
   
   return register_new_gvar(name, def, silent);
