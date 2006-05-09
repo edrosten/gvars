@@ -1,3 +1,21 @@
+
+// Replacement for operator= which doesn't crash for Vector<-1>; general case
+template<class T> inline void robust_assignment(T& lvalue, T rhs)
+{
+  lvalue =rhs;
+};
+
+// Replacement for operator= which doesn't crash for Vector<-1>; specialisation
+void inline robust_assignment(TooN::Vector<> &lvalue, TooN::Vector<> rhs)
+{
+  if(lvalue.size()!=rhs.size())
+    lvalue.resize(rhs.size());
+  lvalue = rhs;
+}
+
+// TODO: Make the specialisation for matrices as well. 
+
+
 template<class T> T* GV3::get_by_val(const std::string& name, const T& default_val, bool silent)
 {
 	T* d = attempt_get<T>(name);
@@ -18,7 +36,8 @@ template<class T> T* GV3::get_by_val(const std::string& name, const T& default_v
 				std::cerr << "GV3:Register " << type_name<T>() << " " << name << " undefined. Defaults to " 
 					 << serialize::to_string<T>(default_val) << std::endl;
 
-			*d = default_val;
+			//	*d = default_val;   // This crashes with vector<-1> if sizes don't match, which they don't. Replace with:
+			robust_assignment(*d, default_val);
 		}
 		else
 		{
@@ -34,11 +53,14 @@ template<class T> T* GV3::get_by_val(const std::string& name, const T& default_v
 
 template<class T> T* GV3::get_by_str(const std::string& name, const std::string& default_val, bool silent)
 {
-	T	def=T();
-	int e = !serialize::from_string(default_val, def);
-	parse_warning(e, type_name<T>(), name, default_val);
-
-	return get_by_val(name, def, silent);
+  T* d = attempt_get<T>(name);
+  if(d!=NULL) return d;
+  
+  T	def=T();
+  int e = !serialize::from_string(default_val, def);
+  parse_warning(e, type_name<T>(), name, default_val);
+  
+  return get_by_val(name, def, silent);
 }
 
 template<>inline std::string& GV3::get<std::string>(const std::string& name, std::string default_val, bool silent)

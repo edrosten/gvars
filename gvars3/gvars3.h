@@ -55,20 +55,21 @@ class BaseMap
 
 template<class T> class gvar2
 {
-	friend class GV3;
-	public:
-		T& operator*()
-		{
-			return *data;
-		}
-
-		T* operator->()
-		{
-			return data;
-		}
-
-	private:
-		T* data;
+  friend class GV3;
+ public:
+  gvar2() {data=NULL;}      // Debugging comfort feature, makes unregistered vars more obvious.
+  T& operator*()
+    {
+      return *data;
+    }
+  
+  T* operator->()
+    {
+      return data;
+    }
+  
+ protected:
+  T* data;
 };
 
 
