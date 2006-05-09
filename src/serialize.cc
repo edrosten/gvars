@@ -117,7 +117,8 @@ namespace serialize
 		ostringstream o;
 
 		o << "[ ";
-		o << m;
+		for(int i=0; i<m.size(); i++)
+		  o << m[i] << " ";
 		o << "]";
 		return o.str();
 	}

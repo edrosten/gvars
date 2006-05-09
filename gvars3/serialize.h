@@ -38,6 +38,7 @@ namespace GVars3
 		//override to add new types with unusual serializers
 		template<class T> std::string to_string(const T& val)
 		{
+		         
 			std::ostringstream o;
 			o << val;
 			return o.str();
@@ -55,7 +56,8 @@ namespace GVars3
 		{
 			std::ostringstream o;
 			o << "[ ";
-			o << m;
+			for(int i=0; i<m.size(); i++)
+			  o << m[i] << " ";
 			o << "]";
 			return o.str();
 		}

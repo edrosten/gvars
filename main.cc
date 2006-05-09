@@ -73,7 +73,7 @@ int main(void)
   GV2.GetDouble("TestDouble", 10);
   GV2.GetString("TestString", "hello world");
   GV2.GetString("TestString2", "hello world");
-  GVars3::gvar3<Vector<> > v;
+  GVars3::gvar3<Vector<3> > v;
   GV2.Register(v,"TestVec3", "[10 10 10]" );
   //  GV2.Register(v, "TestVec", "[20 20]");
 
