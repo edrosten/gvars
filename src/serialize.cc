@@ -171,12 +171,42 @@ namespace serialize
 		return s;
 	}
 
-	int from_string(std::string s, std::string& so)
+        // For reading strings, if there's double quotes, lift the part inside the double quotes.
+        int from_string(std::string s, std::string& so) //Pretty ugly code lifted from GVars2, but works.
 	{
-		so = s;
-		return 0;
+	  unsigned char c;
+	  int nPos=0;
+	  int nLength = s.length();
+	  
+	  // Find Start....
+	  bool bFoundOpenQuote = false;
+	  while((nPos < nLength) && !bFoundOpenQuote)
+	    {
+	      c = s[nPos];
+	      if(c=='"') bFoundOpenQuote =true;
+	      nPos++;
+	    }
+	  if(!bFoundOpenQuote) // No quotes found - assume that the entire thing is good to go...
+	    {
+	      so = s;
+	      return 0;
+	    }
+	  // Found opening ". Copy until end, or closing "
+	  
+	  std::string sNew("");
+	  bool bFoundCloseQuote = false;
+	  while((nPos < nLength) && !bFoundCloseQuote)
+	    {
+	      c = s[nPos];
+	      if(c=='"') bFoundCloseQuote = true;
+	      else
+		sNew.push_back(c);
+	      nPos++;
+	    }
+	  so = sNew;
+	  return 0;
 	}
-
+  
 
 	int check_stream(std::istream& i)
 	{
