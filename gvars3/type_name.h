@@ -34,12 +34,17 @@ namespace GVars3
 	  static std::string name = bname.substr(0, bname.length()-1);
 	  return name;
 	}
-
+	
 	template<> inline std::string type_name<std::string>()
 	{
 		return "string";
 	}
 
+	template<> inline std::string type_name<TooN::Vector<> >()
+	{
+		return "TooN::Vector<>";
+	}
+	
 	template <class T> std::string type_name(const T& t)
 	{
 	  return type_name<T>();
