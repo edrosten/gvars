@@ -4,6 +4,17 @@ AC_LANG(C++)
 
 AC_CHECK_HEADERS(iostream)
 
+#Host detection
+AC_CANONICAL_HOST
+if test "$host_vendor" = apple
+then
+	CPPFLAGS="$CPPFLAGS -I /sw/include -I/opt/local/include -I/usr/X11R6/include"
+	LIBS="$LIBS -L/sw/lib -L/opt/local/lib"
+	AC_MSG_NOTICE([Adding /sw to the build path.])
+	AC_MSG_NOTICE([Adding /opt/local to the build path.])
+	AC_SUBST(osx_hacks,yes)
+fi
+
 echo
 echo --------------------------
 echo Checking for prerequisites
@@ -178,7 +189,19 @@ then
 fi
 	
 
-check_GUI(fltk2,fltk/Button.h,fltk2)
+# check_GUI(fltk2,fltk/Button.h,fltk2)
+a=
+AC_PATH_PROG(a,fltk2-config)
+if test x$a != x
+then
+    FLTK2_CPPFLAGS=`$a --cxxflags`
+    FLTK2_LIBS=`$a --ldflags`
+    CPPFLAGS="$FLTK2_CPPFLAGS $CPPFLAGS"
+    LIBS="$FLTK2_LIBS $LIBS"
+    AC_SUBST(have_fltk2, yes)
+    options="$options fltk2"
+    fltk2=yes
+fi
 
 if test x$fltk$motif$fltk2 == x
 then

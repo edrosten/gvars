@@ -27,8 +27,6 @@
 #include <sstream>
 #include <unistd.h>
 
-#include <error.h>
-
 #include <fltk/run.h>
 #include <fltk/Window.h>
 #include <fltk/Widget.h>

@@ -104,12 +104,18 @@ ifeq (@use_gvars2_compat@,yes)
 endif
 
 
+ifeq (@osx_hacks@,yes)
+	soname=libGUI.dylib
+	soname1=libGUI-@major@.dylib
+	soname2=libGUI-@major@.@minor@.dylib
+	shared=-dynamiclib
+else
+	soname=libGUI.so
+	soname1=libGUI.so.@major@
+	soname2=libGUI.so.@major@.@minor@
+	shared=-shared
+endif
 
-
-soname=libGUI.so
-soname1=libGUI.so.@major@
-soname2=libGUI.so.@major@.@minor@
-shared=-shared
 archive=libGUI.a
 
 sos= $(soname) $(soname1) $(soname2)
