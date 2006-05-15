@@ -105,18 +105,18 @@ endif
 
 
 ifeq (@osx_hacks@,yes)
-	soname=libGUI.dylib
-	soname1=libGUI-@major@.dylib
-	soname2=libGUI-@major@.@minor@.dylib
+	soname=libGVars3.dylib
+	soname1=libGVars3-@major@.dylib
+	soname2=libGVars3-@major@.@minor@.dylib
 	shared=-dynamiclib
 else
-	soname=libGUI.so
-	soname1=libGUI.so.@major@
-	soname2=libGUI.so.@major@.@minor@
+	soname=libGVars3.so
+	soname1=libGVars3.so.@major@
+	soname2=libGVars3.so.@major@.@minor@
 	shared=-shared
 endif
 
-archive=libGUI.a
+archive=libGVars3.a
 
 sos= $(soname) $(soname1) $(soname2)
 
