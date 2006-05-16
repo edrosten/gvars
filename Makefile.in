@@ -145,4 +145,4 @@ clean:
 	rm -f *.a src/*.o *.so *.so.? test *.o *.so.?.? main
 
 main:  main.cc
-	$(CXX) $(CXXFLAGS) -o main -lGUI main.cc
+	$(CXX) $(CXXFLAGS) -o main -lGVars3 main.cc
