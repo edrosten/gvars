@@ -36,6 +36,7 @@ using namespace GVars3;
 
 #include <gvars3/GUI_readline.h>
 #include <unistd.h>
+#include <TooN/numerics.h>
 
 using namespace std;
 
