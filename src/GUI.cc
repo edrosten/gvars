@@ -80,22 +80,32 @@ char* GV3ReadlineCommandGenerator(const char *szText, int nState)
 	while(tag_i != tags.end())
 	{
 		int text_len = strlen(szText);
-		string current = *tag_i;
+		bool bEqualsAtEnd = false;
+		if(text_len>0)
+		  if(szText[text_len-1]=='=')
+		    bEqualsAtEnd = true;
+		string sCurrent = *tag_i;
+		string sComparison = *tag_i;
+		if(bEqualsAtEnd)
+		  sComparison = sComparison + "=";
 
 		tag_i++;
 
-		if(strncmp(szText, current.c_str(), text_len) == 0)
-		{
+		if(strncmp(szText, sComparison.c_str(), text_len) == 0)
+		  {
 			//If it's a prefect match, complete with the value
-			if(text_len == current.size())
-				current = szText + ("=" + GV3::get_var(szText));
-				
+		        string sCompleted;
+			if(text_len == sComparison.size())
+			  sCompleted = szText + ((bEqualsAtEnd?"":"=") + GV3::get_var(sCurrent));
+			else
+			  sCompleted = sCurrent;
+			
 			char* r;
 			
-			if((r= (char*)malloc(current.size() + 1)) == NULL)
+			if((r= (char*)malloc(sCompleted.size() + 1)) == NULL)
 				return 0;
 
-			strcpy(r, current.c_str());
+			strcpy(r, sCompleted.c_str());
 			return r;
 		}
 	}
@@ -630,6 +640,7 @@ void GUI::SetupReadlineCompletion()
 {
   mpReadlineCompleterGUI = this;
   rl_attempted_completion_function = ReadlineCompletionFunction;
+  rl_basic_word_break_characters = " \t\n\"\\'`@$><;|&{("; 
 }
 
 int GUI::parseArguments( const int argc, char * argv[], int start, const string prefix, const string execKeyword ){
