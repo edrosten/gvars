@@ -93,9 +93,9 @@ namespace GVars3
 	void parse_warning(int e, string type, string name, string from)
 	{
 	if(e > 0)
-		std::cerr << "GV3:Parse error setting " << type << " " << name << " from " << from << std::endl;
+		std::cerr << "! GV3:Parse error setting " << type << " " << name << " from " << from << std::endl;
 	else if (e < 0)
-		std::cerr << "GV3:Parse warning setting " << type << " " << name << " from " << from << ": "
+		std::cerr << "! GV3:Parse warning setting " << type << " " << name << " from " << from << ": "
 				  << "junk is -->" << from.c_str()-e  << "<--" << std::endl;
 	}
 };
