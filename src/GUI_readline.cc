@@ -75,8 +75,11 @@ namespace GVars3
 			if(quit || !line)
 				break;
 
-			GUI.ParseLine(line);
-			add_history(line);
+			if(*line)
+			  {
+			    GUI.ParseLine(line);
+			    add_history(line);
+			  };
 		}
 		
 		GUI.ParseLine(quit_callback);
