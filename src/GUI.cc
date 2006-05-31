@@ -583,6 +583,43 @@ void builtin_commandlist(void* ptr, string sCommand, string sParams)
 #include <readline/readline.h>
 #include <readline/history.h>
 
+void print_history(ostream &ost)
+{
+  HIST_ENTRY **apHistEntries = history_list();
+  if(apHistEntries)
+    while((*apHistEntries)!=NULL)
+      {
+	ost << (*apHistEntries)->line << endl;
+	apHistEntries++;
+      }
+};
+
+void builtin_history(void* ptr, string sCommand, string sParams)
+{
+  cout << "History: " << endl;
+  print_history(cout);
+};
+
+void builtin_save_history(void* ptr, string sCommand, string sParams)
+{
+  vector<string> v = ChopAndUnquoteString(sParams);
+  if(v.size()!=1) 
+    cout << "? GUI internal savehistory command: need one param (filename)." << endl;
+  else
+    {
+      ofstream ofs;
+      ofs.open(v[0].c_str());
+      if(!ofs.good())
+	cout << "? GUI internal savehistory command: cannot open " << v[0] << " for write." << endl;
+      else
+	{
+	  print_history(ofs);
+	  ofs.close();
+	  cout << "  Saved to " << v[0] << endl;
+	}
+    };
+};
+
 
 char * GUI::ReadlineCommandGeneratorCB(const char *szText, int nState)
 {
@@ -693,6 +730,8 @@ void GUI::do_builtins()
 	RegisterBuiltin("ifeq", builtin_ifeq);
 	RegisterBuiltin("toggle", builtin_toggle);
 	RegisterBuiltin("set", builtin_set);
+	RegisterBuiltin("history", builtin_history);
+	RegisterBuiltin("savehistory", builtin_save_history);
 	RegisterBuiltin("?", builtin_qmark);
 	RegisterBuiltin("gvarlist", builtin_gvarlist);
 	RegisterBuiltin("printvar", builtin_printvar);
