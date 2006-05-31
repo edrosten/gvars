@@ -105,7 +105,8 @@ namespace serialize
 		for(int i=0;i<nRows;i++)
 			for(int j=0;j<nCols;j++)
 				m(i,j)=vd[i*nCols+j];
-
+		
+		mat.resize(m.num_rows(), m.num_cols());
 		mat = m;
 
 		return 0;
