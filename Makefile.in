@@ -103,6 +103,10 @@ ifeq (@use_gvars2_compat@,yes)
     CPPFLAGS+=-DGVARS2_COMPAT
 endif
 
+ifeq (@build_cpu@,x86_64)
+    CPPFLAGS+=-fPIC
+endif
+
 
 ifeq (@osx_hacks@,yes)
 	soname=libGVars3.dylib
