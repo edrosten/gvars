@@ -57,6 +57,14 @@ bool setvar(string s)
 		if(e >= s)
 		{
 			var = var.substr(s, e-s+1);
+			
+			//Strip whitespace from around val;			
+			s = 0, e = val.length() - 1;
+			for(; isspace(val[s]) && s < val.length(); s++);
+			for(; isspace(val[e]) && e >=0; e--);
+
+			val = val.substr(s, e-s+1);
+
 			GV3::set_var(var, val);
 			return true;
 		}
