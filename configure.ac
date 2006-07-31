@@ -120,14 +120,18 @@ then
 	AC_MSG_ERROR(Readline is not optional. It should be. Sorry.)
 fi
 
-AC_CHECK_LIB(pthread, pthread_join, [], [])
-if test x$ac_cv_lib_pthread_pthread_join != xyes
+AC_MSG_CHECKING(for working pthreads)
+CPPFLAGS="$CPPFLAGS -pthread"
+LIBS="$LIBS -pthread"
+a=0
+AC_COMPILE_IFELSE([#include <pthread.h>
+					void*foo(void*){}
+					int main(){pthread_create(0,0,foo,0);return 0;}],[a=1])
+LIBS="$LIBS -pthread"
+if test $a == 0
 then
 	AC_MSG_ERROR(pthread is not optional. It should be. Sorry.)
 fi
-
-LIBS="$LIBS -pthread"
-CPPFLAGS="$CPPFLAGS -pthread"
 
 
 echo ------------------------------------------------
