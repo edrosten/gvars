@@ -130,7 +130,10 @@ AC_COMPILE_IFELSE([#include <pthread.h>
 LIBS="$LIBS -pthread"
 if test $a == 0
 then
+	AC_MSG_RESULT(no)
 	AC_MSG_ERROR(pthread is not optional. It should be. Sorry.)
+else
+	AC_MSG_RESULT(yes)
 fi
 
 

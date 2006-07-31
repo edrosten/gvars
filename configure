@@ -3019,9 +3019,14 @@ rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 LIBS="$LIBS -pthread"
 if test $a == 0
 then
+	echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 	{ { echo "$as_me:$LINENO: error: pthread is not optional. It should be. Sorry." >&5
 echo "$as_me: error: pthread is not optional. It should be. Sorry." >&2;}
    { (exit 1); exit 1; }; }
+else
+	echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
 fi
 
 
