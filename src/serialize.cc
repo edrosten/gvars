@@ -34,15 +34,16 @@ namespace serialize
 	{
 		ostringstream o;
 
-		o << "[ ";
+		o << "[";
 
 		for(int i=0; i < m.num_rows(); i++)
-		{
-			o << m[i];
-			if(i < m.num_rows() - 1)
-				o << ";";
-		}
-		o << "]";
+		  {
+		    for(int j=0; j < m.num_cols(); j++)
+		      o << " " << m[i][j];
+		    if(i < m.num_rows() - 1)
+		      o << " ;";
+		  }
+		o << " ]";
 		return o.str();
 	}
 
