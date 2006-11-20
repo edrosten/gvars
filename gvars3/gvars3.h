@@ -176,7 +176,7 @@ class GV3
 			if(!d)	 //Data not present in map of the correct type
 			{
 				//Does it exist with a different type?
-				if(typeof_tags.find(name) != typeof_tags.end())
+				if(typeof_tags.count(name))
 				{		//Yes: programmer error.
 					std::cerr << "GV3:Error: type mismatch while getting " << type_name<T>() << " " << name << ": already registered "
 							"as type " << typeof_tags[name]->name() << ". Fix your code.\n";
