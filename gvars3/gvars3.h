@@ -63,10 +63,19 @@ template<class T> class gvar2
       return *data;
     }
   
+  const T & operator*() const 
+  {
+     return *data;
+  }
+  
   T* operator->()
     {
       return data;
     }
+  const T * operator->() const 
+  {
+    return data;
+  }
   
  protected:
   T* data;
