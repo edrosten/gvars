@@ -31,7 +31,6 @@ GUI GUI(&GV2);
 #include <gvars3/GUI.h>
 #include <gvars3/instances.h>
 using namespace GVars3;
-
 #endif
 
 #include <gvars3/GUI_readline.h>
@@ -78,6 +77,8 @@ int main(void)
   GV2.Register(v,"TestVecM1", "[   10 10 10]" );
   GVars3::gvar3<Vector<3> > v3;
   GV2.Register(v3,"TestVec3", "[   10 10 10]" );
+  GV3::get<string>("SilentString", "pssst!" , SILENT);
+  GV3::get("hidden__________hidden", 1, SILENT | HIDDEN);  
 
   gvar2_double a_double;
   gvar2_int an_int;

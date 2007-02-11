@@ -554,7 +554,37 @@ void builtin_set(void* ptr, string sCommand, string sParams)
 
 void builtin_gvarlist(void* ptr, string sCommand, string sParams)
 {
-	GV3::print_var_list(cout);
+  bool error = false;
+  bool print_all = false;
+  string pattern = "";
+  
+  vector<string> v = ChopAndUnquoteString(sParams);
+  if(v.size() > 0  && v[0][0] == '-')
+    if(v[0].size() == 2)
+      {
+	switch(v[0][1])
+	  {
+	  case 'a':
+	    print_all = true;
+	    break;
+	  default:
+	    error = true;
+	  }
+	if(!error)
+	  v.erase(v.begin());
+      }
+    else
+      error = true;
+  
+  if(v.size()==1)
+    pattern = v[0];
+  else if(v.size() > 1)
+    error = true;
+  
+  if(error)
+    cout << "? GUI internal " << sCommand << ": syntax is " << sCommand << " [-a] [pattern] " << endl;
+  else
+    GV3::print_var_list(cout, pattern, print_all);
 }
 
 

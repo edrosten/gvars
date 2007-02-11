@@ -51,50 +51,50 @@ namespace GVars3
 	  SetVar(s.substr(0,n),s.substr(n+1,s.npos-n));
 	}
 
-	int& GVars2::GetInt(const string& name, int default_val, bool silent)
+	int& GVars2::GetInt(const string& name, int default_val, int flags)
 	{
-		return Get<int>(name, default_val, silent);
+		return Get<int>(name, default_val, flags);
 	}
 
-	double& GVars2::GetDouble(const string& name, double default_val, bool silent)
+	double& GVars2::GetDouble(const string& name, double default_val, int flags)
 	{
-		return Get<double>(name, default_val, silent);
+		return Get<double>(name, default_val, flags);
 	}
-	string& GVars2::GetString(const string& name, const string& default_val, bool silent)
+	string& GVars2::GetString(const string& name, const string& default_val, int flags)
 	{
-		return Get<string>(name, default_val, silent);
-	}
-
-	Vector<>& GVars2::GetVector(const string& name, const Vector<>& default_val, bool silent) 
-	{
-		return Get<Vector<> >(name, default_val, silent);
+		return Get<string>(name, default_val, flags);
 	}
 
-	Matrix<>& GVars2::GetMatrix(const string& name, const Matrix<>& default_val, bool silent)
+	Vector<>& GVars2::GetVector(const string& name, const Vector<>& default_val, int flags) 
 	{
-		return Get<Matrix<> >(name, default_val, silent);
+		return Get<Vector<> >(name, default_val, flags);
+	}
+
+	Matrix<>& GVars2::GetMatrix(const string& name, const Matrix<>& default_val, int flags)
+	{
+		return Get<Matrix<> >(name, default_val, flags);
 	}
 
 
 
-	int& GVars2::GetInt(const string& name, const string& default_val, bool silent)
+	int& GVars2::GetInt(const string& name, const string& default_val, int flags)
 	{
-		return Get<int>(name, default_val, silent);
+		return Get<int>(name, default_val, flags);
 	}
 
-	double& GVars2::GetDouble(const string& name, const string& default_val, bool silent)
+	double& GVars2::GetDouble(const string& name, const string& default_val, int flags)
 	{
-		return Get<double>(name, default_val, silent);
+		return Get<double>(name, default_val, flags);
 	}
 
-	Vector<>& GVars2::GetVector(const string& name, const string& default_val, bool silent) 
+	Vector<>& GVars2::GetVector(const string& name, const string& default_val, int flags) 
 	{
-		return Get<Vector<> >(name, default_val, silent);
+		return Get<Vector<> >(name, default_val, flags);
 	}
 
-	Matrix<>& GVars2::GetMatrix(const string& name, const string& default_val, bool silent)
+	Matrix<>& GVars2::GetMatrix(const string& name, const string& default_val, int flags)
 	{
-		return Get<Matrix<> >(name, default_val, silent);
+		return Get<Matrix<> >(name, default_val, flags);
 	}
 
 
@@ -109,7 +109,7 @@ namespace GVars3
 
 	void GVars2::PrintVarList(ostream& os)
 	{
-		GV3::print_var_list(os);
+  	        GV3::print_var_list(os);
 	}
 
 	void GVars2::PrintVar(string s, ostream& os, bool bEndl)

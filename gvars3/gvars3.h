@@ -81,6 +81,12 @@ template<class T> class gvar2
   T* data;
 };
 
+// Bit-masks for gvar registration:
+// SILENT makes gvars not complain if it has to use the default;
+// HIDDEN makes vars not appear in gvarlist unless used with -a
+
+enum { SILENT = 1<<0, HIDDEN = 1<<1};
+       
 
 typedef gvar2<double> gvar2_double;
 typedef gvar2<int> gvar2_int;
@@ -92,8 +98,8 @@ template<class T> class gvar3: public gvar2<T>
 {
 	friend class GV3;
 	public:
-	inline gvar3(const std::string& name, const T& default_val = T(), bool silent=false);
-	inline gvar3(const std::string& name, const std::string& default_val, bool silent);
+	inline gvar3(const std::string& name, const T& default_val = T(), int flags=0);
+	inline gvar3(const std::string& name, const std::string& default_val, int flags);
 	inline gvar3(){};
 };
 
@@ -101,7 +107,7 @@ template<> class gvar3<std::string>: public gvar2<std::string>
 {
 	friend class GV3;
 	public:
-	inline gvar3(const std::string& name, const std::string& default_val = "", bool silent=false);
+	inline gvar3(const std::string& name, const std::string& default_val = "", int flags=0);
 	inline gvar3(){};
 };
 
@@ -185,10 +191,10 @@ class GV3
 			if(!d)	 //Data not present in map of the correct type
 			{
 				//Does it exist with a different type?
-				if(typeof_tags.count(name))
+				if(registered_type_and_trait.count(name))
 				{		//Yes: programmer error.
 					std::cerr << "GV3:Error: type mismatch while getting " << type_name<T>() << " " << name << ": already registered "
-							"as type " << typeof_tags[name]->name() << ". Fix your code.\n";
+							"as type " << registered_type_and_trait[name].first->name() << ". Fix your code.\n";
 
 					throw type_mismatch();
 				}
@@ -202,47 +208,47 @@ class GV3
 		static void add_typemap(BaseMap* m);
 
 		static std::map<std::string, std::string>		unmatched_tags;
-		static std::map<std::string, BaseMap*>			typeof_tags;
-		static std::list<BaseMap*>						maps;
+		static std::map<std::string, std::pair<BaseMap*, int> >	registered_type_and_trait;
+		static std::list<BaseMap*>				maps;
 
 		
-		template<class T> static T* get_by_val(const std::string& name, const T& default_val, bool silent);
-		template<class T> static T* get_by_str(const std::string& name, const std::string& default_val, bool silent);
-		template<class T> static T* register_new_gvar(const std::string &name, const T& default_val, bool silent);
+		template<class T> static T* get_by_val(const std::string& name, const T& default_val, int flags);
+		template<class T> static T* get_by_str(const std::string& name, const std::string& default_val, int flags);
+		template<class T> static T* register_new_gvar(const std::string &name, const T& default_val, int flags);
 
 	public:
 		//Get references by name
-		template<class T> static T& get(const std::string& name, const T& default_val=T(), bool silent=false);
-		template<class T> static T& get(const std::string& name, std::string default_val, bool silent=false);
+		template<class T> static T& get(const std::string& name, const T& default_val=T(), int flags=0);
+		template<class T> static T& get(const std::string& name, std::string default_val, int flags=0);
 		
 		//Register GVars
-		template<class T> static void Register(gvar2<T>& gv, const std::string& name, const T& default_val=T(), bool silent=false);
-		template<class T> static void Register(gvar2<T>& gv, const std::string& name, const std::string& default_val, bool silent=false);
-		static inline void Register(gvar2<std::string>& gv, const std::string& name, const std::string& default_val="", bool silent=false);
+		template<class T> static void Register(gvar2<T>& gv, const std::string& name, const T& default_val=T(), int flags=0);
+		template<class T> static void Register(gvar2<T>& gv, const std::string& name, const std::string& default_val, int flags=0);
+		static inline void Register(gvar2<std::string>& gv, const std::string& name, const std::string& default_val="", int flags=0);
 
 		//Get and set by string only
 		static std::string get_var(std::string name);
 		static bool set_var(std::string name, std::string val, bool silent=false);
 
 		//Some helper functions
-		static void print_var_list(std::ostream& o);
+		static void print_var_list(std::ostream& o, std::string pattern="", bool show_all=true);
 		static std::vector<std::string> tag_list();
 };
 
 
 
-template<class T> gvar3<T>::gvar3(const std::string& name, const T& default_val, bool silent)
+template<class T> gvar3<T>::gvar3(const std::string& name, const T& default_val, int flags)
 {
-	GV3::Register(*this, name, default_val, silent);
+	GV3::Register(*this, name, default_val, flags);
 }
 
-template<class T> gvar3<T>::gvar3(const std::string& name, const std::string& default_val, bool silent)
+template<class T> gvar3<T>::gvar3(const std::string& name, const std::string& default_val, int flags)
 {
-	GV3::Register(*this, name, default_val, silent);
+	GV3::Register(*this, name, default_val, flags);
 }
-gvar3<std::string>::gvar3(const std::string& name, const std::string& default_val, bool silent)
+gvar3<std::string>::gvar3(const std::string& name, const std::string& default_val, int flags)
 {
-	GV3::Register(*this, name, default_val, silent);
+	GV3::Register(*this, name, default_val, flags);
 }
 
 
@@ -252,51 +258,51 @@ gvar3<std::string>::gvar3(const std::string& name, const std::string& default_va
 class GVars2
 {
 	public:
-		template<class T> void Register(gvar2<T>& gv, const std::string& name, const T& default_val=T(), bool silent=false)
+		template<class T> void Register(gvar2<T>& gv, const std::string& name, const T& default_val=T(), int flags=false)
 		{ 
-			GV3::Register(gv, name, default_val, silent);
+			GV3::Register(gv, name, default_val, flags);
 		}
 
-		template<class T> void Register(gvar2<T>& gv, const std::string& name, const std::string& default_val, bool silent=false)
+		template<class T> void Register(gvar2<T>& gv, const std::string& name, const std::string& default_val, int flags=false)
 		{
-			GV3::Register(gv, name, default_val, silent);
+			GV3::Register(gv, name, default_val, flags);
 		}
 
-		inline void Register(gvar2<std::string>& gv, const std::string& name, const std::string& default_val="", bool silent=false)
+		inline void Register(gvar2<std::string>& gv, const std::string& name, const std::string& default_val="", int flags=false)
 		{
-			GV3::Register(gv, name, default_val, silent);
+			GV3::Register(gv, name, default_val, flags);
 		}
 
-		template<class T> T& Get(const std::string& name, const T& default_val=T(),  bool silent=false)
+		template<class T> T& Get(const std::string& name, const T& default_val=T(),  int flags=false)
 		{
-			return GV3::get<T>(name, default_val, silent);
+			return GV3::get<T>(name, default_val, flags);
 		}
 
-		template<class T> T& Get(const std::string& name, const std::string& default_val="", bool silent=false)
+		template<class T> T& Get(const std::string& name, const std::string& default_val="", int flags=false)
 		{
-			return GV3::get<T>(name, default_val, silent);
+			return GV3::get<T>(name, default_val, flags);
 		}
 
-		inline std::string& Get(const std::string& name, const std::string& default_val="", bool silent=false)
+		inline std::string& Get(const std::string& name, const std::string& default_val="", int flags=false)
 		{
-			return GV3::get<std::string>(name, default_val, silent);
+			return GV3::get<std::string>(name, default_val, flags);
 		}
 
 		void SetVar(std::string sVar, std::string sValue, bool silent=false);
 		void SetVar(std::string s);
 
 
-		int& GetInt(const std::string& name, int default_val=0, bool silent = false);
-		double& GetDouble(const std::string& name, double default_val=0.0, bool silent = false); 
-		std::string& GetString(const std::string& name, const std::string& default_val="", bool silent = false); 
-		TooN::Vector<>& GetVector(const std::string& name, const TooN::Vector<>& default_val=TooN::Vector<>(), bool silent = false); 
-		TooN::Matrix<>& GetMatrix(const std::string& name, const TooN::Matrix<>& default_val=TooN::Matrix<>(), bool silent = false); 
+		int& GetInt(const std::string& name, int default_val=0, int flags=0);
+		double& GetDouble(const std::string& name, double default_val=0.0, int flags=0); 
+		std::string& GetString(const std::string& name, const std::string& default_val="", int flags=0); 
+		TooN::Vector<>& GetVector(const std::string& name, const TooN::Vector<>& default_val=TooN::Vector<>(), int flags=0); 
+		TooN::Matrix<>& GetMatrix(const std::string& name, const TooN::Matrix<>& default_val=TooN::Matrix<>(), int flags=0); 
 
 
-		int& GetInt(const std::string& name, const std::string& default_val, bool silent = false);
-		double& GetDouble(const std::string& name, const std::string& default_val, bool silent = false); 
-		TooN::Vector<>& GetVector(const std::string& name, const std::string& default_val, bool silent = false); 
-		TooN::Matrix<>& GetMatrix(const std::string& name, const std::string& default_val, bool silent = false);  
+		int& GetInt(const std::string& name, const std::string& default_val, int flags=0);
+		double& GetDouble(const std::string& name, const std::string& default_val, int flags=0); 
+		TooN::Vector<>& GetVector(const std::string& name, const std::string& default_val, int flags=0); 
+		TooN::Matrix<>& GetMatrix(const std::string& name, const std::string& default_val, int flags=0);  
 
 		std::string StringValue(const std::string &name, bool no_quotes=false);
 		void PrintVarList(std::ostream& os=std::cout);

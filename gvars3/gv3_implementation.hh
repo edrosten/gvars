@@ -16,7 +16,7 @@ void inline robust_assignment(TooN::Vector<> &lvalue, TooN::Vector<> rhs)
 // TODO: Make the specialisation for matrices as well. 
 
 
-template<class T> T* GV3::register_new_gvar(const std::string& name, const T& default_val, bool silent)
+template<class T> T* GV3::register_new_gvar(const std::string& name, const T& default_val, int flags)
 {
   T* d ;
   std::map<std::string, std::string>::iterator i;
@@ -24,12 +24,12 @@ template<class T> T* GV3::register_new_gvar(const std::string& name, const T& de
   i = unmatched_tags.find(name);
   
   d = TypedMap<T>::instance().create(name);
-  typeof_tags[name] = &TypedMap<T>::instance();
+  registered_type_and_trait[name] = std::pair<BaseMap*, int>(&TypedMap<T>::instance(), flags);
   
   //Look to see if ``name'' has not already been set	
   if(i == unmatched_tags.end())
     {
-      if(!silent)
+      if(!(flags & SILENT))
 	std::cerr << "? GV3::Register: " << type_name<T>() << " " << name << " undefined. Defaults to " 
 		  << serialize::to_string(default_val) << std::endl;
       
@@ -47,15 +47,15 @@ template<class T> T* GV3::register_new_gvar(const std::string& name, const T& de
 }
 
 
-template<class T> T* GV3::get_by_val(const std::string& name, const T& default_val, bool silent)
+template<class T> T* GV3::get_by_val(const std::string& name, const T& default_val, int flags)
 {
   T* d = attempt_get<T>(name);
   if(!d)
-    d = register_new_gvar(name, default_val, silent);
+    d = register_new_gvar(name, default_val, flags);
   return d;
 }
 
-template<class T> T* GV3::get_by_str(const std::string& name, const std::string& default_val, bool silent)
+template<class T> T* GV3::get_by_str(const std::string& name, const std::string& default_val, int flags)
 {
   T* d = attempt_get<T>(name);
   if(d!=NULL) return d;
@@ -64,39 +64,39 @@ template<class T> T* GV3::get_by_str(const std::string& name, const std::string&
   int e = serialize::from_string(default_val, def);
   parse_warning(e, type_name<T>(), name, default_val);
   
-  return register_new_gvar(name, def, silent);
+  return register_new_gvar(name, def, flags);
 }
 
-template<>inline std::string& GV3::get<std::string>(const std::string& name, std::string default_val, bool silent)
+template<>inline std::string& GV3::get<std::string>(const std::string& name, std::string default_val, int flags)
 {
-	return *get_by_val(name, default_val, silent);
+	return *get_by_val(name, default_val, flags);
 }
 
-template<class T> T& GV3::get(const std::string& name, std::string default_val, bool silent)
+template<class T> T& GV3::get(const std::string& name, std::string default_val, int flags)
 {
-	return *get_by_str<T>(name, default_val, silent);
+	return *get_by_str<T>(name, default_val, flags);
 }
 
-template<class T> T& GV3::get(const std::string& name, const T& default_val, bool silent)
+template<class T> T& GV3::get(const std::string& name, const T& default_val, int flags)
 {
-	return *get_by_val(name, default_val, silent);
+	return *get_by_val(name, default_val, flags);
 }
 
 
 
-template<class T> void GV3::Register(gvar2<T>& gv, const std::string& name, const T& default_val, bool silent)
+template<class T> void GV3::Register(gvar2<T>& gv, const std::string& name, const T& default_val, int flags)
 {
-	gv.data = get_by_val(name, default_val, silent);
+	gv.data = get_by_val(name, default_val, flags);
 }
 
-template<class T> void GV3::Register(gvar2<T>& gv, const std::string& name, const std::string& default_val, bool silent)
+template<class T> void GV3::Register(gvar2<T>& gv, const std::string& name, const std::string& default_val, int flags)
 {
-	gv.data = get_by_str<T>(name, default_val, silent);
+	gv.data = get_by_str<T>(name, default_val, flags);
 }
 
-inline void GV3::Register(gvar2<std::string>& gv, const std::string& name, const std::string& default_val, bool silent)
+inline void GV3::Register(gvar2<std::string>& gv, const std::string& name, const std::string& default_val, int flags)
 {
-	gv.data = get_by_val(name, default_val, silent);
+	gv.data = get_by_val(name, default_val, flags);
 }
 
 

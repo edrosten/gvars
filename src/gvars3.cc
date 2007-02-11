@@ -22,6 +22,7 @@
 #include "gvars3/gvars3.h"
 #include <vector>
 #include <algorithm>
+#include <fnmatch.h>
 
 using namespace std;
 using namespace TooN;
@@ -30,7 +31,7 @@ namespace GVars3
 {
 
 	 std::map<std::string, std::string>		GV3::unmatched_tags;
-	 std::map<std::string, BaseMap*>		GV3::typeof_tags;
+         std::map<std::string, std::pair<BaseMap*,int> >	GV3::registered_type_and_trait;
 	 std::list<BaseMap*>					GV3::maps;
 
 
@@ -42,8 +43,8 @@ namespace GVars3
 
 	string GV3::get_var(string name)
 	{
-		if(typeof_tags.count(name))
-			return typeof_tags[name]->get_as_string(name);
+		if(registered_type_and_trait.count(name))
+			return registered_type_and_trait[name].first->get_as_string(name);
 		else if(unmatched_tags.count(name))
 			return unmatched_tags[name];
 		else
@@ -52,11 +53,11 @@ namespace GVars3
 
 	bool GV3::set_var(string name, string val, bool silent)
 	{
-		if(typeof_tags.count(name))
+		if(registered_type_and_trait.count(name))
 		{
-			int e = typeof_tags[name]->set_from_string(name, val);
+			int e = registered_type_and_trait[name].first->set_from_string(name, val);
 			if(!silent)
-				parse_warning(e, typeof_tags[name]->name(), name, val);
+				parse_warning(e, registered_type_and_trait[name].first->name(), name, val);
 			return e==0;
 		}
 		else
@@ -66,25 +67,35 @@ namespace GVars3
 		}
 	}
 
-	void GV3::print_var_list(ostream& o)
+        void GV3::print_var_list(ostream& o, string pattern, bool show_all)
 	{
-		o << "//Registered GVars:" << endl;
+	        bool no_pattern = (pattern=="");
 
-		for(map<string, BaseMap*>::iterator i=typeof_tags.begin(); i != typeof_tags.end(); i++)
-			cout << i->first << "=" << get_var(i->first) << endl;
+	        if(show_all) 
+		  o << "//Registered GVars:" << endl;
+		
+		for(map<string, std::pair<BaseMap*,int> >::iterator i=registered_type_and_trait.begin(); i != registered_type_and_trait.end(); i++)
+		  if(show_all || !(i->second.second & HIDDEN))
+		    if(no_pattern || !fnmatch(pattern.c_str(), i->first.c_str(), FNM_CASEFOLD))
+		      o << i->first << "=" << get_var(i->first) << endl;
 
-		o << "//Unmatched tags:" << endl;
-
-		for(map<string,string>::iterator i=unmatched_tags.begin(); i != unmatched_tags.end(); i++)
+		if(show_all)
+		  {
+		    o << "//Unmatched tags:" << endl;
+		    
+		    for(map<string,string>::iterator i=unmatched_tags.begin(); i != unmatched_tags.end(); i++)
+		      if(no_pattern || !fnmatch(pattern.c_str(), i->first.c_str(), FNM_CASEFOLD))
 			o << i->first << "=" << i->second << endl;
-		o << "// End of GVar list." << endl;
+		    
+		    o << "// End of GVar list." << endl;
+		  };
 
 	}
 
 	vector<string> GV3::tag_list()
 	{
 		vector<string> v;
-		for(map<string, BaseMap*>::iterator i=typeof_tags.begin(); i != typeof_tags.end(); i++)
+		for(map<string, std::pair<BaseMap*, int> >::iterator i=registered_type_and_trait.begin(); i != registered_type_and_trait.end(); i++)
 			v.push_back(i->first);
 
 		return v;
