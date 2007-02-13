@@ -41,7 +41,7 @@ namespace GVars3
 bool setvar(string s)
 {
 	//Execution failed. Maybe its an assignment.
-	int n;
+        string::size_type n;
 	n=s.find("=");
 
 	if(n != string::npos)
@@ -50,7 +50,7 @@ bool setvar(string s)
 		string val = s.substr(n+1);
 
 		//Strip whitespace from around var;
-		int s=0, e = var.length()-1; 
+		string::size_type s=0, e = var.length()-1; 
 		for(; isspace(var[s]) && s < var.length(); s++);
 		for(; isspace(var[e]) && e >=0; e--);
 
@@ -132,6 +132,19 @@ void GUI::UnRegisterCommand(string sCommandName)
 	mmCallBackMap.erase(sCommandName);
 };
 
+void GUI::UnRegisterAllCommands(void* thisptr)
+{
+  for(map<string, CallbackVector>::iterator i=mmCallBackMap.begin(); i!=mmCallBackMap.end(); i++)
+    UnRegisterCommand(i->first, thisptr);
+};
+
+void GUI::UnRegisterCommand(string sCommandName, void* thisptr)
+{
+	CallbackVector &cbv = mmCallBackMap[sCommandName];
+	for(int i = cbv.size() - 1; i>=0; i--)
+	      if(cbv[i].thisptr == thisptr)
+		    cbv.erase(cbv.begin() + i);
+};
 
 void GUI::RegisterCommand(string sCommandName, GUICallbackProc callback, void* thisptr)
 {
@@ -167,6 +180,8 @@ bool GUI::CallCallbacks(string sCommand, string sParams)
 
 	//Make a copy of this callback vector, since the command might call Unregister.
 	CallbackVector cbv = mmCallBackMap[sCommand];
+	if(cbv.size() == 0)
+	        return false;
 
 	for(CallbackVector::iterator i = cbv.begin(); i<cbv.end();i++)
 		i->cbp(i->thisptr, sCommand, sParams);
@@ -207,10 +222,10 @@ void GUI::LoadFile(string sFileName)
 
 
 
-int FindCloseBrace(const string& s, int start, char op, char cl)
+string::size_type FindCloseBrace(const string& s, string::size_type start, char op, char cl)
 {
-	int open=1;
-	int i;
+        string::size_type open=1;
+	string::size_type i;
 
 	for(i=start+1; i < s.size() ; i++)
 	{
@@ -254,9 +269,9 @@ void GUI::ParseLine(string s, bool bSilentFailure )
 	  // (Without double braces, the it would try to make two buttons!)
 
   {   // Brace expansion wrapper follows:
-    int nOpenBracePos = s.find("{");
+    string::size_type nOpenBracePos = s.find("{");
     //int nCloseBracePos = s.rfind("}");
-    int nCloseBracePos = FindCloseBrace(s, nOpenBracePos, '{', '}');
+    string::size_type nCloseBracePos = FindCloseBrace(s, nOpenBracePos, '{', '}');
     if( (nOpenBracePos  !=s.npos) && 
 	(nCloseBracePos !=s.npos) &&
 	(nCloseBracePos > nOpenBracePos))
@@ -266,7 +281,7 @@ void GUI::ParseLine(string s, bool bSilentFailure )
 	string sVarName = s.substr(nOpenBracePos+1,nCloseBracePos-nOpenBracePos-1);
 	string sEnd = s.substr(nCloseBracePos+1);
 	
-	int nLength = sVarName.size();   // Check if it's a double brace: {{foo}} in which case remove one pair, but don't expand.
+	string::size_type nLength = sVarName.size();   // Check if it's a double brace: {{foo}} in which case remove one pair, but don't expand.
 	bool bIsDoubleQuoted = false;
 	
 	if(nLength>2)
@@ -281,7 +296,7 @@ void GUI::ParseLine(string s, bool bSilentFailure )
 		//ER: look at the end of the string for '$'s to also perform the substitution
 		vector<string> chopped;
 		string end;
-		int dollarpos=-1, lastpos=0;
+		string::size_type dollarpos=-1, lastpos=0;
 		while((dollarpos = sEnd.find("$", dollarpos+1)) != s.npos)
 		{
 			chopped.push_back(sEnd.substr(lastpos, dollarpos - lastpos));
@@ -315,9 +330,9 @@ void GUI::ParseLine(string s, bool bSilentFailure )
 
 	{   // Round expansion wrapper follows:
 
-		int nOpenBracePos = s.find("(");
+	        string::size_type nOpenBracePos = s.find("(");
 		//int nCloseBracePos = s.rfind(")");
-		int nCloseBracePos = FindCloseBrace(s, nOpenBracePos, '(', ')');
+		string::size_type nCloseBracePos = FindCloseBrace(s, nOpenBracePos, '(', ')');
 
 //		cerr << "((( " << nOpenBracePos << "  " << nCloseBracePos << endl;
 		
@@ -332,7 +347,7 @@ void GUI::ParseLine(string s, bool bSilentFailure )
 
 //cerr << "varname = --" << sVarName << "--\n";
 
-			int nLength = sVarName.size();   // Check if it's a double brace: {{foo}} in which case remove one pair, but don't expand.
+			string::size_type nLength = sVarName.size();   // Check if it's a double brace: {{foo}} in which case remove one pair, but don't expand.
 			bool bIsDoubleQuoted = false;
 
 			if(nLength>2)

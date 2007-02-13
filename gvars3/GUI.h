@@ -46,6 +46,8 @@ namespace GVars3
 	  GUI(GVars2*);//Dummy gvars2
 	  
 	  void RegisterCommand(std::string sCommandName, GUICallbackProc callback, void* thisptr=NULL);
+	  void UnRegisterAllCommands(void* thisptr);
+	  void UnRegisterCommand(std::string sCommandName, void* thisptr);
 	  void UnRegisterCommand(std::string sCommandName);
 	  void ParseLine(std::string s, bool bSilentFailure = false);
 	  void ParseStream(std::istream& is);
