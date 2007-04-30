@@ -636,17 +636,7 @@ void builtin_commandlist(void* ptr, string sCommand, string sParams)
 #include <readline/readline.h>
 #include <readline/history.h>
 
-void print_history(ostream &ost)
-{
-  HIST_ENTRY **apHistEntries = history_list();
-  if(apHistEntries)
-    while((*apHistEntries)!=NULL)
-      {
-	ost << (*apHistEntries)->line << endl;
-	apHistEntries++;
-      }
-};
-
+void print_history(ostream &ost);
 void builtin_history(void* ptr, string sCommand, string sParams)
 {
   cout << "History: " << endl;
@@ -716,22 +706,6 @@ char * GUI::ReadlineCommandGenerator(const char *szText, int nState)
   return GV3ReadlineCommandGenerator(szText, nState-nOffset);
   
 };
-
-char ** GUI::ReadlineCompletionFunction (const char *text, int start, int end)
-{
-  rl_completion_append_character=0;
-  char **matches;
-  matches = (char **)NULL;
-  matches = rl_completion_matches (text,   ReadlineCommandGeneratorCB);
-  return (matches);
-}
-
-void GUI::SetupReadlineCompletion()
-{
-  mpReadlineCompleterGUI = this;
-  rl_attempted_completion_function = ReadlineCompletionFunction;
-  rl_basic_word_break_characters = " \t\n\"\\'`@$><;|&{("; 
-}
 
 int GUI::parseArguments( const int argc, char * argv[], int start, const string prefix, const string execKeyword ){
 	while(start < argc){

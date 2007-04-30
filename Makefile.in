@@ -29,6 +29,7 @@ CXXFLAGS = $(CPPFLAGS) @CXXFLAGS@
 OFLAGS=@OFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@ -lm @LDFLAGS@
+HLIBS = @HLIBS@ -lm @LDFLAGS@
 INSTALL = @INSTALL@
 AR=ar
 
@@ -75,6 +76,14 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = gtar
 GZIP_ENV = --best
 
+HEADLESSOBJS=\
+	src/gvars3.o			\
+	src/GUI.o				\
+	src/GStringUtil.o		\
+	src/gvars2.o			\
+	src/serialize.o			\
+	src/inst_headless.o		\
+
 OBJS=\
 	src/gvars3.o			\
 	src/GUI.o				\
@@ -109,11 +118,19 @@ endif
 
 
 ifeq (@osx_hacks@,yes)
+	soname=libGVars3_headless.dylib
+	soname1=libGVars3_headless-@major@.dylib
+	soname2=libGVars3_headless-@major@.@minor@.dylib
+	 
 	soname=libGVars3.dylib
 	soname1=libGVars3-@major@.dylib
 	soname2=libGVars3-@major@.@minor@.dylib
 	shared=-dynamiclib
 else
+	hsoname=libGVars3_headless.so
+	hsoname1=libGVars3_headless.so.@major@
+	hsoname2=libGVars3_headless.so.@major@.@minor@
+
 	soname=libGVars3.so
 	soname1=libGVars3.so.@major@
 	soname2=libGVars3.so.@major@.@minor@
@@ -121,10 +138,22 @@ else
 endif
 
 archive=libGVars3.a
+harchive=libGVars3_headless.a
 
 sos= $(soname) $(soname1) $(soname2)
+hsos= $(hsoname) $(hsoname1) $(hsoname2)
 
-all: $(archive) $(soname)
+ifeq (@make_headless@,yes)
+	HEADLESS=$(harchive) $(hsos)
+endif
+
+all: $(archive) $(soname) $(HEADLESS)
+
+$(hsoname): $(OBJS)
+	rm -f $(hsos)
+	$(CXX) $(shared) -o $(hsoname2) $(HEADLESSOBJS) $(HLIBS)
+	ln -s $(hsoname2) $(hsoname1)
+	ln -s $(hsoname1) $(hsoname)
 
 $(soname): $(OBJS)
 	rm -f $(sos)
@@ -132,15 +161,18 @@ $(soname): $(OBJS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
-install:$(soname) $(archive)
+install:$(soname) $(archive) $(HEADLESS)
 	mkdir -p $(DESTDIR)/$(includedir)
 	cp -r gvars3 $(DESTDIR)/$(includedir)
 	if test "@use_gvars2_compat@" == "yes"; then cp gvars2_compat/*.h $(DESTDIR)/$(includedir); fi
 	mkdir -p $(DESTDIR)/$(libdir)
-	cp $(soname2) $(archive) $(DESTDIR)/$(libdir)
+	cp $(soname2) $(archive) $(HEADLESS) $(DESTDIR)/$(libdir)
 	ln -fs  $(DESTDIR)/$(libdir)/$(soname2) $(DESTDIR)/$(libdir)/$(soname1)
 	ln -fs  $(DESTDIR)/$(libdir)/$(soname1) $(DESTDIR)/$(libdir)/$(soname)
 
+
+$(harchive): $(HEADLESSOBJS)
+	$(AR) crvs $(harchive) $(HEADLESSOBJS)
 
 $(archive): $(OBJS)
 	$(AR) crvs $(archive) $(OBJS)

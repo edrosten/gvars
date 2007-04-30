@@ -93,6 +93,31 @@ then
 	AC_MSG_ERROR(TooN is required. Visit savannah.nongnu.org/projects/toon)
 fi
 
+AC_MSG_CHECKING(for working pthreads)
+CPPFLAGS="$CPPFLAGS -pthread"
+LIBS="$LIBS -pthread"
+a=0
+AC_COMPILE_IFELSE([#include <pthread.h>
+					void*foo(void*){}
+					int main(){pthread_create(0,0,foo,0);return 0;}],[a=1])
+LIBS="$LIBS -pthread"
+if test $a == 0
+then
+	AC_MSG_RESULT(no)
+	AC_MSG_ERROR(pthread is not optional. It should be. Sorry.)
+else
+	AC_MSG_RESULT(yes)
+fi
+
+
+
+HLIBS="$LIBS"
+
+################################################################################
+################################################################################
+################################################################################
+
+
 foo_LIBS="$LIBS"
 for curse in "" ncurses curses
 do
@@ -119,23 +144,6 @@ if test x$ac_cv_lib_readline_rl_done != xyes
 then
 	AC_MSG_ERROR(Readline is not optional. It should be. Sorry.)
 fi
-
-AC_MSG_CHECKING(for working pthreads)
-CPPFLAGS="$CPPFLAGS -pthread"
-LIBS="$LIBS -pthread"
-a=0
-AC_COMPILE_IFELSE([#include <pthread.h>
-					void*foo(void*){}
-					int main(){pthread_create(0,0,foo,0);return 0;}],[a=1])
-LIBS="$LIBS -pthread"
-if test $a == 0
-then
-	AC_MSG_RESULT(no)
-	AC_MSG_ERROR(pthread is not optional. It should be. Sorry.)
-else
-	AC_MSG_RESULT(yes)
-fi
-
 
 echo ------------------------------------------------
 echo "Extra GVars2 Compat:"
@@ -220,11 +228,19 @@ fi
 # The rest
 #
 
+AC_ARG_WITH(headless,   [  --with-headless    Build additional headless library])
+if test "$with_headless" == "yes"
+then
+        AC_SUBST(make_headless,yes)
+fi
+
+
 major=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $1}'`
 minor=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $2}'`
 
 AC_SUBST(major, $major)
 AC_SUBST(minor, $minor)
+AC_SUBST(HLIBS, $HLIBS)
 
 changequote(,)
 echo Options:

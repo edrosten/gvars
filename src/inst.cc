@@ -34,6 +34,15 @@
 	#include <gvars3/GUI_Motif.h>
 #endif
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
+#include "gvars3/GUI.h"
+#include "gvars3/GStringUtil.h"
+
+#include <iostream>
+using namespace std;
+
 namespace GVars3
 {
 	GVars2 GV2;
@@ -48,5 +57,35 @@ namespace GVars3
 	#ifdef GUI_HAVE_MOTIF
 		class GUI_Motif GUI_Motif(&GUI, &GV2);
 	#endif
+
+
+	void GUI::SetupReadlineCompletion()
+	{
+	  mpReadlineCompleterGUI = this;
+	  rl_attempted_completion_function = ReadlineCompletionFunction;
+	  rl_basic_word_break_characters = " \t\n\"\\'`@$><;|&{("; 
+	}
+
+	char ** GUI::ReadlineCompletionFunction (const char *text, int start, int end)
+	{
+	  rl_completion_append_character=0;
+	  char **matches;
+	  matches = (char **)NULL;
+	  matches = rl_completion_matches (text,   ReadlineCommandGeneratorCB);
+	  return (matches);
+	}
+
+	void print_history(ostream &ost)
+	{
+	  HIST_ENTRY **apHistEntries = history_list();
+	  if(apHistEntries)
+		while((*apHistEntries)!=NULL)
+		  {
+		ost << (*apHistEntries)->line << endl;
+		apHistEntries++;
+		  }
+	};
+
+
 }
 #endif

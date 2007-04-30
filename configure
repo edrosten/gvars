@@ -308,7 +308,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CXXCPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os osx_hacks have_toon use_gvars2_compat have_fltk have_motif a have_fltk2 major minor LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CXXCPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os osx_hacks have_toon use_gvars2_compat have_fltk have_motif a have_fltk2 make_headless major minor HLIBS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -852,6 +852,7 @@ Optional Packages:
   --with-TooN=directory  Specify location for TooN
   --with-gvars2-compat    add extra GVars2 backwards compatibility
   --with-x                use the X Window System
+  --with-headless    Build additional headless library
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -2799,6 +2800,67 @@ echo "$as_me: error: TooN is required. Visit savannah.nongnu.org/projects/toon" 
    { (exit 1); exit 1; }; }
 fi
 
+echo "$as_me:$LINENO: checking for working pthreads" >&5
+echo $ECHO_N "checking for working pthreads... $ECHO_C" >&6
+CPPFLAGS="$CPPFLAGS -pthread"
+LIBS="$LIBS -pthread"
+a=0
+cat >conftest.$ac_ext <<_ACEOF
+#include <pthread.h>
+					void*foo(void*){}
+					int main(){pthread_create(0,0,foo,0);return 0;}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  a=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+LIBS="$LIBS -pthread"
+if test $a == 0
+then
+	echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+	{ { echo "$as_me:$LINENO: error: pthread is not optional. It should be. Sorry." >&5
+echo "$as_me: error: pthread is not optional. It should be. Sorry." >&2;}
+   { (exit 1); exit 1; }; }
+else
+	echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+fi
+
+
+
+HLIBS="$LIBS"
+
+################################################################################
+################################################################################
+################################################################################
+
+
 foo_LIBS="$LIBS"
 for curse in "" ncurses curses
 do
@@ -2976,59 +3038,6 @@ then
 echo "$as_me: error: Readline is not optional. It should be. Sorry." >&2;}
    { (exit 1); exit 1; }; }
 fi
-
-echo "$as_me:$LINENO: checking for working pthreads" >&5
-echo $ECHO_N "checking for working pthreads... $ECHO_C" >&6
-CPPFLAGS="$CPPFLAGS -pthread"
-LIBS="$LIBS -pthread"
-a=0
-cat >conftest.$ac_ext <<_ACEOF
-#include <pthread.h>
-					void*foo(void*){}
-					int main(){pthread_create(0,0,foo,0);return 0;}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  a=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-fi
-rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
-LIBS="$LIBS -pthread"
-if test $a == 0
-then
-	echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-	{ { echo "$as_me:$LINENO: error: pthread is not optional. It should be. Sorry." >&5
-echo "$as_me: error: pthread is not optional. It should be. Sorry." >&2;}
-   { (exit 1); exit 1; }; }
-else
-	echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-fi
-
 
 echo ------------------------------------------------
 echo "Extra GVars2 Compat:"
@@ -3838,12 +3847,27 @@ fi
 # The rest
 #
 
+
+# Check whether --with-headless or --without-headless was given.
+if test "${with_headless+set}" = set; then
+  withval="$with_headless"
+
+fi;
+if test "$with_headless" == "yes"
+then
+        make_headless=yes
+
+fi
+
+
 major=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $1}'`
 minor=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $2}'`
 
 major=$major
 
 minor=$minor
+
+HLIBS=$HLIBS
 
 
 
@@ -4516,8 +4540,10 @@ s,@have_fltk@,$have_fltk,;t t
 s,@have_motif@,$have_motif,;t t
 s,@a@,$a,;t t
 s,@have_fltk2@,$have_fltk2,;t t
+s,@make_headless@,$make_headless,;t t
 s,@major@,$major,;t t
 s,@minor@,$minor,;t t
+s,@HLIBS@,$HLIBS,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
