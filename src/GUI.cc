@@ -626,6 +626,50 @@ void builtin_commandlist(void* ptr, string sCommand, string sParams)
 			  cout << "    " << i->first << endl;
 }
 
+void builtin_queue(void* ptr, string sCommand, string sParams)
+{
+	vector<string> vs = ChopAndUnquoteString(sParams);
+	if(vs.size() < 2)
+	  {
+	    cout << "? GUI Internal queue command syntax: queue queue-name line-to-enqueue" << endl;
+	    return;
+	  }
+	string &sQueueName = vs[0];
+	sParams.erase(sParams.find(sQueueName), sQueueName.length());
+	
+	GUI* pGUI = (GUI*)ptr;
+	pGUI->mmQueues[sQueueName].push_back(sParams);
+}
+
+void builtin_runqueue(void* ptr, string sCommand, string sParams)
+{
+	GUI* pGUI = (GUI*)ptr;
+	vector<string> vs = ChopAndUnquoteString(sParams);
+	if(vs.size() != 1)
+	  {
+	    cout << "? GUI Internal " << sCommand << " command syntax: runqueue queue-name " << endl;
+	    int nQueues = pGUI->mmQueues.size();
+	    
+	    cout << "  Currently there are " << nQueues << " queues registered." << endl;
+	    if(nQueues > 0)
+	      {
+		cout << "  They are: ";
+		for(map<string,vector<string> >::iterator it=pGUI->mmQueues.begin(); 
+		    it!=pGUI->mmQueues.end(); 
+		    it++)
+		  cout << ((it==pGUI->mmQueues.begin())?"":", ") << it->first;
+		cout << endl;
+	      }
+	    return;
+	  }
+	string &sQueueName = vs[0];
+	vector<string> &vQueue = pGUI->mmQueues[sQueueName];
+	for(int i=0; i<vQueue.size(); i++)
+	  pGUI->ParseLine(vQueue[i]);
+	if(sCommand=="runqueue")
+	  vQueue.clear();   // do not clear the queue if the command was runqueue_noclear!
+}
+
 ///////////////////////////////////////
 ///////////////////////////////////////
 ////////     Readline stuff:
@@ -763,7 +807,10 @@ void GUI::do_builtins()
 	RegisterBuiltin("gvarlist", builtin_gvarlist);
 	RegisterBuiltin("printvar", builtin_printvar);
 	RegisterBuiltin("commandlist", builtin_commandlist);
+	RegisterBuiltin("queue",  builtin_queue);
+	RegisterBuiltin("runqueue", builtin_runqueue);
+	RegisterBuiltin("runqueue_noclear", builtin_runqueue);
+};
+
 }
 
-
-};

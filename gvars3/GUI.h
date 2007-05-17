@@ -83,8 +83,11 @@ namespace GVars3
 
 	  std::map<std::string, CallbackVector > mmCallBackMap;
 	  std::set<std::string> builtins;
-
+	  std::map<std::string, std::vector<std::string> > mmQueues;
+	  
 	  friend void builtin_commandlist(void* ptr, std::string sCommand, std::string sParams);
+	  friend void builtin_queue(void* ptr, std::string sCommand, std::string sParams);
+	  friend void builtin_runqueue(void* ptr, std::string sCommand, std::string sParams);
 	};
 }
 
