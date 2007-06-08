@@ -41,5 +41,19 @@ namespace GVars3
 			bool 	  none;
 			static  void* proc(void*);
 	};
+
+
+	class readline_in_current_thread
+	{
+		public:
+			void poll();
+			readline_in_current_thread(const std::string&);
+			~readline_in_current_thread();
+		private:
+			static void lineread(char*);	
+			static std::string quit_callback;
+
+
+	};
 };
 #endif

@@ -23,6 +23,7 @@
 #include "gvars3/GUI_readline.h"
 
 #include <pthread.h>
+#include <poll.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -99,6 +100,48 @@ namespace GVars3
 			quit_callback = "";
 			quit = 0;
 			running = 0;
+		}
+	}
+	
+
+	std::string readline_in_current_thread::quit_callback;
+
+	readline_in_current_thread::~readline_in_current_thread()
+	{
+		rl_deprep_terminal();
+	}
+
+	readline_in_current_thread::readline_in_current_thread(const string& s)
+	{
+		quit_callback = s;
+		GUI.SetupReadlineCompletion();
+		rl_event_hook = rlhook;
+		rl_set_keyboard_input_timeout(0);
+		rl_callback_handler_install("> ", lineread);
+	}
+
+	void readline_in_current_thread::poll()
+	{
+		struct pollfd p;
+
+		p.fd = 0;
+		p.events=POLLIN | POLLHUP;
+
+		if(::poll(&p, 1, 0) > 0)
+			rl_callback_read_char();
+	}
+
+	void readline_in_current_thread::lineread(char* line)
+	{
+		if(line == NULL)
+		{
+			rl_deprep_terminal();
+			GUI.ParseLine(quit_callback);
+		}
+		else
+		{
+			GUI.ParseLine(line);
+			add_history(line);
 		}
 	}
 
