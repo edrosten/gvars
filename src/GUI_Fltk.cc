@@ -34,6 +34,7 @@
 #include <FL/Fl_Button.h>
 #include <FL/Fl_Check_Button.h>
 #include <Fl/Fl_Value_Slider.h>
+#include <Fl/Fl_Value_Input.h>
 #include <Fl/Fl_Box.h>
 
 
@@ -170,9 +171,17 @@ class GUI_Fltk_win:public Fl_Window
 
 		void add(Fl_Widget* widg)
 		{
+            int lw = 0, lh = 0;
+
+            if((widg->align() & FL_ALIGN_LEFT) && !(widg->align() & FL_ALIGN_INSIDE) )
+                widg->measure_label(lw, lh);
+
+
+
+
 			//Position the widget
-			widg->resize(GUI_Fltk::widget_padding_x, h() + GUI_Fltk::widget_padding_y, 
-						 w() - 2 * GUI_Fltk::widget_padding_x , GUI_Fltk::widget_height);
+			widg->resize(GUI_Fltk::widget_padding_x + lw, h() + GUI_Fltk::widget_padding_y, 
+						 w() - 2 * GUI_Fltk::widget_padding_x - lw , GUI_Fltk::widget_height);
 
 			//Resize the window
 			size(w(), h() + GUI_Fltk::widget_height + 2 * GUI_Fltk::widget_padding_y);
@@ -259,6 +268,8 @@ void GUI_Fltk::AddWindow(string sParams)
 	gui->RegisterCommand(vs[0] + ".AddToggleButton", AddToggleButtonCB, this);
 	gui->RegisterCommand(vs[0] + ".AddSlider", AddSliderCB, this);
 	gui->RegisterCommand(vs[0] + ".AddMonitor", AddMonitorCB, this);
+	gui->RegisterCommand(vs[0] + ".AddSpin", AddSpinCB, this);
+	//gui->RegisterCommand(vs[0] + ".AddSmallToggleButton", AddSmallToggleCB, this);
 }
 
 void GUI_Fltk::DestroyWindowCB(void* ptr, string cmd, string args)
@@ -280,6 +291,9 @@ void GUI_Fltk::DestroyWindow(string cmd)
 	gui->UnRegisterCommand(win_name + ".AddToggleButton");
 	gui->UnRegisterCommand(win_name + ".AddSlider");
 	gui->UnRegisterCommand(win_name + ".AddMonitor");
+	gui->UnRegisterCommand(win_name + ".AddSpin");
+	//gui->UnRegisterCommand(win_name + ".AddSmallToggleButton");
+
 
 	delete windows[win_name].win;
 	//windows[win_name].win->hide();
@@ -589,4 +603,109 @@ void GUI_Fltk::AddMonitor(string cmd, string args)
 }
 
 //GUI_Fltk  Gui_Fltk(&GUI);
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Spincontrol stuff
+//
+
+void GUI_Fltk::AddSpinCB(void* ptr, string cmd, string args)
+{
+	//Fl::lock();
+	UI.AddSpin(cmd, args);
+	//Fl::unlock();
+}
+
+class spin2: public Fl_Value_Input
+{
+	public:
+		spin2(string gvar_name, string t,  GVars2 *pgv2, double min, double max)
+		:Fl_Value_Input(0, 0, 1, 1),gv2(pgv2),varname(gvar_name), title(t)
+		{
+			label(title.c_str());
+			align(FL_ALIGN_LEFT);
+			bounds(min, max);
+			callback(my_callback);
+			when(FL_WHEN_CHANGED);
+			increment(0, 1);
+			poll_update();
+		}
+
+		void poll_update()
+		{
+			string crnt=gv2->StringValue(varname, true);
+
+
+			if(crnt != cached_value)
+			{
+				cached_value = crnt;
+				double newval=0;
+				serialize::from_string(crnt, newval);
+
+				//Update range if necessary
+				if(newval > maximum()) maximum(newval);
+				if(newval < minimum()) minimum(newval);
+
+				value(newval);
+			}
+		}
+
+		void set_gvar_to_value()
+		{
+			ostringstream ost;
+			ost << value();
+			gv2->SetVar(varname, ost.str(), 1);
+			cached_value = ost.str();
+		}
+
+	private:
+		GVars2 *gv2;
+		string varname, cached_value, title;
+
+		static void my_callback(Fl_Widget* w, long what_shall_I_do)
+		{
+			spin2* s = (spin2*) w;
+
+			if(what_shall_I_do == POLL_UPDATE)
+				s->poll_update();
+			else
+				s->set_gvar_to_value();
+		}
+};
+
+void GUI_Fltk::AddSpin(string cmd, string args)
+{
+	string win_name = remove_suffix(cmd, ".AddSpin");
+	string title = "";
+
+	vector<string> vs = ChopAndUnquoteString(args);
+	if(vs.size() != 3 && vs.size() != 4)
+	{
+		cerr << "! GUI_Fltk::AddSpin: Need 3-4 params (gvar_name min max [title]])." << endl;
+		return;
+	}
+
+	if(!check_window(win_name, "AddSpin"))
+		return;
+
+	window& w = windows[win_name];
+
+	double min, max;
+
+	serialize::from_string(vs[1], min);
+	serialize::from_string(vs[2], max);
+
+    if( vs.size() == 4)
+        title = vs[3];
+
+	Fl_Widget* b = new spin2(vs[0], title, gv2, min, max);
+
+	w.win->add(b);
+}
+
+
 }
