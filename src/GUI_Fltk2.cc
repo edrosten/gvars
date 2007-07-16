@@ -52,7 +52,7 @@ GUI_Fltk2::GUI_Fltk2(GUI *pGUI, GVars2* pGV2)
 	gui->RegisterCommand("GUI_Fltk2.InitXInterface", InitXInterfaceCB, this);
 }
 
-void poll_callback(void* v)
+static void poll_callback(void* v)
 {
 	class GUI_Fltk2* t = (class GUI_Fltk2*) v;
 
