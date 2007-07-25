@@ -28,8 +28,24 @@ namespace GVars3
 
 string UncommentString(string s)
 {
-  int n = s.find("//");
-  return s.substr(0,n);
+  //int n = s.find("//");
+  //return s.substr(0,n);
+
+  int q=0;
+
+  for(int n=0; n < s.size(); n++)
+  {
+  	if(s[n] == '"')
+		q = !q;
+
+	if(s[n] == '/' && !q)
+	{
+		if(n < s.size() -1 && s[n+1] == '/')
+			return s.substr(0, n);
+	}
+  }
+
+  return s;
 };
 
 vector<string> ChopAndUnquoteString(string s)
