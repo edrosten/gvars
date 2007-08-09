@@ -76,7 +76,12 @@ template<class T> class gvar2
   {
     return data;
   }
-  
+
+  bool IsRegistered() const
+  {
+    return data!=NULL;
+  }
+   
  protected:
   T* data;
 };
