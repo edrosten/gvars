@@ -189,7 +189,7 @@ then
 fi
 ])
 
-check_GUI(fltk,FL/Fl.h,fltk)
+check_GUI(fltk,FL/Fl.H,fltk)
 
 AC_PATH_X
 foo_LIBS="$LIBS"

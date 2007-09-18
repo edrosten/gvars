@@ -28,14 +28,14 @@
 
 #include <error.h>
 
-#include <FL/Fl.h>
-#include <FL/Fl_Window.h>
-#include <FL/Fl_Widget.h>
-#include <FL/Fl_Button.h>
-#include <FL/Fl_Check_Button.h>
-#include <Fl/Fl_Value_Slider.h>
-#include <Fl/Fl_Value_Input.h>
-#include <Fl/Fl_Box.h>
+#include <FL/Fl.H>
+#include <FL/Fl_Window.H>
+#include <FL/Fl_Widget.H>
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Check_Button.H>
+#include <Fl/Fl_Value_Slider.H>
+#include <Fl/Fl_Value_Input.H>
+#include <Fl/Fl_Box.H>
 
 
 #define POLL_UPDATE 1
