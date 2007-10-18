@@ -92,7 +92,7 @@ OBJS=\
 	src/serialize.o			\
 	src/inst.o				\
 
-ifeq(@have_readline@,yes)
+ifeq (@have_readline@,yes)
 	OBJS+=src/GUI_readline.o 
 else
 	OBJS+=src/inst_headless.o
