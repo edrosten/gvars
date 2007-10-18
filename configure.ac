@@ -134,16 +134,11 @@ do
 	if test x$ac_cv_lib_readline_rl_done == xyes
 	then
 		break
+		AC_SUBST(have_readline,yes)
 	else
 		unset ac_cv_lib_readline_rl_done
 	fi
 done
-
-
-if test x$ac_cv_lib_readline_rl_done != xyes
-then
-	AC_MSG_ERROR(Readline is not optional. It should be. Sorry.)
-fi
 
 echo ------------------------------------------------
 echo "Extra GVars2 Compat:"

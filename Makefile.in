@@ -91,7 +91,12 @@ OBJS=\
 	src/gvars2.o			\
 	src/serialize.o			\
 	src/inst.o				\
-	src/GUI_readline.o		\
+
+ifeq(@have_readline@,yes)
+	OBJS+=src/GUI_readline.o 
+else
+	OBJS+=src/inst_headless.o
+endif
 
 ifeq (@have_fltk@,yes)
 	OBJS+=src/GUI_Fltk.o
