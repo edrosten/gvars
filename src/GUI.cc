@@ -714,6 +714,34 @@ GUI::GUI(GVars2*)
 	do_builtins();
 }
 
+void print_history(ostream &ost);
+void builtin_history(void* ptr, string sCommand, string sParams)
+{
+  cout << "History: " << endl;
+  print_history(cout);
+};
+
+void builtin_save_history(void* ptr, string sCommand, string sParams)
+{
+  vector<string> v = ChopAndUnquoteString(sParams);
+  if(v.size()!=1) 
+    cout << "? GUI internal savehistory command: need one param (filename)." << endl;
+  else
+    {
+      ofstream ofs;
+      ofs.open(v[0].c_str());
+      if(!ofs.good())
+	cout << "? GUI internal savehistory command: cannot open " << v[0] << " for write." << endl;
+      else
+	{
+	  print_history(ofs);
+	  ofs.close();
+	  cout << "  Saved to " << v[0] << endl;
+	}
+    };
+};
+
+
 void GUI::do_builtins()
 {
 	RegisterBuiltin("shell", builtin_shell);
