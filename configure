@@ -2550,6 +2550,9 @@ fi
 done
 
 
+optionlist="fltk motif fltk2 readline"
+options=""
+
 #Host detection
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
@@ -3025,9 +3028,10 @@ fi
 
 	if test x$ac_cv_lib_readline_rl_done == xyes
 	then
-		break
 		have_readline=yes
 
+		options="$options readline"
+		break
 	else
 		unset ac_cv_lib_readline_rl_done
 	fi
@@ -3070,8 +3074,6 @@ echo ------------------------------------------------
 echo "Checking for widget libraries (provides GUI_...)"
 echo ------------------------------------------------
 
-optionlist="fltk motif fltk2"
-options=""
 
 #dnl check_GUI(fltk,FL/Fl.h,fltk)
 

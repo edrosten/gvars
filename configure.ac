@@ -4,6 +4,9 @@ AC_LANG(C++)
 
 AC_CHECK_HEADERS(iostream)
 
+optionlist="fltk motif fltk2 readline"
+options=""
+
 #Host detection
 AC_CANONICAL_HOST
 if test "$host_vendor" = apple
@@ -133,8 +136,9 @@ do
 
 	if test x$ac_cv_lib_readline_rl_done == xyes
 	then
-		break
 		AC_SUBST(have_readline,yes)
+		options="$options readline"
+		break
 	else
 		unset ac_cv_lib_readline_rl_done
 	fi
@@ -168,8 +172,6 @@ echo ------------------------------------------------
 echo "Checking for widget libraries (provides GUI_...)"
 echo ------------------------------------------------
 
-optionlist="fltk motif fltk2"
-options=""
 
 #dnl check_GUI(fltk,FL/Fl.h,fltk)
 
