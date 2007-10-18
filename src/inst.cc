@@ -88,6 +88,23 @@ namespace GVars3
 			apHistEntries++;
 			  }
 		};
+	#else
+
+		void GUI::SetupReadlineCompletion()
+		{
+		}
+
+		char ** GUI::ReadlineCompletionFunction (const char *text, int start, int end)
+		{
+		  return NULL;
+		}
+
+
+		void print_history(ostream &ost)
+		{
+		}
+
+
 	#endif
 
 
