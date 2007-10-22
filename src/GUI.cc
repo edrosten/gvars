@@ -73,55 +73,6 @@ bool setvar(string s)
 	return false;
 }
 
-char* GV3ReadlineCommandGenerator(const char *szText, int nState)
-{
-	static vector<string> tags;
-	static vector<string>::iterator tag_i;
-	
-	if(!nState)
-	{
-		tags = GV3::tag_list();
-		tag_i = tags.begin();
-		
-	};
-
-	while(tag_i != tags.end())
-	{
-		int text_len = strlen(szText);
-		bool bEqualsAtEnd = false;
-		if(text_len>0)
-		  if(szText[text_len-1]=='=')
-		    bEqualsAtEnd = true;
-		string sCurrent = *tag_i;
-		string sComparison = *tag_i;
-		if(bEqualsAtEnd)
-		  sComparison = sComparison + "=";
-
-		tag_i++;
-
-		if(strncmp(szText, sComparison.c_str(), text_len) == 0)
-		  {
-			//If it's a prefect match, complete with the value
-		        string sCompleted;
-			if(text_len == sComparison.size())
-			  sCompleted = szText + ((bEqualsAtEnd?"":"=") + GV3::get_var(sCurrent));
-			else
-			  sCompleted = sCurrent;
-			
-			char* r;
-			
-			if((r= (char*)malloc(sCompleted.size() + 1)) == NULL)
-				return 0;
-
-			strcpy(r, sCompleted.c_str());
-			return r;
-		}
-	}
-
-	return 0;
-}
-
-
 
 
 GUI *GUI::mpReadlineCompleterGUI=NULL;
