@@ -29,6 +29,12 @@ template<class T> T* GV3::register_new_gvar(const std::string& name, const T& de
   //Look to see if ``name'' has not already been set	
   if(i == unmatched_tags.end())
     {
+      if(flags & FATAL_IF_NOT_DEFINED)
+	{
+	  std::cerr << "!!GV3::Register: " << type_name<T>() << " " << name << " must be defined. Exception. " << std::endl;
+	  throw gvar_was_not_defined();
+	};
+	  
       if(!(flags & SILENT))
 	std::cerr << "? GV3::Register: " << type_name<T>() << " " << name << " undefined. Defaults to " 
 		  << serialize::to_string(default_val) << std::endl;
@@ -40,6 +46,11 @@ template<class T> T* GV3::register_new_gvar(const std::string& name, const T& de
     {
       int e = serialize::from_string(i->second, *d);
       parse_warning(e, type_name<T>(), name, i->second);
+      if(e > 0 && flags & FATAL_IF_NOT_DEFINED)
+	{
+	  std::cerr << "!!GV3::Register: " << type_name<T>() << " " << name << " must be defined. Exception. " << std::endl;
+	  throw gvar_was_not_defined();
+	}
       
       unmatched_tags.erase(i);
     }

@@ -38,6 +38,7 @@ namespace GVars3
 void parse_warning(int e, std::string type, std::string name, std::string from);
 
 struct type_mismatch{};
+struct gvar_was_not_defined{};
 
 
 class GV3;
@@ -90,7 +91,7 @@ template<class T> class gvar2
 // SILENT makes gvars not complain if it has to use the default;
 // HIDDEN makes vars not appear in gvarlist unless used with -a
 
-enum { SILENT = 1<<0, HIDDEN = 1<<1};
+enum { SILENT = 1<<0, HIDDEN = 1<<1, FATAL_IF_NOT_DEFINED = 1<<2};
        
 
 typedef gvar2<double> gvar2_double;
