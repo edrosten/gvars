@@ -19,7 +19,6 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef GVARS2_COMPAT
 #include <gvars3/instances.h>
 
 #ifdef GUI_HAVE_FLTK
@@ -56,7 +55,7 @@ namespace GVars3
 	#endif
 	#ifdef GUI_HAVE_FLTK2
         class GUI_Fltk2 GUI_Fltk2(&GUI, &GV2);
-    #endif
+        #endif
 	#ifdef GUI_HAVE_MOTIF
 		class GUI_Motif GUI_Motif(&GUI, &GV2);
 	#endif
@@ -109,4 +108,3 @@ namespace GVars3
 
 
 }
-#endif

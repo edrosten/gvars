@@ -112,10 +112,6 @@ ifeq (@have_motif@,yes)
     CPPFLAGS+=-DGUI_HAVE_MOTIF
 endif
 
-ifeq (@use_gvars2_compat@,yes)
-    CPPFLAGS+=-DGVARS2_COMPAT
-endif
-
 ifeq (@build_cpu@,x86_64)
     CPPFLAGS+=-fPIC
 endif
@@ -168,7 +164,6 @@ $(soname): $(OBJS)
 install:$(soname) $(archive) $(HEADLESS)
 	mkdir -p $(DESTDIR)/$(includedir)
 	cp -r gvars3 $(DESTDIR)/$(includedir)
-	if test "@use_gvars2_compat@" == "yes"; then cp gvars2_compat/*.h $(DESTDIR)/$(includedir); fi
 	mkdir -p $(DESTDIR)/$(libdir)
 	cp $(soname2) $(archive) $(HEADLESS) $(DESTDIR)/$(libdir)
 	ln -fs  $(DESTDIR)/$(libdir)/$(soname2) $(DESTDIR)/$(libdir)/$(soname1)

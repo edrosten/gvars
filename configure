@@ -308,7 +308,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CXXCPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os osx_hacks have_toon have_readline use_gvars2_compat have_fltk have_motif a have_fltk2 make_headless major minor HLIBS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CXXCPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os osx_hacks have_toon have_readline have_fltk have_motif a have_fltk2 make_headless major minor HLIBS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -850,7 +850,6 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-TooN=directory  Specify location for TooN
-  --with-gvars2-compat    add extra GVars2 backwards compatibility
   --with-x                use the X Window System
   --with-headless    Build additional headless library
 
@@ -3037,33 +3036,6 @@ fi
 	fi
 done
 
-echo ------------------------------------------------
-echo "Extra GVars2 Compat:"
-echo " (adds GVars2.h, GUI.h, GUI_Motif.h GStringUtil.h wrappers,"
-echo " and removes the global GV2 and GUI instances)"
-# Check if the user (i.e. Georg) wants extra GV2 backwards-compat
-
-# Check whether --with-gvars2_compat or --without-gvars2_compat was given.
-if test "${with_gvars2_compat+set}" = set; then
-  withval="$with_gvars2_compat"
-
-fi;
-if test "$with_gvars2_compat" == "yes"
-then
-	{ echo "$as_me:$LINENO: Extra GVars2 compat enabled. " >&5
-echo "$as_me: Extra GVars2 compat enabled. " >&6;}
-        use_gvars2_compat=yes
-
-else
-	{ echo "$as_me:$LINENO: Extra GVars2 compat not enabled. " >&5
-echo "$as_me: Extra GVars2 compat not enabled. " >&6;}
-        use_gvars2_compat=no
-
-fi
-
-
-
-
 ################################################################################
 #
 # Basic dialogue box functionality
@@ -3402,7 +3374,7 @@ ac_x_header_dirs='
 /usr/openwin/share/include'
 
 if test "$ac_x_includes" = no; then
-  # Guess where to find include files, by looking for Intrinsic.h.
+  # Guess where to find include files, by looking for Xlib.h.
   # First, try using that file with no special directory specified.
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -3410,7 +3382,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Intrinsic.h>
+#include <X11/Xlib.h>
 _ACEOF
 if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
@@ -3437,7 +3409,7 @@ else
 sed 's/^/| /' conftest.$ac_ext >&5
 
   for ac_dir in $ac_x_header_dirs; do
-  if test -r "$ac_dir/X11/Intrinsic.h"; then
+  if test -r "$ac_dir/X11/Xlib.h"; then
     ac_x_includes=$ac_dir
     break
   fi
@@ -3458,11 +3430,11 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Intrinsic.h>
+#include <X11/Xlib.h>
 int
 main ()
 {
-XtMalloc (0)
+XrmInitialize ()
   ;
   return 0;
 }
@@ -4532,7 +4504,6 @@ s,@host_os@,$host_os,;t t
 s,@osx_hacks@,$osx_hacks,;t t
 s,@have_toon@,$have_toon,;t t
 s,@have_readline@,$have_readline,;t t
-s,@use_gvars2_compat@,$use_gvars2_compat,;t t
 s,@have_fltk@,$have_fltk,;t t
 s,@have_motif@,$have_motif,;t t
 s,@a@,$a,;t t

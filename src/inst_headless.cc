@@ -19,7 +19,6 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef GVARS2_COMPAT
 #include <gvars3/instances.h>
 
 
@@ -47,4 +46,3 @@ namespace GVars3
 
 
 }
-#endif

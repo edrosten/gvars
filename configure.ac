@@ -144,24 +144,6 @@ do
 	fi
 done
 
-echo ------------------------------------------------
-echo "Extra GVars2 Compat:"
-echo " (adds GVars2.h, GUI.h, GUI_Motif.h GStringUtil.h wrappers,"
-echo " and removes the global GV2 and GUI instances)"
-# Check if the user (i.e. Georg) wants extra GV2 backwards-compat
-AC_ARG_WITH(gvars2_compat,   [  --with-gvars2-compat    add extra GVars2 backwards compatibility])
-if test "$with_gvars2_compat" == "yes"
-then
-	AC_MSG_NOTICE([Extra GVars2 compat enabled. ])
-        AC_SUBST(use_gvars2_compat,yes)
-else
-	AC_MSG_NOTICE([Extra GVars2 compat not enabled. ])
-        AC_SUBST(use_gvars2_compat,no)
-fi
-
-
-
-
 ################################################################################
 #
 # Basic dialogue box functionality

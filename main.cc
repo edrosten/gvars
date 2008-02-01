@@ -19,19 +19,9 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifdef GVARS2_COMPAT
-
-#include <GVars2.h>
-#include <GUI.h>
-GVars2 GV2;
-GUI GUI(&GV2);
-
-#else
-
 #include <gvars3/GUI.h>
 #include <gvars3/instances.h>
 using namespace GVars3;
-#endif
 
 #include <gvars3/GUI_readline.h>
 #include <unistd.h>
