@@ -33,12 +33,6 @@
 	#include <gvars3/GUI_Motif.h>
 #endif
 
-
-#ifdef GUI_HAVE_READLINE
-	#include <readline/readline.h>
-	#include <readline/history.h>
-#endif
-
 #include "gvars3/GUI.h"
 #include "gvars3/GStringUtil.h"
 
@@ -51,60 +45,12 @@ namespace GVars3
 	class GUI GUI;
 
 	#ifdef GUI_HAVE_FLTK
-		class GUI_Fltk GUI_Fltk(&GUI, &GV2);
+	class GUI_Fltk GUI_Fltk(&GUI, &GV2);
 	#endif
 	#ifdef GUI_HAVE_FLTK2
         class GUI_Fltk2 GUI_Fltk2(&GUI, &GV2);
         #endif
 	#ifdef GUI_HAVE_MOTIF
-		class GUI_Motif GUI_Motif(&GUI, &GV2);
+	class GUI_Motif GUI_Motif(&GUI, &GV2);
 	#endif
-
-	#ifdef GUI_HAVE_READLINE
-		void GUI::SetupReadlineCompletion()
-		{
-		  mpReadlineCompleterGUI = this;
-		  rl_attempted_completion_function = ReadlineCompletionFunction;
-		  rl_basic_word_break_characters = " \t\n\"\\'`@$><;|&{("; 
-		}
-
-		char ** GUI::ReadlineCompletionFunction (const char *text, int start, int end)
-		{
-		  rl_completion_append_character=0;
-		  char **matches;
-		  matches = (char **)NULL;
-		  matches = rl_completion_matches (text,   ReadlineCommandGeneratorCB);
-		  return (matches);
-		}
-
-		void print_history(ostream &ost)
-		{
-		  HIST_ENTRY **apHistEntries = history_list();
-		  if(apHistEntries)
-			while((*apHistEntries)!=NULL)
-			  {
-			ost << (*apHistEntries)->line << endl;
-			apHistEntries++;
-			  }
-		};
-	#else
-
-		void GUI::SetupReadlineCompletion()
-		{
-		}
-
-		char ** GUI::ReadlineCompletionFunction (const char *text, int start, int end)
-		{
-		  return NULL;
-		}
-
-
-		void print_history(ostream &ost)
-		{
-		}
-
-
-	#endif
-
-
 }
