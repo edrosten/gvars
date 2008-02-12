@@ -849,9 +849,10 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-TooN=directory  Specify location for TooN
+  --with-TooN=directory   Specify location for TooN
+  --without-readline      Disable use of libreadline
   --with-x                use the X Window System
-  --with-headless    Build additional headless library
+  --with-headless         Build additional headless library
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -2863,6 +2864,15 @@ HLIBS="$LIBS"
 ################################################################################
 
 
+# Check whether --with-readline or --without-readline was given.
+if test "${with_readline+set}" = set; then
+  withval="$with_readline"
+  with_readline="$withval"
+else
+  with_readline=yes
+fi;
+if test "$with_readline" == "yes"
+then
 foo_LIBS="$LIBS"
 for curse in "" ncurses curses
 do
@@ -3035,7 +3045,7 @@ fi
 		unset ac_cv_lib_readline_rl_done
 	fi
 done
-
+fi
 ################################################################################
 #
 # Basic dialogue box functionality

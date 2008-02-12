@@ -22,7 +22,11 @@
 #include "gvars3/GUI.h"
 #include "gvars3/GStringUtil.h"
 
-
+#ifdef GUI_HAVE_READLINE
+#include <gvars3/GUI_readline.h>
+#else
+#include <gvars3/GUI_non_readline.h>
+#endif
 
 #include <cctype>
 #include <sstream>
@@ -31,6 +35,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <algorithm>
+
 
 
 using namespace std;
@@ -621,13 +626,6 @@ namespace GVars3
       vQueue.clear();   // do not clear the queue if the command was runqueue_noclear!
   }
 
-  ///////////////////////////////////////
-  ///////////////////////////////////////
-  ////////     Readline stuff:
-  ///////////////////////////////////////
-  ///////////////////////////////////////
-
-
   int GUI::parseArguments( const int argc, char * argv[], int start, const string prefix, const string execKeyword ){
     while(start < argc){
       string opt = argv[start];
@@ -716,7 +714,16 @@ namespace GVars3
     RegisterBuiltin("runqueue", builtin_runqueue);
     RegisterBuiltin("runqueue_noclear", builtin_runqueue);
   };
+
   
+
+  ///////////////////////////////////////
+  ///////////////////////////////////////
+  ////////     Parser/Readline stuff:
+  ///////////////////////////////////////
+  ///////////////////////////////////////
+
+  void* GUI::mpParserThread = NULL;
   
 #ifdef GUI_HAVE_READLINE
 #include <readline/readline.h>
@@ -765,6 +772,29 @@ namespace GVars3
 #endif
 
 
+  void GUI::StartParserThread()
+  {
+    if(mpParserThread)  // Only makes sense to have one instance of the parser thread.
+      return;
+    
+#ifdef GUI_HAVE_READLINE
+    mpParserThread = new spawn_readline_thread("quit");
+#else
+    mpParserThread = new spawn_non_readline_thread("");
+#endif
+  }
+
+  void GUI::StopParserThread()
+  {
+    if(!mpParserThread)
+      return;
+#ifdef GUI_HAVE_READLINE
+    delete( (spawn_readline_thread*) mpParserThread);
+#else
+    delete( (spawn_non_readline_thread*) mpParserThread);
+#endif    
+    mpParserThread = NULL;
+  }
 
 
 }

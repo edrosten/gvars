@@ -27,7 +27,7 @@ echo --------------------------
 #
 #Allow the user to specify the location of TooN
 #
-AC_ARG_WITH(TooN, [  --with-TooN=directory  Specify location for TooN ], [opt_toon_dir=$withval])
+AC_ARG_WITH(TooN, [  --with-TooN=directory   Specify location for TooN ], [opt_toon_dir=$withval])
 
 if test "$opt_toon_dir" = no
 then
@@ -120,7 +120,9 @@ HLIBS="$LIBS"
 ################################################################################
 ################################################################################
 
-
+AC_ARG_WITH(readline,   [  --without-readline      Disable use of libreadline], [with_readline="$withval"], [with_readline=yes])
+if test "$with_readline" == "yes"
+then
 foo_LIBS="$LIBS"
 for curse in "" ncurses curses
 do
@@ -143,7 +145,7 @@ do
 		unset ac_cv_lib_readline_rl_done
 	fi
 done
-
+fi
 ################################################################################
 #
 # Basic dialogue box functionality
@@ -207,7 +209,7 @@ fi
 # The rest
 #
 
-AC_ARG_WITH(headless,   [  --with-headless    Build additional headless library])
+AC_ARG_WITH(headless,   [  --with-headless         Build additional headless library])
 if test "$with_headless" == "yes"
 then
         AC_SUBST(make_headless,yes)

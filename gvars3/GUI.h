@@ -55,7 +55,14 @@ namespace GVars3
 	  
 	  bool CallCallbacks(std::string sCommand, std::string sParams);
 	  void SetupReadlineCompletion();
-
+	  
+	  /// Start a thread which parses user input from the console.
+	  /// Uses libreadline if configured, or just plain old iostream readline
+	  void StartParserThread();
+	  /// Stop the console parser thread, if running
+	  /// Top tip: This is static so that it can be used with atexit(void*)
+	  static void StopParserThread();
+	  
 	/// parse command line arguments for GVar values. It expects the form --name value and will stop
 	/// parsing when this form is not true anymore. possible cases are a single --, an argument, etc..
 	/// if it finds an argument --exec it interprets the next argument as a file name to load via LoadFile
@@ -80,6 +87,8 @@ namespace GVars3
 	  
 	  void *mptr;
 	  GUICallbackProc cbp;
+
+	  static void *mpParserThread;
 
 	  std::map<std::string, CallbackVector > mmCallBackMap;
 	  std::set<std::string> builtins;
