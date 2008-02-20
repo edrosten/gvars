@@ -3067,12 +3067,12 @@ echo ------------------------------------------------
 
 
 #dnl check_GUI(fltk,FL/Fl.h,fltk)
-enable_any=yes
 # Check whether --enable-widgets or --disable-widgets was given.
 if test "${enable_widgets+set}" = set; then
   enableval="$enable_widgets"
 
 fi;
+enable_widgets=${enable_widgets:-yes}
 
 # Check whether --enable-fltk2 or --disable-fltk2 was given.
 if test "${enable_fltk2+set}" = set; then
@@ -3090,9 +3090,9 @@ if test "${enable_motif+set}" = set; then
 
 fi;
 
-enable_fltk2=${enable_fltk2:-$enable_any}
-enable_fltk=${enable_fltk:-$enable_any}
-enable_motif=${enable_motif:-$enable_any}
+enable_fltk2=${enable_fltk2:-$enable_widgets}
+enable_fltk=${enable_fltk:-$enable_widgets}
+enable_motif=${enable_motif:-$enable_widgets}
 
 gui=none
 

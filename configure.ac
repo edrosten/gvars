@@ -159,16 +159,16 @@ echo ------------------------------------------------
 
 
 #dnl check_GUI(fltk,FL/Fl.h,fltk)
-enable_any=yes
 AC_ARG_ENABLE(widgets,[  --disable-widgets])
+enable_widgets=${enable_widgets:-yes}
 
 AC_ARG_ENABLE(fltk2,[  --disable-fltk2])
 AC_ARG_ENABLE(fltk,[  --disable-fltk])
 AC_ARG_ENABLE(motif,[  --disable-motif])
 
-enable_fltk2=${enable_fltk2:-$enable_any}
-enable_fltk=${enable_fltk:-$enable_any}
-enable_motif=${enable_motif:-$enable_any}
+enable_fltk2=${enable_fltk2:-$enable_widgets}
+enable_fltk=${enable_fltk:-$enable_widgets}
+enable_motif=${enable_motif:-$enable_widgets}
 
 gui=none
 
