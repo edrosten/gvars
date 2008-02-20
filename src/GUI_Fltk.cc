@@ -19,12 +19,16 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "gvars3/instances.h"
 #include "gvars3/GUI_Fltk.h"
 #include "gvars3/GStringUtil.h"
 #include <vector>
 #include <string.h>
 #include <sstream>
 #include <unistd.h>
+#include <map>
+#include <set>
+#include <string>
 
 #include <error.h>
 
@@ -44,13 +48,10 @@ using namespace std;
 namespace GVars3
 {
 
-
-GUI_Fltk::GUI_Fltk(GUI *pGUI, GVars2* pGV2)
+GUI_Fltk::GUI_Fltk()
 {
-	gui=pGUI;
-	gv2=pGV2;
 	init = 0;
-	gui->RegisterCommand("GUI_Fltk.InitXInterface", InitXInterfaceCB, this);
+	GUI.RegisterCommand("GUI.InitXInterface", InitXInterfaceCB, this);
 }
 
 
@@ -106,9 +107,9 @@ void GUI_Fltk::InitXInterface(string args)
 	if(vs.size() > 0)
 		name = vs[0];
 	else
-		name = "GUI_Fltk";
+		name = "GUI";
 
-	gui->RegisterCommand(name + ".AddWindow", AddWindowCB, this);
+	GUI.RegisterCommand(name + ".AddWindow", AddWindowCB, this);
 
 	init = 1;
 }
@@ -162,8 +163,8 @@ void GUI_Fltk::AddWindowCB(void* ptr, string sCommand, string sParams)
 class GUI_Fltk_win:public Fl_Window
 {
 	public:
-		GUI_Fltk_win(int w, string name, string caption, GUI* pgui)
-		:Fl_Window(w, 0),win_name(name),labl(caption),gui(pgui)
+		GUI_Fltk_win(int w, string name, string caption)
+		:Fl_Window(w, 0),win_name(name),labl(caption)
 		{
 			label(caption.c_str());
 			callback(my_callback);
@@ -198,13 +199,12 @@ class GUI_Fltk_win:public Fl_Window
 
 	private:
 		string  win_name, labl;
-		GUI* 	gui;
 		
 		static void my_callback(Fl_Widget* w)
 		{
 			//Called on close event
 			GUI_Fltk_win* win = (GUI_Fltk_win*) w;
-			win->gui->ParseLine(win->win_name+".Destroy");
+			GUI.ParseLine(win->win_name+".Destroy");
 		}
 };
 
@@ -256,19 +256,19 @@ void GUI_Fltk::AddWindow(string sParams)
 		width = atoi(vs[2].c_str());
 
 	window w;
-	w.win = new GUI_Fltk_win(width, vs[0], sCaption, gui);
+	w.win = new GUI_Fltk_win(width, vs[0], sCaption);
 	w.showme = true;
 	w.win->end();
 	//w.win->show();
 
 	windows[vs[0]] = w;
 
-	gui->RegisterCommand(vs[0] + ".Destroy", DestroyWindowCB, this);
-	gui->RegisterCommand(vs[0] + ".AddPushButton", AddPushButtonCB, this);
-	gui->RegisterCommand(vs[0] + ".AddToggleButton", AddToggleButtonCB, this);
-	gui->RegisterCommand(vs[0] + ".AddSlider", AddSliderCB, this);
-	gui->RegisterCommand(vs[0] + ".AddMonitor", AddMonitorCB, this);
-	gui->RegisterCommand(vs[0] + ".AddSpin", AddSpinCB, this);
+	GUI.RegisterCommand(vs[0] + ".Destroy", DestroyWindowCB, this);
+	GUI.RegisterCommand(vs[0] + ".AddPushButton", AddPushButtonCB, this);
+	GUI.RegisterCommand(vs[0] + ".AddToggleButton", AddToggleButtonCB, this);
+	GUI.RegisterCommand(vs[0] + ".AddSlider", AddSliderCB, this);
+	GUI.RegisterCommand(vs[0] + ".AddMonitor", AddMonitorCB, this);
+	GUI.RegisterCommand(vs[0] + ".AddSpin", AddSpinCB, this);
 	//gui->RegisterCommand(vs[0] + ".AddSmallToggleButton", AddSmallToggleCB, this);
 }
 
@@ -286,12 +286,12 @@ void GUI_Fltk::DestroyWindow(string cmd)
 	if(!check_window(win_name, "Destroy"))
 		return;
 	
-	gui->UnRegisterCommand(win_name + ".Destroy");
-	gui->UnRegisterCommand(win_name + ".AddPushButton");
-	gui->UnRegisterCommand(win_name + ".AddToggleButton");
-	gui->UnRegisterCommand(win_name + ".AddSlider");
-	gui->UnRegisterCommand(win_name + ".AddMonitor");
-	gui->UnRegisterCommand(win_name + ".AddSpin");
+	GUI.UnRegisterCommand(win_name + ".Destroy");
+	GUI.UnRegisterCommand(win_name + ".AddPushButton");
+	GUI.UnRegisterCommand(win_name + ".AddToggleButton");
+	GUI.UnRegisterCommand(win_name + ".AddSlider");
+	GUI.UnRegisterCommand(win_name + ".AddMonitor");
+	GUI.UnRegisterCommand(win_name + ".AddSpin");
 	//gui->UnRegisterCommand(win_name + ".AddSmallToggleButton");
 
 
@@ -318,8 +318,8 @@ void GUI_Fltk::AddPushButtonCB(void* ptr, string cmd, string args)
 class cmd_button:public Fl_Button
 {
 	public:
-		cmd_button(string name, string command, GUI* pgui)
-		:Fl_Button(0, 0, 1, 1),labl(name), cmd(command), gui(pgui)
+		cmd_button(string name, string command)
+		:Fl_Button(0, 0, 1, 1),labl(name), cmd(command)
 		{
 			label(labl.c_str());
 			callback(my_callback);
@@ -328,15 +328,13 @@ class cmd_button:public Fl_Button
 	private:
 		//The button label just stores the pointer, so we need to store the string here	
 		string cmd, labl;
-		GUI*   gui;
-
 		static void my_callback(Fl_Widget* w, long what_shall_I_do)
 		{
 			if(what_shall_I_do == POLL_UPDATE)
 				return;
 	
 			cmd_button* b = (cmd_button*) w;
-			b->gui->ParseLine(b->cmd);
+			GUI.ParseLine(b->cmd);
 		}
 };
 
@@ -360,7 +358,7 @@ void GUI_Fltk::AddPushButton(string cmd, string args)
 
 	//Create button
 
-	Fl_Button* b = new cmd_button(vs[0], vs[1], gui);
+	Fl_Button* b = new cmd_button(vs[0], vs[1]);
 	w.win->add(b);
 }
 
@@ -380,12 +378,10 @@ void GUI_Fltk::AddToggleButtonCB(void* ptr, string cmd, string args)
 class toggle_button: public Fl_Check_Button
 {
 	public:
-		toggle_button(string name, string gvar, GVars2* gv2, string def)
-		:Fl_Check_Button(0, 0, 1, 1),labl(name)
+		toggle_button(string name, string gvar, string def)
+		:Fl_Check_Button(0, 0, 1, 1),labl(name),my_int(gvar, def, true)
 		{
 			callback(my_callback);
-
-			gv2->Register(my_int, gvar, def, true);
 			value(*my_int);
 			label(labl.c_str());
 
@@ -399,7 +395,7 @@ class toggle_button: public Fl_Check_Button
 		}
 
 	private:
-		gvar2_int my_int;
+		gvar3<int> my_int;
 		string labl;
 
 		static void my_callback(Fl_Widget* w, long what_shall_I_do)
@@ -433,7 +429,7 @@ void GUI_Fltk::AddToggleButton(string cmd, string args)
 	if(vs.size() == 2)
 		vs.push_back("true");
 
-	Fl_Widget* b = new toggle_button(vs[0], vs[1], gv2, vs[2]);
+	Fl_Widget* b = new toggle_button(vs[0], vs[1], vs[2]);
 	w.win->add(b);
 }
 
@@ -454,8 +450,8 @@ typedef Fl_Slider slider_type;
 class slider_bar: public slider_type
 {
 	public:
-		slider_bar(string gvar_name, GVars2 *pgv2, double min, double max)
-		:slider_type(0, 0, 1, 1),gv2(pgv2),varname(gvar_name)
+		slider_bar(string gvar_name, double min, double max)
+		:slider_type(0, 0, 1, 1),varname(gvar_name)
 		{
 			type(FL_HOR_SLIDER);
 			bounds(min, max);
@@ -467,7 +463,7 @@ class slider_bar: public slider_type
 
 		void poll_update()
 		{
-			string crnt=gv2->StringValue(varname, true);
+			string crnt=GV3::get_var(varname);
 
 			
 			if(crnt != cached_value)
@@ -488,12 +484,11 @@ class slider_bar: public slider_type
 		{	
 			ostringstream ost;
 			ost << value();
-			gv2->SetVar(varname, ost.str(), 1);
+			GV3::set_var(varname, ost.str(), 1);
 			cached_value = ost.str();
 		}
 
 	private:
-		GVars2 *gv2;
 		string varname, cached_value;
 
 		static void my_callback(Fl_Widget* w, long what_shall_I_do)
@@ -528,7 +523,7 @@ void GUI_Fltk::AddSlider(string cmd, string args)
 	serialize::from_string(vs[1], min);
 	serialize::from_string(vs[2], max);
 
-	Fl_Widget* b = new slider_bar(vs[0], gv2, min, max);
+	Fl_Widget* b = new slider_bar(vs[0], min, max);
 
 	w.win->add(b);
 }
@@ -549,8 +544,8 @@ void GUI_Fltk::AddMonitorCB(void* ptr, string cmd, string args)
 class monitor: public Fl_Box
 {
 	public:
-		monitor(string t, string gvar_name, GVars2* pgv)
-		:Fl_Box(0, 0, 1, 1),title(t), gv_name(gvar_name),gv(pgv) 
+		monitor(string t, string gvar_name)
+		:Fl_Box(0, 0, 1, 1),title(t), gv_name(gvar_name) 
 		{
 			callback(my_callback);
 			align(FL_ALIGN_TOP|FL_ALIGN_INSIDE|FL_ALIGN_LEFT);
@@ -559,7 +554,7 @@ class monitor: public Fl_Box
 
 		void poll_update()
 		{
-			string gvar_text = gv->StringValue(gv_name);
+			string gvar_text = "\"" + GV3::get_var(gv_name) + "\"";
 
 			if(gvar_text != cached_gv_text)
 			{
@@ -571,7 +566,6 @@ class monitor: public Fl_Box
 
 	private:
 		string title, gv_name, full_label, cached_gv_text;
-		GVars2* gv;
 
 		static void my_callback(Fl_Widget* w, long what_shall_I_do)
 		{
@@ -598,7 +592,7 @@ void GUI_Fltk::AddMonitor(string cmd, string args)
 
 	window& w = windows[win_name];
 	
-	Fl_Widget* m = new monitor(vs[0], vs[1], gv2);
+	Fl_Widget* m = new monitor(vs[0], vs[1]);
 	w.win->add(m);
 }
 
@@ -623,8 +617,8 @@ void GUI_Fltk::AddSpinCB(void* ptr, string cmd, string args)
 class spin2: public Fl_Value_Input
 {
 	public:
-		spin2(string gvar_name, string t,  GVars2 *pgv2, double min, double max)
-		:Fl_Value_Input(0, 0, 1, 1),gv2(pgv2),varname(gvar_name), title(t)
+		spin2(string gvar_name, string t,  double min, double max)
+		:Fl_Value_Input(0, 0, 1, 1),varname(gvar_name), title(t)
 		{
 			label(title.c_str());
 			align(FL_ALIGN_LEFT);
@@ -637,7 +631,7 @@ class spin2: public Fl_Value_Input
 
 		void poll_update()
 		{
-			string crnt=gv2->StringValue(varname, true);
+			string crnt=GV3::get_var(varname);
 
 
 			if(crnt != cached_value)
@@ -658,12 +652,11 @@ class spin2: public Fl_Value_Input
 		{
 			ostringstream ost;
 			ost << value();
-			gv2->SetVar(varname, ost.str(), 1);
+			GV3::set_var(varname, ost.str(), 1);
 			cached_value = ost.str();
 		}
 
 	private:
-		GVars2 *gv2;
 		string varname, cached_value, title;
 
 		static void my_callback(Fl_Widget* w, long what_shall_I_do)
@@ -702,9 +695,22 @@ void GUI_Fltk::AddSpin(string cmd, string args)
     if( vs.size() == 4)
         title = vs[3];
 
-	Fl_Widget* b = new spin2(vs[0], title, gv2, min, max);
+	Fl_Widget* b = new spin2(vs[0], title, min, max);
 
 	w.win->add(b);
+}
+
+//Instantiations
+class GUI_Fltk GUI_Fltk_instance;
+
+void GUIWidgets::process_in_crnt_thread()
+{
+	GUI_Fltk_instance.process_in_crnt_thread();
+}
+
+void GUIWidgets::start_thread()
+{
+	GUI_Fltk_instance.start_thread();
 }
 
 

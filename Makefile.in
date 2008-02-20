@@ -82,7 +82,8 @@ HEADLESSOBJS=\
 	src/GStringUtil.o		\
 	src/gvars2.o			\
 	src/serialize.o			\
-	src/inst_headless.o		\
+	src/GUI_none.o			\
+	src/inst.o				\
 
 OBJS=\
 	src/gvars3.o			\
@@ -90,29 +91,21 @@ OBJS=\
 	src/GStringUtil.o		\
 	src/gvars2.o			\
 	src/serialize.o			\
-	src/inst.o				\
+	src/@guiobj@.o          \
+	src/GUI_non_readline.o	\
+	src/inst.o
 
 ifeq (@have_readline@,yes)
-	OBJS+=src/GUI_readline.o 
-    CPPFLAGS+=-DGUI_HAVE_READLINE
-else
-	OBJS+=src/GUI_non_readline.o 
+	OBJS+=src/GUI_readline.o
 endif
 
-ifeq (@have_fltk@,yes)
-	OBJS+=src/GUI_Fltk.o
-    CPPFLAGS+=-DGUI_HAVE_FLTK
-endif
+	#src/@readlineobj@.o     \
+#G++ seems to run constructors in the reverse order
+#so inst needs to be last.
 
-ifeq (@have_fltk2@,yes)
-	OBJS+=src/GUI_Fltk2.o
-    CPPFLAGS+=-DGUI_HAVE_FLTK2
-endif
 
-ifeq (@have_motif@,yes)
-	OBJS+=src/GUI_Motif.o
-    CPPFLAGS+=-DGUI_HAVE_MOTIF
-endif
+
+
 
 ifeq (@build_cpu@,x86_64)
     CPPFLAGS+=-fPIC
@@ -146,7 +139,7 @@ sos= $(soname) $(soname1) $(soname2)
 hsos= $(hsoname) $(hsoname1) $(hsoname2)
 
 ifeq (@make_headless@,yes)
-	HEADLESS=$(harchive) $(hsos)
+	HEADLESS=$(harchive) $(hsoname)
 endif
 
 all: $(archive) $(soname) $(HEADLESS)

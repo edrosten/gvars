@@ -36,7 +36,7 @@ class GUI_Fltk_win;
 class GUI_Fltk
 {
 	public:
-		GUI_Fltk(class GUI *pGUI, GVars2 *pGV2);
+		GUI_Fltk();
 		static const int widget_height = 25;
 		static const int widget_padding_x = 5;
 		static const int widget_padding_y = 2;

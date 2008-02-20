@@ -43,6 +43,4 @@ namespace GVars3
 	void print_history(ostream &ost)
 	{
 	}
-
-
 }

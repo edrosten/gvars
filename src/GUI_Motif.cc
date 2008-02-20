@@ -18,7 +18,7 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+#include "gvars3/instances.h"
 #include "gvars3/GUI_Motif.h"
 #include "gvars3/GStringUtil.h"
 #include <Xm/PushB.h>
@@ -36,15 +36,14 @@
 using namespace std;
 namespace GVars3
 {
-	//GUI_Motif GUI_motif(&GUI, &GV2);
 
-GUI_Motif::GUI_Motif(GUI *pGUI, GVars2 *pGV2)
+GUI_Motif::GUI_Motif(class GUI *pGUI, GVars2 *pGV2)
 {
-  mpGUI=pGUI;
-  mpGV2=pGV2;
-  mpDisplay=NULL;
-  mpGUI->RegisterCommand("GUI_Motif.InitXInterface", InitXInterfaceCB, this);
-
+	mpGUI=pGUI;
+	mpGV2=pGV2;
+	mpDisplay=NULL;
+	mpGUI->RegisterCommand("GUI.InitXInterface", InitXInterfaceCB, this);
+	mpGUI->RegisterCommand("GUI_Motif.InitXInterface", InitXInterfaceCB, this);
 }
 
 
@@ -155,66 +154,68 @@ void GUI_Motif::AddWindow(string sParams)
 
 void GUI_Motif::InitXInterface(string sParams)
 {
-  vector<string> vs = ChopAndUnquoteString(sParams);
-  string sDisplay="";
-  if(vs.size()>0)
-    sDisplay=vs[0];
-  if(vs.size()>1)
-    msName = vs[1];
-  else
-    msName = "GUI_Motif";
-  
+	vector<string> vs = ChopAndUnquoteString(sParams);
+	string sDisplay="";
+	if(vs.size()>0)
+		sDisplay=vs[0];
+	if(vs.size()>1)
+		msName = vs[1];
+	else
+		msName = "GUI";
 
-  if(mpDisplay)
-    {
-      cout << "??GUI_Motif::InitXInterface: display already initialised.." << endl;
-      return;
-    }
-  
-  if(sDisplay=="")
-    mpDisplay=XOpenDisplay(NULL);
-  else
-    mpDisplay=XOpenDisplay(sDisplay.c_str());
-  
-  if(!mpDisplay)
-    {
-      cout << "??GUI_Motif::InitXInterface: Could not open display \""<<sDisplay<< "\"." << endl;
-      return;
-    }
-  
 
-  // Ok, set up some widgets!
-  int argc=1;
-  char* argv[] = {""};
-  Arg al[10];
-  int ac = 0;
-  
-  XtToolkitInitialize();
-  mxtac=XtCreateApplicationContext();
-  XtDisplayInitialize(mxtac, mpDisplay, "GUI_Motif", "GUI_Motif", NULL, 0, &argc, argv);
-  
+	if(mpDisplay)
+	{
+		cout << "??GUI_Motif::InitXInterface: display already initialised.." << endl;
+		return;
+	}
 
-  pthread_mutexattr_t attr;
-  pthread_mutexattr_init(&attr);
-  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-  mpMutex = new(pthread_mutex_t);
-  pthread_mutex_init( (pthread_mutex_t*) mpMutex,  &attr);
+	if(sDisplay=="")
+		mpDisplay=XOpenDisplay(NULL);
+	else
+		mpDisplay=XOpenDisplay(sDisplay.c_str());
+
+	if(!mpDisplay)
+	{
+		cout << "??GUI_Motif::InitXInterface: Could not open display \""<<sDisplay<< "\"." << endl;
+		return;
+	}
+
+
+	// Ok, set up some widgets!
+	int argc=1;
+	char* argv[] = {""};
+	Arg al[10];
+	int ac = 0;
+
+	XtToolkitInitialize();
+	mxtac=XtCreateApplicationContext();
+	XtDisplayInitialize(mxtac, mpDisplay, "GUI_Motif", "GUI_Motif", NULL, 0, &argc, argv);
+
+
+	pthread_mutexattr_t attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	mpMutex = new(pthread_mutex_t);
+	pthread_mutex_init(mpMutex,  &attr);
+	mpGUI->RegisterCommand(msName+".AddWindow", AddWindowCB, this);
+
+}
+
+void GUI_Motif::start_thread()
+{
   pthread_t t;
   pthread_create(&t, NULL, GUI_Motif_Thread_CB, this);
-
-  mpGUI->RegisterCommand(msName+".AddWindow", AddWindowCB, this);
-  
-  
 }
 
 void GUI_Motif::RemoveWindow(Widget w)
 {
-  for(map<string,GUIWindowStruct>::iterator i = mmWindows.begin(); i!=mmWindows.end(); i++)
-    if (i->second.wTopLevel == w)
-      {
-	DestroyWindow(i->first + ".Destroy");
-	return;
-      };
+	for(map<string,GUIWindowStruct>::iterator i = mmWindows.begin(); i!=mmWindows.end(); i++)
+		if (i->second.wTopLevel == w)
+		{
+			DestroyWindow(i->first + ".Destroy");
+			return;
+		};
 }
 
 
@@ -600,73 +601,79 @@ void GUI_Motif::ButtonHandler(Widget w, XtPointer xtpCall)
 
 void GUI_Motif::GUI_Motif_Thread()
 {
-  static char szString[1000];
-
-  while(mpDisplay)
-    {
-      pthread_mutex_lock((pthread_mutex_t*)mpMutex);
-      for(map<string,GUIWindowStruct>::iterator w=mmWindows.begin();w!=mmWindows.end();w++)
+	while(mpDisplay)
 	{
-	  for(map< Widget, toggleMapStruct >::iterator i = w->second.ToggleButtonMap.begin(); i!=w->second.ToggleButtonMap.end(); i++)
-	    {
-	      if(*(i->second.gvn)!=(i->second.nCache))
-		{
-		  i->second.nCache = *(i->second.gvn);
-		  if(i->second.nCache)
-		    XmToggleButtonSetState(i->first,true,false);
-		  else
-		    XmToggleButtonSetState(i->first,false,false);
-		};
-	    }
-	  
-	  for(map < Widget, monitorMapStruct>::iterator i = w->second.MonitorMap.begin(); i!=w->second.MonitorMap.end(); i++)
-	    {
-	      if( (i->second.nCurrentDelay--) >0)
-		continue;
-	      i->second.nCurrentDelay=i->second.nDelaySetting;	  
-	      ostringstream os;
-	      os.str()="";
-	      os << i->second.sLabel << ":" << mpGV2->StringValue(i->second.sVarName);
-	      if(os.str() == i->second.sCache)
-		continue;
-	      i->second.sCache=os.str();
-	      strncpy(szString,os.str().c_str(),999);
-	      Arg al;
-	      XmString xmstr;
-	      xmstr = XmStringCreate(szString, XmFONTLIST_DEFAULT_TAG);
-	      XtSetArg (al, XmNlabelString, xmstr);
-	      XtSetValues(i->first, &al, 1);
-	      XmStringFree(xmstr);
-	    };
-
-	  for(map < Widget, sliderMapStruct>::iterator i = w->second.SliderMap.begin(); i!=w->second.SliderMap.end(); i++)
-	    {
-	      sliderMapStruct &sms = i->second;
-	      string sNewValue = mpGV2->StringValue(sms.sVarName);
-	      if(sNewValue == sms.sCachedValue)
-		continue;
-	      sms.sCachedValue = sNewValue;
-	      double *pdNewValue = ParseAndAllocate<double>(sNewValue);
-	      if(!pdNewValue) continue;
-	      double dFraction = ((*pdNewValue - sms.dMin)/ (sms.dMax-sms.dMin));
-	      if(dFraction > 1.0)
-		sms.dMax = *pdNewValue;
-	      if(dFraction < 0.0)
-		sms.dMin = *pdNewValue;
-	      XmScrollBarSetValues(i->first, 
-				   (int)(((*pdNewValue - sms.dMin)/ (sms.dMax-sms.dMin))*300.0),
-				   0,0,0,False);	      
-	      delete pdNewValue;
-	    };
-	  
-	};
-      DoMotifEvents();
-      pthread_mutex_unlock((pthread_mutex_t*)mpMutex);
-      
-      usleep(20000);
-    };
+		poll();
+		usleep(20000);
+	}
 }
 
+void GUI_Motif::poll()
+{
+	if(!mpDisplay)
+		return;
+  static char szString[1000];
+
+  pthread_mutex_lock(mpMutex);
+  for(map<string,GUIWindowStruct>::iterator w=mmWindows.begin();w!=mmWindows.end();w++)
+    {
+      for(map< Widget, toggleMapStruct >::iterator i = w->second.ToggleButtonMap.begin(); i!=w->second.ToggleButtonMap.end(); i++)
+	{
+	  if(*(i->second.gvn)!=(i->second.nCache))
+	    {
+	      i->second.nCache = *(i->second.gvn);
+	      if(i->second.nCache)
+		XmToggleButtonSetState(i->first,true,false);
+	      else
+		XmToggleButtonSetState(i->first,false,false);
+	    };
+	}
+      
+      for(map < Widget, monitorMapStruct>::iterator i = w->second.MonitorMap.begin(); i!=w->second.MonitorMap.end(); i++)
+	{
+	  if( (i->second.nCurrentDelay--) >0)
+	    continue;
+	  i->second.nCurrentDelay=i->second.nDelaySetting;	  
+	  ostringstream os;
+	  os.str()="";
+	  os << i->second.sLabel << ":" << mpGV2->StringValue(i->second.sVarName);
+	  if(os.str() == i->second.sCache)
+	    continue;
+	  i->second.sCache=os.str();
+	  strncpy(szString,os.str().c_str(),999);
+	  Arg al;
+	  XmString xmstr;
+	  xmstr = XmStringCreate(szString, XmFONTLIST_DEFAULT_TAG);
+	  XtSetArg (al, XmNlabelString, xmstr);
+	  XtSetValues(i->first, &al, 1);
+	  XmStringFree(xmstr);
+	};
+
+      for(map < Widget, sliderMapStruct>::iterator i = w->second.SliderMap.begin(); i!=w->second.SliderMap.end(); i++)
+	{
+	  sliderMapStruct &sms = i->second;
+	  string sNewValue = mpGV2->StringValue(sms.sVarName);
+	  if(sNewValue == sms.sCachedValue)
+	    continue;
+	  sms.sCachedValue = sNewValue;
+	  double *pdNewValue = ParseAndAllocate<double>(sNewValue);
+	  if(!pdNewValue) continue;
+	  double dFraction = ((*pdNewValue - sms.dMin)/ (sms.dMax-sms.dMin));
+	  if(dFraction > 1.0)
+	    sms.dMax = *pdNewValue;
+	  if(dFraction < 0.0)
+	    sms.dMin = *pdNewValue;
+	  XmScrollBarSetValues(i->first, 
+			       (int)(((*pdNewValue - sms.dMin)/ (sms.dMax-sms.dMin))*300.0),
+			       0,0,0,False);	      
+	  delete pdNewValue;
+	};
+      
+    };
+  DoMotifEvents();
+
+
+} 
 void* GUI_Motif::GUI_Motif_Thread_CB(void* ptr)
 {
   ((GUI_Motif*) ptr)->GUI_Motif_Thread();
@@ -681,6 +688,19 @@ void GUI_Motif::DoMotifEvents()
     XtDispatchEvent(&xevent);
     num_events++;
   }
+}
+
+//Instantiations, link time virtual function definitions 
+class GUI_Motif GUI_Motif_instance(&GUI, &GV2);
+
+void GUIWidgets::process_in_crnt_thread()
+{
+	GUI_Motif_instance.poll();
+}
+
+void GUIWidgets::start_thread()
+{
+	GUI_Motif_instance.start_thread();
 }
 
 }

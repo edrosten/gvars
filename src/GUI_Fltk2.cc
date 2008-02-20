@@ -20,7 +20,9 @@
 */
 
 #include <gvars3/GUI_Fltk2.h>
+#include <gvars3/GUI_Widgets.h>
 #include <gvars3/GStringUtil.h>
+#include <gvars3/instances.h>
 
 #include <vector>
 #include <string.h>
@@ -44,12 +46,12 @@ using namespace std;
 namespace GVars3
 {
 
-GUI_Fltk2::GUI_Fltk2(GUI *pGUI, GVars2* pGV2)
+GUI_Fltk2::GUI_Fltk2(class GUI *pGUI, GVars2* pGV2)
 {
 	gui=pGUI;
 	gv2=pGV2;
 	init = 0;
-	gui->RegisterCommand("GUI_Fltk2.InitXInterface", InitXInterfaceCB, this);
+	gui->RegisterCommand("GUI.InitXInterface", InitXInterfaceCB, this);
 }
 
 static void poll_callback(void* v)
@@ -101,7 +103,7 @@ void GUI_Fltk2::InitXInterface(string args)
 	if(vs.size() > 0)
 		name = vs[0];
 	else
-		name = "GUI_Fltk2";
+		name = "GUI";
 
 	gui->RegisterCommand(name + ".AddWindow", AddWindowCB, this);
 
@@ -157,7 +159,7 @@ void GUI_Fltk2::AddWindowCB(void* ptr, string sCommand, string sParams)
 class GUI_Fltk2_win:public fltk::Window
 {
 	public:
-		GUI_Fltk2_win(int w, string name, string caption, GUI* pgui)
+		GUI_Fltk2_win(int w, string name, string caption, class GUI* pgui)
 		:fltk::Window(w, 10),win_name(name),labl(caption),gui(pgui)
 		{
 			label(caption.c_str());
@@ -190,7 +192,7 @@ class GUI_Fltk2_win:public fltk::Window
 
 	private:
 		string  win_name, labl;
-		GUI* 	gui;
+		class GUI* 	gui;
 
 		static void my_callback(fltk::Widget* w)
 		{
@@ -301,7 +303,7 @@ void GUI_Fltk2::AddPushButtonCB(void* ptr, string cmd, string args)
 class cmd_button2 :public fltk::Button
 {
 	public:
-		cmd_button2(string name, string command, GUI* pgui)
+		cmd_button2(string name, string command, class GUI* pgui)
 		:fltk::Button(0, 0, 1, 1),labl(name), cmd(command), gui(pgui)
 		{
 			label(labl.c_str());
@@ -311,7 +313,7 @@ class cmd_button2 :public fltk::Button
 	private:
 		//The button label just stores the pointer, so we need to store the string here
 		string cmd, labl;
-		GUI*   gui;
+		class GUI*   gui;
 
 		static void my_callback(fltk::Widget* w, long what_shall_I_do)
 		{
@@ -761,5 +763,20 @@ void GUI_Fltk2::AddSmallToggle(string cmd, string args)
 	fltk::Widget* b = new small_toggle2( vs[1], vs[0], gv2, vs[2]);
 	w.win->add(b);
 }
+
+//Instantiations
+class GUI_Fltk2 GUI_Fltk2_instance(&GUI, &GV2);
+
+void GUIWidgets::process_in_crnt_thread()
+{
+	GUI_Fltk2_instance.process_in_crnt_thread();
+}
+
+void GUIWidgets::start_thread()
+{
+	GUI_Fltk2_instance.start_thread();
+}
+
+
 
 }

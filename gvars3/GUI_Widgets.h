@@ -19,12 +19,22 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifndef GVARS3_INC_GUI_WIDGETS_H
+#define GVARS3_INC_GUI_WIDGETS_H
+
 #include <gvars3/GUI.h>
-#include <gvars3/GUI_Widgets.h>
+#include <pthread.h>
 
 namespace GVars3
 {
-  extern GVars2 GV2;
-  extern class GUI GUI;
-  extern class GUIWidgets GUI_Widgets;
+
+class GUIWidgets
+{
+	public:
+		void process_in_crnt_thread();
+		void start_thread();
 };
+		
+}
+
+#endif

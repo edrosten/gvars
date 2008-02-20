@@ -1,10 +1,10 @@
-AC_INIT(gvars3, 0.5)
+AC_INIT(gvars3, 0.6)
 AC_PROG_AWK
 AC_LANG(C++)
 
 AC_CHECK_HEADERS(iostream)
 
-optionlist="fltk motif fltk2 readline"
+optionlist="gui readline toon"
 options=""
 
 #Host detection
@@ -157,49 +157,75 @@ echo "Checking for widget libraries (provides GUI_...)"
 echo ------------------------------------------------
 
 
+
 #dnl check_GUI(fltk,FL/Fl.h,fltk)
+enable_any=yes
+AC_ARG_ENABLE(widgets,[  --disable-widgets])
 
-define(check_GUI,[
-AC_CHECK_HEADERS($2,a_$1=yes)
-AC_CHECK_LIB($3,main)
-if test x$ac_cv_lib_[]$3[]_main == xyes && test x$[]a_$1 == xyes
+AC_ARG_ENABLE(fltk2,[  --disable-fltk2])
+AC_ARG_ENABLE(fltk,[  --disable-fltk])
+AC_ARG_ENABLE(motif,[  --disable-motif])
+
+enable_fltk2=${enable_fltk2:-$enable_any}
+enable_fltk=${enable_fltk:-$enable_any}
+enable_motif=${enable_motif:-$enable_any}
+
+gui=none
+
+if test $enable_fltk2 == yes && test $gui == none
 then
-	AC_SUBST(have_[]$1, yes)
-	options="$options $1"
-	$1=yes
-fi
-])
-
-check_GUI(fltk,FL/Fl.H,fltk)
-
-AC_PATH_X
-foo_LIBS="$LIBS"
-foo_CPPFLAGS="$CPPFLAGS"
-test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
-test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
-check_GUI(motif,Xm/Xm.h,Xm)
-if test x$motif != xyes
-then
-	LIBS="$foo_LIBS"
-	CPPFLAGS="$foo_CPPFLAGS"
-fi
-	
-
-# check_GUI(fltk2,fltk/Button.h,fltk2)
-a=
-AC_PATH_PROG(a,fltk2-config)
-if test x$a != x
-then
-    FLTK2_CPPFLAGS=`$a --cxxflags`
-    FLTK2_LIBS=`$a --ldflags`
-    CPPFLAGS="$FLTK2_CPPFLAGS $CPPFLAGS"
-    LIBS="$FLTK2_LIBS $LIBS"
-    AC_SUBST(have_fltk2, yes)
-    options="$options fltk2"
-    fltk2=yes
+	a=
+	AC_PATH_PROG(a,fltk2-config)
+	if test x$a != x
+	then
+		FLTK2_CPPFLAGS=`$a --cxxflags`
+		FLTK2_LIBS=`$a --ldflags`
+		CPPFLAGS="$FLTK2_CPPFLAGS $CPPFLAGS"
+		LIBS="$FLTK2_LIBS $LIBS"
+		AC_SUBST(guiobj, GUI_Fltk2)
+		options="$options gui"
+		gui=fltk2
+	fi
 fi
 
-if test x$fltk$motif$fltk2 == x
+if test $gui == none && test $enable_fltk == yes
+then
+	AC_CHECK_HEADERS(FL/Fl.H, have_fltk_headers=yes)
+	AC_CHECK_LIB(fltk, main, have_fltk_lib=yes)
+
+	if test x$have_fltk_headers$have_fltk_lib == xyesyes
+	then
+		LIBS="$LIBS -lfltk"
+		options="$options gui"
+		gui=fltk
+		AC_SUBST(guiobj, GUI_Fltk)
+	fi
+fi
+
+
+if test $gui = none && test $enable_motif == yes
+then
+	AC_PATH_X
+	foo_LIBS="$LIBS"
+	foo_CPPFLAGS="$CPPFLAGS"
+	test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
+	test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
+
+	AC_CHECK_HEADERS(Xm/Xm.h, have_motif_headers=yes)
+	AC_CHECK_LIB(Xm, main, have_motif_lib=yes)
+	if test x$have_motif_headers$have_motif_lib == xyesyes
+	then
+		LIBS="$LIBS -lXm"
+		options="$options gui"
+		gui=motif
+		AC_SUBST(guiobj, GUI_Motif)
+	else
+		LIBS="$foo_LIBS"
+		CPPFLAGS="$foo_CPPFLAGS"
+	fi
+fi
+
+if test $gui == none
 then
 	AC_MSG_WARN(No GUI functionality enabled)
 fi
@@ -229,6 +255,8 @@ echo $options
 echo
 echo Missing options:
 echo $options $optionlist |  $AWK 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}'
+echo GUI support:
+echo $gui
 echo
 changequote([,])
 

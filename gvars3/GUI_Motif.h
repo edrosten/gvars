@@ -19,14 +19,15 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __GUI_MOTIF_H
-#define __GUI_MOTIF_H
+#ifndef GVARS3_INCLUDE_GUI_MOTIF_H
+#define GVARS3_INCLUDE_GUI_MOTIF_H
 
 #include <gvars3/GUI.h>
 #include <Xm/Xm.h>
 
 namespace GVars3
 {
+
 
 
 class GUI_Motif
@@ -40,6 +41,8 @@ class GUI_Motif
   void AddSlider(std::string sCommand, std::string sParams);
   void AddWindow(std::string sParams);
   void DestroyWindow(std::string sCommand);
+  void poll();
+  void start_thread();
   
   
   
@@ -67,7 +70,7 @@ class GUI_Motif
   class GUI *mpGUI;
   class GVars2 *mpGV2;
   
-  void* mpMutex;
+  pthread_mutex_t* mpMutex;
   
  
   Display* mpDisplay;
@@ -91,6 +94,7 @@ class GUI_Motif
   std::map<std::string, GUIWindowStruct> mmWindows;
   
 };
+
 
 }
 
