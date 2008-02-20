@@ -778,7 +778,7 @@ namespace GVars3
       return;
     
 #ifdef GUI_HAVE_READLINE
-    mpParserThread = new spawn_readline_thread("quit");
+    mpParserThread = new spawn_readline_thread("");
 #else
     mpParserThread = new spawn_non_readline_thread("");
 #endif
