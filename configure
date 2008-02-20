@@ -3847,6 +3847,8 @@ if test $gui == none
 then
 	{ echo "$as_me:$LINENO: WARNING: No GUI functionality enabled" >&5
 echo "$as_me: WARNING: No GUI functionality enabled" >&2;}
+	guiobj=GUI_none
+
 fi
 
 ################################################################################

@@ -228,6 +228,7 @@ fi
 if test $gui == none
 then
 	AC_MSG_WARN(No GUI functionality enabled)
+	AC_SUBST(guiobj, GUI_none)
 fi
 
 ################################################################################
