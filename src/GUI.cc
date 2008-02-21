@@ -20,6 +20,7 @@
 */
 
 #include "gvars3/GUI.h"
+#include "src/GUI_impl.h"
 #include "gvars3/GStringUtil.h"
 
 #ifdef GUI_HAVE_READLINE
@@ -41,7 +42,83 @@
 using namespace std;
 namespace GVars3
 {
-  //GUI GUI;
+
+	GUI_impl& GUI::I()
+	{
+		return GUI_impl_singleton<>::instance();
+	}
+
+	GUI::GUI()
+	{
+	}
+
+	void GUI::RegisterCommand(string cmd, GUICallbackProc c, void* p)
+	{
+		I().RegisterCommand(cmd, c, p);
+	}
+
+
+	void GUI::UnRegisterAllCommands(void* p)
+	{
+		I().UnRegisterAllCommands(p);
+	}
+
+	void GUI::UnRegisterCommand(std::string sCommandName, void* thisptr)
+	{
+		I().UnRegisterCommand(sCommandName, thisptr);
+	}
+
+	void GUI::UnRegisterCommand(std::string sCommandName)
+	{
+		I().UnRegisterCommand(sCommandName);
+	}
+
+	void GUI::ParseLine(std::string s, bool bSilentFailure)
+	{
+		I().ParseLine(s, bSilentFailure);
+	}
+
+	void GUI::ParseStream(std::istream& is)
+	{
+		I().ParseStream(is);
+	}
+
+	void GUI::LoadFile(std::string sFileName)
+	{
+		I().LoadFile(sFileName);
+	}
+
+
+	bool GUI::CallCallbacks(std::string sCommand, std::string sParams)
+	{
+		return I().CallCallbacks(sCommand, sParams);
+	}
+
+	void GUI::SetupReadlineCompletion()
+	{
+		I().SetupReadlineCompletion();
+	}
+
+	void GUI::StartParserThread()
+	{
+		I().StartParserThread();
+	}
+
+	void GUI::StopParserThread()
+	{
+		I();
+		GUI_impl::StopParserThread();
+	}
+
+	int GUI::parseArguments( const int argc, char * argv[], int start, const std::string prefix, const std::string execKeyword)
+	{
+		I().parseArguments(argc, argv, start, prefix, execKeyword);
+	}
+
+
+
+
+
 
   bool setvar(string s)
   {
@@ -80,21 +157,21 @@ namespace GVars3
 
 
 
-  GUI *GUI::mpReadlineCompleterGUI=NULL;
+  GUI_impl *GUI_impl::mpReadlineCompleterGUI=NULL;
 
 
-  void GUI::UnRegisterCommand(string sCommandName)
+  void GUI_impl::UnRegisterCommand(string sCommandName)
   {
     mmCallBackMap.erase(sCommandName);
   };
 
-  void GUI::UnRegisterAllCommands(void* thisptr)
+  void GUI_impl::UnRegisterAllCommands(void* thisptr)
   {
     for(map<string, CallbackVector>::iterator i=mmCallBackMap.begin(); i!=mmCallBackMap.end(); i++)
       UnRegisterCommand(i->first, thisptr);
   };
 
-  void GUI::UnRegisterCommand(string sCommandName, void* thisptr)
+  void GUI_impl::UnRegisterCommand(string sCommandName, void* thisptr)
   {
     CallbackVector &cbv = mmCallBackMap[sCommandName];
     for(int i = cbv.size() - 1; i>=0; i--)
@@ -102,11 +179,11 @@ namespace GVars3
 	cbv.erase(cbv.begin() + i);
   };
 
-  void GUI::RegisterCommand(string sCommandName, GUICallbackProc callback, void* thisptr)
+  void GUI_impl::RegisterCommand(string sCommandName, GUICallbackProc callback, void* thisptr)
   {
     if(builtins.count(sCommandName))
       {
-	cerr << "!!GUI::RegisterCommand: Tried to register reserved keyword " << sCommandName << "." << endl;
+	cerr << "!!GUI_impl::RegisterCommand: Tried to register reserved keyword " << sCommandName << "." << endl;
 	return;
       }
 
@@ -129,7 +206,7 @@ namespace GVars3
 
   // Returns true if something was called;
   // otherwise returns false
-  bool GUI::CallCallbacks(string sCommand, string sParams)
+  bool GUI_impl::CallCallbacks(string sCommand, string sParams)
   {
     if(mmCallBackMap.count(sCommand)==0)
       return false;
@@ -146,14 +223,14 @@ namespace GVars3
   };
 
 
-  void GUI::ParseStream(istream& is)
+  void GUI_impl::ParseStream(istream& is)
   {
     string buffer;
     while(getline(is, buffer))
       ParseLine(buffer);
   }
 
-  void GUI::LoadFile(string sFileName)
+  void GUI_impl::LoadFile(string sFileName)
   {
     ifstream ifs;
 
@@ -166,7 +243,7 @@ namespace GVars3
 
     if(!ifs.good())
       {
-	cerr << "! GUI::Loadfile: Failed to load script file \"" << sFileName << "\"."<< endl;
+	cerr << "! GUI_impl::Loadfile: Failed to load script file \"" << sFileName << "\"."<< endl;
 	return;
       }
 
@@ -200,7 +277,7 @@ namespace GVars3
   }
 
 
-  void GUI::ParseLine(string s, bool bSilentFailure )
+  void GUI_impl::ParseLine(string s, bool bSilentFailure )
   {
     s = UncommentString(s);	
     if(s == "")
@@ -352,7 +429,7 @@ namespace GVars3
       return;
 
     if(!bSilentFailure) 
-      cerr << "? GUI::ParseLine: Unknown command \"" << sCommand << "\" or invalid assignment." << endl;
+      cerr << "? GUI_impl::ParseLine: Unknown command \"" << sCommand << "\" or invalid assignment." << endl;
   }
 
 
@@ -367,7 +444,7 @@ namespace GVars3
 
     if(v.size()==0) 
       {
-	cerr <<"? GUI internal shell command: No prog/args given."<< endl; 
+	cerr <<"? GUI_impl internal shell command: No prog/args given."<< endl; 
 	return;
       }
 
@@ -376,25 +453,25 @@ namespace GVars3
 
   void builtin_ls(void* ptr, string sCommand, string sParams)
   {
-    GUI* p = (GUI*)ptr;
+    GUI_impl* p = (GUI_impl*)ptr;
     p->ParseLine("shell ls " + sParams);	
   }
 
   void builtin_ll(void* ptr, string sCommand, string sParams)
   {
-    GUI* p = (GUI*)ptr;
+    GUI_impl* p = (GUI_impl*)ptr;
     p->ParseLine("shell ls -l " + sParams);	
   }
 
   void builtin_try(void* ptr, string sCommand, string sParams)
   {
-    GUI* p = (GUI*)ptr;
+    GUI_impl* p = (GUI_impl*)ptr;
     p->ParseLine(sParams, true);
   }
 
   void builtin_exec(void* ptr, string sCommand, string sParams)
   {
-    GUI* p = (GUI*)ptr;
+    GUI_impl* p = (GUI_impl*)ptr;
     p->LoadFile(sParams);
   }
 
@@ -410,11 +487,11 @@ namespace GVars3
 
   void builtin_if(void* ptr, string sCommand, string sParams)
   {
-    GUI* p = (GUI*)ptr;
+    GUI_impl* p = (GUI_impl*)ptr;
     vector<string> v = ChopAndUnquoteString(sParams);
     if(v.size()<2)
       {
-	cerr <<"? GUI internal if command: not enough params (syntax: if gvar command)"<< endl; 
+	cerr <<"? GUI_impl internal if command: not enough params (syntax: if gvar command)"<< endl; 
 	return;
       }
 
@@ -440,11 +517,11 @@ namespace GVars3
 
   void builtin_ifnot(void* ptr, string sCommand, string sParams)
   {
-    GUI* p = (GUI*)ptr;
+    GUI_impl* p = (GUI_impl*)ptr;
     vector<string> v = ChopAndUnquoteString(sParams);
     if(v.size()<2)
       {
-	cerr <<"? GUI internal ifnot command: not enough params (syntax: if gvar command)"<< endl; 
+	cerr <<"? GUI_impl internal ifnot command: not enough params (syntax: if gvar command)"<< endl; 
 	return;
       }
 
@@ -470,11 +547,11 @@ namespace GVars3
 
   void builtin_ifeq(void* ptr, string sCommand, string sParams)
   {
-    GUI* p = (GUI*)ptr;
+    GUI_impl* p = (GUI_impl*)ptr;
     vector<string> v = ChopAndUnquoteString(sParams);
     if(v.size()<3)
       {
-	cerr <<"? GUI internal ifeq command: not enough params (syntax: if gvar command)"<< endl; 
+	cerr <<"? GUI_impl internal ifeq command: not enough params (syntax: if gvar command)"<< endl; 
 	return;
       }
 
@@ -501,11 +578,11 @@ namespace GVars3
 
   void builtin_toggle(void* ptr, string sCommand, string sParams)
   {
-    GUI* p = (GUI*)ptr;
+    GUI_impl* p = (GUI_impl*)ptr;
     vector<string> v = ChopAndUnquoteString(sParams);
     if(v.size()!=1) 
       {
-	cout <<"? GUI internal toggle command: invalid num of params (syntax: toggle gvar)"<< endl; 
+	cout <<"? GUI_impl internal toggle command: invalid num of params (syntax: toggle gvar)"<< endl; 
 	return;
       };
     int nValue = GV3::get<int>(v[0]);
@@ -553,7 +630,7 @@ namespace GVars3
       error = true;
   
     if(error)
-      cout << "? GUI internal " << sCommand << ": syntax is " << sCommand << " [-a] [pattern] " << endl;
+      cout << "? GUI_impl internal " << sCommand << ": syntax is " << sCommand << " [-a] [pattern] " << endl;
     else
       GV3::print_var_list(cout, pattern, print_all);
   }
@@ -567,7 +644,7 @@ namespace GVars3
 
   void builtin_commandlist(void* ptr, string sCommand, string sParams)
   {
-    GUI* p = (GUI*)ptr;
+    GUI_impl* p = (GUI_impl*)ptr;
 
     cout << "  Builtin commands:" << endl;
 
@@ -587,23 +664,23 @@ namespace GVars3
     vector<string> vs = ChopAndUnquoteString(sParams);
     if(vs.size() < 2)
       {
-	cout << "? GUI Internal queue command syntax: queue queue-name line-to-enqueue" << endl;
+	cout << "? GUI_impl Internal queue command syntax: queue queue-name line-to-enqueue" << endl;
 	return;
       }
     string &sQueueName = vs[0];
     sParams.erase(sParams.find(sQueueName), sQueueName.length());
 	
-    GUI* pGUI = (GUI*)ptr;
+    GUI_impl* pGUI = (GUI_impl*)ptr;
     pGUI->mmQueues[sQueueName].push_back(sParams);
   }
 
   void builtin_runqueue(void* ptr, string sCommand, string sParams)
   {
-    GUI* pGUI = (GUI*)ptr;
+    GUI_impl* pGUI = (GUI_impl*)ptr;
     vector<string> vs = ChopAndUnquoteString(sParams);
     if(vs.size() != 1)
       {
-	cout << "? GUI Internal " << sCommand << " command syntax: runqueue queue-name " << endl;
+	cout << "? GUI_impl Internal " << sCommand << " command syntax: runqueue queue-name " << endl;
 	int nQueues = pGUI->mmQueues.size();
 	    
 	cout << "  Currently there are " << nQueues << " queues registered." << endl;
@@ -626,7 +703,7 @@ namespace GVars3
       vQueue.clear();   // do not clear the queue if the command was runqueue_noclear!
   }
 
-  int GUI::parseArguments( const int argc, char * argv[], int start, const string prefix, const string execKeyword ){
+  int GUI_impl::parseArguments( const int argc, char * argv[], int start, const string prefix, const string execKeyword ){
     while(start < argc){
       string opt = argv[start];
       if(opt.size() > prefix.size() && opt.find(prefix) == 0){
@@ -647,18 +724,18 @@ namespace GVars3
     return start;
   }
 
-  void GUI::RegisterBuiltin(string sCommandName, GUICallbackProc callback)
+  void GUI_impl::RegisterBuiltin(string sCommandName, GUICallbackProc callback)
   {
     RegisterCommand(sCommandName, callback, this);
     builtins.insert(sCommandName);
   }
 
-  GUI::GUI()
+  GUI_impl::GUI_impl()
   {
     do_builtins();
   }
 
-  GUI::GUI(GVars2*)
+  GUI_impl::GUI_impl(GVars2*)
   {
     do_builtins();
   }
@@ -674,13 +751,13 @@ namespace GVars3
   {
     vector<string> v = ChopAndUnquoteString(sParams);
     if(v.size()!=1) 
-      cout << "? GUI internal savehistory command: need one param (filename)." << endl;
+      cout << "? GUI_impl internal savehistory command: need one param (filename)." << endl;
     else
       {
 	ofstream ofs;
 	ofs.open(v[0].c_str());
 	if(!ofs.good())
-	  cout << "? GUI internal savehistory command: cannot open " << v[0] << " for write." << endl;
+	  cout << "? GUI_impl internal savehistory command: cannot open " << v[0] << " for write." << endl;
 	else
 	  {
 	    print_history(ofs);
@@ -691,7 +768,7 @@ namespace GVars3
   };
 
 
-  void GUI::do_builtins()
+  void GUI_impl::do_builtins()
   {
     RegisterBuiltin("shell", builtin_shell);
     RegisterBuiltin("ls", builtin_ls);
@@ -723,20 +800,20 @@ namespace GVars3
   ///////////////////////////////////////
   ///////////////////////////////////////
 
-  void* GUI::mpParserThread = NULL;
+  void* GUI_impl::mpParserThread = NULL;
   
 #ifdef GUI_HAVE_READLINE
 #include <readline/readline.h>
 #include <readline/history.h>
   
-  void GUI::SetupReadlineCompletion()
+  void GUI_impl::SetupReadlineCompletion()
   {
     mpReadlineCompleterGUI = this;
     rl_attempted_completion_function = ReadlineCompletionFunction;
     rl_basic_word_break_characters = " \t\n\"\\'`@$><;|&{("; 
   }
   
-  char ** GUI::ReadlineCompletionFunction (const char *text, int start, int end)
+  char ** GUI_impl::ReadlineCompletionFunction (const char *text, int start, int end)
   {
     rl_completion_append_character=0;
     char **matches;
@@ -756,11 +833,11 @@ namespace GVars3
 	}
   };
 #else
-  void GUI::SetupReadlineCompletion()
+  void GUI_impl::SetupReadlineCompletion()
   {
   }
 
-  char ** GUI::ReadlineCompletionFunction (const char *text, int start, int end)
+  char ** GUI_impl::ReadlineCompletionFunction (const char *text, int start, int end)
   {
     return NULL;
   }
@@ -772,7 +849,7 @@ namespace GVars3
 #endif
 
 
-  void GUI::StartParserThread()
+  void GUI_impl::StartParserThread()
   {
     if(mpParserThread)  // Only makes sense to have one instance of the parser thread.
       return;
@@ -784,7 +861,7 @@ namespace GVars3
 #endif
   }
 
-  void GUI::StopParserThread()
+  void GUI_impl::StopParserThread()
   {
     if(!mpParserThread)
       return;

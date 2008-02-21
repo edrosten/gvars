@@ -20,7 +20,7 @@
 */
 
 #include "gvars3/instances.h"
-#include "gvars3/GUI.h"
+#include "src/GUI_impl.h"
 #include "gvars3/GUI_readline.h"
 
 #include <pthread.h>
@@ -145,7 +145,7 @@ namespace GVars3
 	}
 
 
-char * GUI::ReadlineCommandGeneratorCB(const char *szText, int nState)
+char * GUI_impl::ReadlineCommandGeneratorCB(const char *szText, int nState)
 {
   return mpReadlineCompleterGUI->ReadlineCommandGenerator(szText, nState);
 
@@ -200,7 +200,7 @@ char* GV3ReadlineCommandGenerator(const char *szText, int nState)
 
 
 
-char * GUI::ReadlineCommandGenerator(const char *szText, int nState)
+char * GUI_impl::ReadlineCommandGenerator(const char *szText, int nState)
 {
   static map<string,CallbackVector>::iterator iRegistered;
   static int nTextLength;
