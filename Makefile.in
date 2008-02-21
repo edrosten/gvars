@@ -81,6 +81,7 @@ HEADLESSOBJS=\
 	src/GUI.o				\
 	src/GStringUtil.o		\
 	src/gvars2.o			\
+	src/GUI_language.o		\
 	src/serialize.o			\
 	src/GUI_none.o			\
 	src/inst.o				\
@@ -90,6 +91,7 @@ OBJS=\
 	src/GUI.o				\
 	src/GStringUtil.o		\
 	src/gvars2.o			\
+	src/GUI_language.o		\
 	src/serialize.o			\
 	src/@guiobj@.o          \
 	src/GUI_non_readline.o	\
