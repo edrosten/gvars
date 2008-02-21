@@ -97,6 +97,7 @@ OBJS=\
 
 ifeq (@have_readline@,yes)
 	OBJS+=src/GUI_readline.o
+	CPPFLAGS+=-DGUI_HAVE_READLINE
 endif
 
 	#src/@readlineobj@.o     \
