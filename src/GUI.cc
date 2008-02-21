@@ -29,6 +29,8 @@
 #include <gvars3/GUI_non_readline.h>
 #endif
 
+#include <pthread.h>
+
 #include <cctype>
 #include <sstream>
 #include <fstream>
