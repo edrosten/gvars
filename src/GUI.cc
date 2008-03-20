@@ -23,12 +23,6 @@
 #include "src/GUI_impl.h"
 #include "gvars3/GStringUtil.h"
 
-#ifdef GUI_HAVE_READLINE
-#include <gvars3/GUI_readline.h>
-#else
-#include <gvars3/GUI_non_readline.h>
-#endif
-
 #include <pthread.h>
 
 #include <cctype>
@@ -804,77 +798,6 @@ namespace GVars3
 
   void* GUI_impl::mpParserThread = NULL;
   
-#ifdef GUI_HAVE_READLINE
-#include <readline/readline.h>
-#include <readline/history.h>
-  
-  void GUI_impl::SetupReadlineCompletion()
-  {
-    mpReadlineCompleterGUI = this;
-    rl_attempted_completion_function = ReadlineCompletionFunction;
-    rl_basic_word_break_characters = " \t\n\"\\'`@$><;|&{("; 
-  }
-  
-  char ** GUI_impl::ReadlineCompletionFunction (const char *text, int start, int end)
-  {
-    rl_completion_append_character=0;
-    char **matches;
-    matches = (char **)NULL;
-    matches = rl_completion_matches (text,   ReadlineCommandGeneratorCB);
-    return (matches);
-  }
-  
-  void print_history(ostream &ost)
-  {
-    HIST_ENTRY **apHistEntries = history_list();
-    if(apHistEntries)
-      while((*apHistEntries)!=NULL)
-	{
-	  ost << (*apHistEntries)->line << endl;
-	  apHistEntries++;
-	}
-  };
-#else
-  void GUI_impl::SetupReadlineCompletion()
-  {
-  }
-
-  char ** GUI_impl::ReadlineCompletionFunction (const char *text, int start, int end)
-  {
-    return NULL;
-  }
-
-
-  void print_history(ostream &ost)
-  {
-  }
-#endif
-
-
-  void GUI_impl::StartParserThread()
-  {
-    if(mpParserThread)  // Only makes sense to have one instance of the parser thread.
-      return;
-    
-#ifdef GUI_HAVE_READLINE
-    mpParserThread = new spawn_readline_thread("");
-#else
-    mpParserThread = new spawn_non_readline_thread("");
-#endif
-  }
-
-  void GUI_impl::StopParserThread()
-  {
-    if(!mpParserThread)
-      return;
-#ifdef GUI_HAVE_READLINE
-    delete( (spawn_readline_thread*) mpParserThread);
-#else
-    delete( (spawn_non_readline_thread*) mpParserThread);
-#endif    
-    mpParserThread = NULL;
-  }
-
 
 }
 
