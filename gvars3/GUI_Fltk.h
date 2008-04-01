@@ -54,6 +54,7 @@ class GUI_Fltk
 		void AddToggleButton(std::string cmd, std::string args);
 		void AddSlider(std::string cmd, std::string args);
 		void AddSpin(std::string cmd, std::string args);
+		void AddLabel(std::string cmd, std::string args);
 		//void AddSmallToggle(std::string cmd, std::string args);
 
 
@@ -85,6 +86,7 @@ class GUI_Fltk
 		static void AddSliderCB(void*, std::string, std::string);
 		static void AddMonitorCB(void*, std::string, std::string);
 		static void AddSpinCB(void*, std::string, std::string);
+		static void AddLabelCB(void*, std::string, std::string);
 		//static void AddSmallToggleCB(void*, std::string, std::string);
 
 		static void* do_stuff_CB(void*);

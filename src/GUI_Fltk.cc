@@ -33,6 +33,7 @@
 #include <error.h>
 
 #include <FL/Fl.H>
+#include <FL/fl_draw.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Widget.H>
 #include <FL/Fl_Button.H>
@@ -269,6 +270,7 @@ void GUI_Fltk::AddWindow(string sParams)
 	GUI.RegisterCommand(vs[0] + ".AddSlider", AddSliderCB, this);
 	GUI.RegisterCommand(vs[0] + ".AddMonitor", AddMonitorCB, this);
 	GUI.RegisterCommand(vs[0] + ".AddSpin", AddSpinCB, this);
+	GUI.RegisterCommand(vs[0] + ".AddLabel", AddLabelCB, this);
 	//gui->RegisterCommand(vs[0] + ".AddSmallToggleButton", AddSmallToggleCB, this);
 }
 
@@ -292,6 +294,7 @@ void GUI_Fltk::DestroyWindow(string cmd)
 	GUI.UnRegisterCommand(win_name + ".AddSlider");
 	GUI.UnRegisterCommand(win_name + ".AddMonitor");
 	GUI.UnRegisterCommand(win_name + ".AddSpin");
+	GUI.UnRegisterCommand(win_name + ".AddLabel");
 	//gui->UnRegisterCommand(win_name + ".AddSmallToggleButton");
 
 
@@ -450,21 +453,37 @@ typedef Fl_Slider slider_type;
 class slider_bar: public slider_type
 {
 	public:
-		slider_bar(string gvar_name, double min, double max)
-		:slider_type(0, 0, 1, 1),varname(gvar_name)
+    slider_bar(string gvar_name, double min, double max, bool show_val_)
+	:slider_type(0, 0, 1, 1),varname(gvar_name), show_val(show_val_)
 		{
-			type(FL_HOR_SLIDER);
+			type(FL_HORIZONTAL);
 			bounds(min, max);
+			align(FL_ALIGN_CENTER);
 			callback(my_callback);
 			when(FL_WHEN_CHANGED);
 			step(0);
 			poll_update();
 		}
 
-		void poll_update()
-		{
-			string crnt=GV3::get_var(varname);
+    double compute_slider_frac()
+    {
+	fl_font(labelfont(), labelsize());
+	double lw = fl_width(label());
+	double s_size = lw + 5;
+	return s_size / w();	
+    }
 
+    void resize(int x_, int y_, int w_, int h_)
+    {
+	slider_type::resize(x_,y_,w_,h_);
+	if (show_val)
+	    slider_size(compute_slider_frac());
+    }
+
+
+		void poll_update()
+		{		    
+			string crnt=GV3::get_var(varname);
 			
 			if(crnt != cached_value)
 			{
@@ -476,20 +495,28 @@ class slider_bar: public slider_type
 				if(newval > maximum()) maximum(newval);
 				if(newval < minimum()) minimum(newval);
 
+				if (show_val) {
+				    label(cached_value.c_str());
+				    double new_frac = compute_slider_frac();
+				    if (new_frac > slider_size())
+					slider_size(new_frac);
+				}
 				value(newval);
 			}
 		}
 
-		void set_gvar_to_value()
+		string set_gvar_to_value()
 		{	
 			ostringstream ost;
+			ost.precision(3);
 			ost << value();
 			GV3::set_var(varname, ost.str(), 1);
-			cached_value = ost.str();
+			return ost.str();
 		}
 
 	private:
 		string varname, cached_value;
+    bool show_val;
 
 		static void my_callback(Fl_Widget* w, long what_shall_I_do)
 		{
@@ -497,8 +524,10 @@ class slider_bar: public slider_type
 
 			if(what_shall_I_do == POLL_UPDATE)
 				s->poll_update();
-			else
-				s->set_gvar_to_value();
+			else {
+				string val = s->set_gvar_to_value();
+				s->poll_update();
+			}
 		}
 };
 
@@ -507,9 +536,9 @@ void GUI_Fltk::AddSlider(string cmd, string args)
 	string win_name = remove_suffix(cmd, ".AddSlider");
 
 	vector<string> vs = ChopAndUnquoteString(args);
-	if(vs.size() != 3)
+	if(vs.size() != 3 && vs.size() !=4)
 	{
-		cerr << "! GUI_Fltk::AddSlider: Need 3 params (gvar_name min max)." << endl;
+		cerr << "! GUI_Fltk::AddSlider: Need 3 or 4 params (gvar_name min max [showval])." << endl;
 		return;
 	}
 
@@ -523,7 +552,7 @@ void GUI_Fltk::AddSlider(string cmd, string args)
 	serialize::from_string(vs[1], min);
 	serialize::from_string(vs[2], max);
 
-	Fl_Widget* b = new slider_bar(vs[0], min, max);
+	Fl_Widget* b = new slider_bar(vs[0], min, max, vs.size()==4);
 
 	w.win->add(b);
 }
@@ -699,6 +728,52 @@ void GUI_Fltk::AddSpin(string cmd, string args)
 
 	w.win->add(b);
 }
+
+
+void GUI_Fltk::AddLabelCB(void* ptr, string cmd, string args)
+{
+	//Fl::lock();
+	UI.AddLabel(cmd, args);
+	//Fl::unlock();
+}
+
+
+class label: public Fl_Box
+{
+	public:
+		label(string t)
+		:Fl_Box(0, 0, 1, 1), title(t)
+		{
+			align(FL_ALIGN_CENTER);
+                        Fl_Box::label(title.c_str());
+		}
+        private:
+            string title;
+};
+
+void GUI_Fltk::AddLabel(string cmd, string args)
+{
+    string win_name = remove_suffix(cmd, ".AddLabel");
+
+	vector<string> vs = ChopAndUnquoteString(args);
+	if(vs.size() != 1)
+	{
+		cout << "! GUI_Fltk::AddLabel: Need 1 params (label)." << endl;
+		return;
+	}
+
+	if(!check_window(win_name, "AddLabel"))
+		return;
+
+	window& w = windows[win_name];
+
+	Fl_Widget* m = new label(vs[0]);
+	w.win->add(m);
+}
+
+
+
+
 
 //Instantiations
 class GUI_Fltk GUI_Fltk_instance;
