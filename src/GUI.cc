@@ -108,7 +108,7 @@ namespace GVars3
 
 	int GUI::parseArguments( const int argc, char * argv[], int start, const std::string prefix, const std::string execKeyword)
 	{
-		I().parseArguments(argc, argv, start, prefix, execKeyword);
+		return I().parseArguments(argc, argv, start, prefix, execKeyword);
 	}
 
 
