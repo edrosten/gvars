@@ -325,7 +325,7 @@ namespace GVars3
 	      //ER: look at the end of the string for '$'s to also perform the substitution
 	      vector<string> chopped;
 	      string end;
-	      string::size_type dollarpos=-1, lastpos=0;
+	      string::size_type dollarpos=s.npos, lastpos=0;
 	      while((dollarpos = sEnd.find("$", dollarpos+1)) != s.npos)
 		{
 		  chopped.push_back(sEnd.substr(lastpos, dollarpos - lastpos));

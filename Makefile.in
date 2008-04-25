@@ -10,6 +10,7 @@ bindir = @bindir@
 sbindir = @sbindir@
 libexecdir = @libexecdir@
 datadir = @datadir@
+datarootdir = @datarootdir@
 sysconfdir = @sysconfdir@
 sharedstatedir = @sharedstatedir@
 localstatedir = @localstatedir@
@@ -103,7 +104,7 @@ ifeq (@have_readline@,yes)
 	OBJS+=src/GUI_impl_readline.o
 	CPPFLAGS+=-DGUI_HAVE_READLINE
 else
-	OBJS+=src/GUI_noreadline.o
+	OBJS+=src/GUI_impl_noreadline.o
 endif
 
 	#src/@readlineobj@.o     \
@@ -145,8 +146,12 @@ harchive=libGVars3_headless.a
 sos= $(soname) $(soname1) $(soname2)
 hsos= $(hsoname) $(hsoname1) $(hsoname2)
 
+install_shared=install-shared-normal
+
 ifeq (@make_headless@,yes)
 	HEADLESS=$(harchive) $(hsoname)
+	Harchive=$(harchive)
+	install_shared+=install-shared-headless
 endif
 
 all: $(archive) $(soname) $(HEADLESS)
@@ -163,15 +168,30 @@ $(soname): $(OBJS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
-install:$(soname) $(archive) $(HEADLESS)
-	mkdir -p $(DESTDIR)/$(includedir)
-	cp -r gvars3 $(DESTDIR)/$(includedir)
+.PHONY: install-static install-headers install-shared-normal install-shared-headless
+
+install:install-static $(install_shared) install-headers
+
+install-static: $(archive) $(Harchive)
 	mkdir -p $(DESTDIR)/$(libdir)
-	cp $(soname2) $(archive) $(HEADLESS) $(DESTDIR)/$(libdir)
+	cp $(archive) $(Harchive) $(DESTDIR)/$(libdir)
+
+install-shared-normal: $(soname) 
+	mkdir -p $(DESTDIR)/$(libdir)
+	cp $(soname2) $(DESTDIR)/$(libdir)
 	ln -fs  $(DESTDIR)/$(libdir)/$(soname2) $(DESTDIR)/$(libdir)/$(soname1)
 	ln -fs  $(DESTDIR)/$(libdir)/$(soname1) $(DESTDIR)/$(libdir)/$(soname)
-
-
+	
+install-shared-headless: $(hsoname) 
+	mkdir -p $(DESTDIR)/$(libdir)
+	cp $(hsoname2) $(DESTDIR)/$(libdir)
+	ln -fs  $(DESTDIR)/$(libdir)/$(hsoname2) $(DESTDIR)/$(libdir)/$(hsoname1)
+	ln -fs  $(DESTDIR)/$(libdir)/$(hsoname1) $(DESTDIR)/$(libdir)/$(hsoname)
+	
+install-headers:
+	mkdir -p $(DESTDIR)/$(includedir)
+	cp -r gvars3 $(DESTDIR)/$(includedir)
+	
 $(harchive): $(HEADLESSOBJS)
 	$(AR) crvs $(harchive) $(HEADLESSOBJS)
 
