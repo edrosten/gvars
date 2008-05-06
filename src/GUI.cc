@@ -39,6 +39,9 @@ using namespace std;
 namespace GVars3
 {
 
+    GUI::GUI(GVars2* v2){
+    }
+
 	GUI_impl& GUI::I()
 	{
 		return GUI_impl_singleton<>::instance();
