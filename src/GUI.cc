@@ -225,8 +225,16 @@ namespace GVars3
   void GUI_impl::ParseStream(istream& is)
   {
     string buffer;
-    while(getline(is, buffer))
+    while (getline(is, buffer)) {
+      // Lines ending with '\' are taken as continuing on the next line.
+      while(buffer[buffer.length() - 1] == '\\') {
+	string buffer2;
+	if (! getline(is, buffer2))
+	  break;
+	buffer = buffer.substr(0, buffer.length() - 1) + buffer2;
+      }
       ParseLine(buffer);
+    }  
   }
 
   void GUI_impl::LoadFile(string sFileName)
