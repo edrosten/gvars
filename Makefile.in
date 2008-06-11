@@ -121,9 +121,9 @@ endif
 
 
 ifeq (@osx_hacks@,yes)
-	soname=libGVars3_headless.dylib
-	soname1=libGVars3_headless-@major@.dylib
-	soname2=libGVars3_headless-@major@.@minor@.dylib
+	hsoname=libGVars3_headless.dylib
+	hsoname1=libGVars3_headless-@major@.dylib
+	hsoname2=libGVars3_headless-@major@.@minor@.dylib
 	 
 	soname=libGVars3.dylib
 	soname1=libGVars3-@major@.dylib
