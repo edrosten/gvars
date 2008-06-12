@@ -2,14 +2,6 @@
 #include "src/GUI_impl.h"
 #include "gvars3/GStringUtil.h"
 
-#include <cctype>
-#include <sstream>
-#include <fstream>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <algorithm>
-
 using namespace std;
 
 namespace GVars3

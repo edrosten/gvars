@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <pthread.h>
+
 namespace GVars3
 {
 

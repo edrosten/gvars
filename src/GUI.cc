@@ -23,13 +23,9 @@
 #include "src/GUI_impl.h"
 #include "gvars3/GStringUtil.h"
 
-#include <pthread.h>
-
 #include <cctype>
 #include <sstream>
 #include <fstream>
-#include <unistd.h>
-#include <sys/wait.h>
 #include <stdlib.h>
 #include <algorithm>
 
@@ -173,7 +169,7 @@ namespace GVars3
   void GUI_impl::UnRegisterCommand(string sCommandName, void* thisptr)
   {
     CallbackVector &cbv = mmCallBackMap[sCommandName];
-    for(int i = cbv.size() - 1; i>=0; i--)
+    for(size_t i = cbv.size() - 1; i>=0; i--)
       if(cbv[i].thisptr == thisptr)
 	cbv.erase(cbv.begin() + i);
   };
@@ -227,7 +223,7 @@ namespace GVars3
     string buffer;
     while (getline(is, buffer)) {
       // Lines ending with '\' are taken as continuing on the next line.
-      while(buffer[buffer.length() - 1] == '\\') {
+      while(!buffer.empty() && buffer[buffer.length() - 1] == '\\') {
 	string buffer2;
 	if (! getline(is, buffer2))
 	  break;
@@ -515,7 +511,7 @@ namespace GVars3
       {
 	string s;
 	s = "";
-	for(int i=1;i<v.size();i++)
+	for(size_t i=1;i<v.size();i++)
 	  s = s + " " +  v[i];
 	p->ParseLine(s);
       }
@@ -545,7 +541,7 @@ namespace GVars3
       {
 	string s;
 	s = "";
-	for(int i=1;i<v.size();i++)
+	for(size_t i=1;i<v.size();i++)
 	  s = s + " " +  v[i];
 	p->ParseLine(s);
       }
@@ -576,7 +572,7 @@ namespace GVars3
       {
 	string s;
 	s = "";
-	for(int i=2;i<v.size();i++)
+	for(size_t i=2;i<v.size();i++)
 	  s = s + " " +  v[i];
 	p->ParseLine(s);
       }
@@ -688,7 +684,7 @@ namespace GVars3
     if(vs.size() != 1)
       {
 	cout << "? GUI_impl Internal " << sCommand << " command syntax: runqueue queue-name " << endl;
-	int nQueues = pGUI->mmQueues.size();
+	size_t nQueues = pGUI->mmQueues.size();
 	    
 	cout << "  Currently there are " << nQueues << " queues registered." << endl;
 	if(nQueues > 0)
@@ -704,7 +700,7 @@ namespace GVars3
       }
     string &sQueueName = vs[0];
     vector<string> &vQueue = pGUI->mmQueues[sQueueName];
-    for(int i=0; i<vQueue.size(); i++)
+    for(size_t i=0; i<vQueue.size(); i++)
       pGUI->ParseLine(vQueue[i]);
     if(sCommand=="runqueue")
       vQueue.clear();   // do not clear the queue if the command was runqueue_noclear!

@@ -9,8 +9,6 @@
 #include <cctype>
 #include <sstream>
 #include <fstream>
-#include <unistd.h>
-#include <sys/wait.h>
 #include <stdlib.h>
 #include <algorithm>
 

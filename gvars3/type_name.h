@@ -29,9 +29,15 @@ namespace GVars3
 
 	template <class T> std::string type_name() 
 	{
-	  static std::string funcname = std::string(__PRETTY_FUNCTION__);
-	  static std::string bname = funcname.substr(funcname.rfind(" = ")+3);
+#ifdef WIN32
+      static std::string funcname = std::string(__FUNCSIG__);
+      static std::string::size_type begin = funcname.find("type_name<")+10;
+      static std::string name = funcname.substr(begin, funcname.rfind(">") - begin);
+#else
+      static std::string funcname = std::string(__PRETTY_FUNCTION__);
+      static std::string bname = funcname.substr(funcname.rfind(" = ")+3);
 	  static std::string name = bname.substr(0, bname.length()-1);
+#endif
 	  return name;
 	}
 	

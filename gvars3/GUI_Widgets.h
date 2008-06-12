@@ -23,7 +23,6 @@
 #define GVARS3_INC_GUI_WIDGETS_H
 
 #include <gvars3/GUI.h>
-#include <pthread.h>
 
 namespace GVars3
 {

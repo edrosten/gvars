@@ -33,7 +33,7 @@ string UncommentString(string s)
 
   int q=0;
 
-  for(int n=0; n < s.size(); n++)
+  for(string::size_type n=0; n < s.size(); n++)
   {
   	if(s[n] == '"')
 		q = !q;
@@ -51,8 +51,8 @@ string UncommentString(string s)
 vector<string> ChopAndUnquoteString(string s)
 {
   vector<string> v;
-  int nPos=0;
-  int nLength = s.length();
+  string::size_type nPos=0;
+  string::size_type nLength = s.length();
   while(1)
     {
     string sTarget;

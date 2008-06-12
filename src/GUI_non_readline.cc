@@ -24,7 +24,6 @@
 #include "gvars3/GUI_non_readline.h"
 #include <iostream>
 #include <pthread.h>
-#include <poll.h>
 
 using namespace std;
 

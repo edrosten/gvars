@@ -27,7 +27,11 @@
 #include <vector>
 #include <string.h>
 #include <sstream>
+
+#ifndef WIN32
+// for usleep
 #include <unistd.h>
+#endif
 
 #include <fltk/run.h>
 #include <fltk/Window.h>
@@ -41,6 +45,10 @@
 #include <fltk/Threads.h>
 
 #define POLL_UPDATE 1
+
+#ifdef WIN32 
+#undef AddMonitor
+#endif
 
 using namespace std;
 namespace GVars3
@@ -75,11 +83,13 @@ void* GUI_Fltk2::do_stuff_CB(void* v)
 	{
         fltk::lock();
 		fltk::run();
-		fltk::check();
 		fltk::unlock();
 		//If no windows are present, sleep and start again
-		usleep(100000);
-
+#ifdef WIN32
+        Sleep(10);
+#else
+        usleep(100000);
+#endif
 	}
 }
 
@@ -573,7 +583,7 @@ class monitor2: public fltk::InvisibleBox
 };
 
 
-void GUI_Fltk2::AddMonitor(string cmd, string args)
+void GUI_Fltk2::AddMonitor(std::string cmd, std::string args)
 {
 	string win_name = remove_suffix(cmd, ".AddMonitor");
 
