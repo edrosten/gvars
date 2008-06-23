@@ -196,15 +196,29 @@ namespace serialize
 	  // Found opening ". Copy until end, or closing "
 	  
 	  std::string sNew("");
-	  bool bFoundCloseQuote = false;
-	  while((nPos < nLength) && !bFoundCloseQuote)
-	    {
-	      c = s[nPos];
-	      if(c=='"') bFoundCloseQuote = true;
-	      else
-		sNew.push_back(c);
-	      nPos++;
-	    }
+	  for (; nPos < nLength; ++nPos) {
+	      char c = s[nPos];
+	      if (c == '"') {
+		  ++nPos;
+		  break;
+	      }
+	      if (nPos+1<nLength && c == '\\') {
+		  char escaped = s[++nPos];
+		  switch (escaped) {
+		  case 'n': c = '\n'; break;
+		  case 'r': c = '\r'; break;
+		  case 't': c = '\t'; break;
+		  default: c = escaped; break;
+		  }
+	      }
+	      sNew.push_back(c);
+	  }
+	  if (nPos < nLength) {
+	      string rest;
+	      from_string(s.substr(nPos), rest);
+	      sNew += rest;
+	  }
+
 	  so = sNew;
 	  return 0;
 	}

@@ -71,12 +71,23 @@ vector<string> ChopAndUnquoteString(string s)
 	cDelim = '\"';
 	nPos++;
       }
-    while((nPos<nLength)&&(s[nPos]!=cDelim))
-      {
-	sTarget+=(s[nPos]);
-	nPos++;
-      }
+    for (; nPos < nLength; ++nPos) {
+	char c = s[nPos];
+	if (c == cDelim)
+	    break;
+	if (cDelim == '"' && nPos+1<nLength && c == '\\') {
+	    char escaped = s[++nPos];
+	    switch (escaped) {
+	    case 'n': c = '\n'; break;
+	    case 'r': c = '\r'; break;
+	    case 't': c = '\t'; break;
+	    default: c = escaped; break;
+	    }
+	}
+	sTarget+=c;
+    }
     v.push_back(sTarget);
+
     if(cDelim=='\"')
       nPos++;
     }
