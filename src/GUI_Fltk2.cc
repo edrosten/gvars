@@ -27,6 +27,7 @@
 #include <vector>
 #include <string.h>
 #include <sstream>
+#include <cstdlib>
 
 #ifndef WIN32
 // for usleep

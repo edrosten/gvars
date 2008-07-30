@@ -25,6 +25,7 @@
 
 #include <pthread.h>
 #include <poll.h>
+#include <cstdlib>
 #include <readline/readline.h>
 #include <readline/history.h>
 
