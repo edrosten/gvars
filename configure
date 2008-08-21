@@ -4566,7 +4566,7 @@ fi
 
 	if test x$have_motif_headers$have_motif_lib == xyesyes
 	then
-		LIBS="$LIBS -lXm"
+		LIBS="$LIBS -lXm -lXt -lX11"
 		options="$options gui"
 		gui=motif
 		guiobj=GUI_Motif

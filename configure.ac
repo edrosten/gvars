@@ -272,7 +272,7 @@ then
 	AC_CHECK_LIB(Xm, main, have_motif_lib=yes)
 	if test x$have_motif_headers$have_motif_lib == xyesyes
 	then
-		LIBS="$LIBS -lXm"
+		LIBS="$LIBS -lXm -lXt -lX11"
 		options="$options gui"
 		gui=motif
 		AC_SUBST(guiobj, GUI_Motif)
