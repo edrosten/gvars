@@ -52,7 +52,7 @@ namespace serialize
 	int from_string(string s, Matrix<>& mat)
 	{
 		 // Format expected is: [ num .. num; ... ;  num .. num ]
-		int n;
+	        string::size_type n;
 
 		//First, find opening angle bracket.
 		//Trim up to and including this. Abort if it can't be found.
@@ -96,7 +96,7 @@ namespace serialize
 			while(ist>>d)
 				vd.push_back(d);
 
-			if(vd.size()!=nRows*nCols) // Were there the right number of elements?
+			if(static_cast<int>(vd.size())!=nRows*nCols) // Were there the right number of elements?
 				return 1;
 		};
 
@@ -129,7 +129,7 @@ namespace serialize
 	int from_string(string s, Vector<>& vec)
 	{
 		// Format expected is: [ num num num .. num ]
-		int n;
+	        string::size_type n;
 
 		//First, find opening angle bracket.
 		//Trim up to and including this. Abort if it can't be found.
@@ -159,7 +159,7 @@ namespace serialize
 		// Now transfer the STL-vector over to a TooN - Vector.
 		Vector<> v(vd.size());
 
-		for(int i=0;i<vd.size();i++)
+		for(size_t i=0;i<vd.size();i++)
 			v[i]=vd[i];
 		
 		vec.resize(v.size());

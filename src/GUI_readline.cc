@@ -165,7 +165,7 @@ char* GV3ReadlineCommandGenerator(const char *szText, int nState)
 
 	while(tag_i != tags.end())
 	{
-		int text_len = strlen(szText);
+		size_t text_len = strlen(szText);
 		bool bEqualsAtEnd = false;
 		if(text_len>0)
 		  if(szText[text_len-1]=='=')
@@ -207,7 +207,6 @@ char * GUI_impl::ReadlineCommandGenerator(const char *szText, int nState)
   static int nTextLength;
   static int nOffset;
   const char *pcName;
-  static char acMyTextCopy[1000];
   
   if(!nState)
   {

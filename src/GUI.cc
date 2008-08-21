@@ -35,7 +35,7 @@ using namespace std;
 namespace GVars3
 {
 
-    GUI::GUI(GVars2* v2){
+  GUI::GUI(GVars2* /* v2 */){
     }
 
 	GUI_impl& GUI::I()
@@ -129,8 +129,9 @@ namespace GVars3
 	//Strip whitespace from around var;
 	string::size_type s=0, e = var.length()-1; 
 	for(; isspace(var[s]) && s < var.length(); s++);
-	for(; isspace(var[e]) && e >=0; e--);
-
+	if(s==var.length()) // All whitespace before the `='?
+	  return false; 
+	for(; isspace(var[e]); e--);
 	if(e >= s)
 	  {
 	    var = var.substr(s, e-s+1);
@@ -138,9 +139,12 @@ namespace GVars3
 	    //Strip whitespace from around val;			
 	    s = 0, e = val.length() - 1;
 	    for(; isspace(val[s]) && s < val.length(); s++);
-	    for(; isspace(val[e]) && e >=0; e--);
-
-	    val = val.substr(s, e-s+1);
+	    if( s < val.length())
+	      {
+		for(; isspace(val[e]); e--);
+		val = val.substr(s, e-s+1);
+	      }
+	    else val = "";
 
 	    GV3::set_var(var, val);
 	    return true;
@@ -165,11 +169,11 @@ namespace GVars3
     for(map<string, CallbackVector>::iterator i=mmCallBackMap.begin(); i!=mmCallBackMap.end(); i++)
       UnRegisterCommand(i->first, thisptr);
   };
-
+  
   void GUI_impl::UnRegisterCommand(string sCommandName, void* thisptr)
   {
     CallbackVector &cbv = mmCallBackMap[sCommandName];
-    for(size_t i = cbv.size() - 1; i>=0; i--)
+    for(int i = static_cast<int>(cbv.size()) - 1; i>=0; i--)
       if(cbv[i].thisptr == thisptr)
 	cbv.erase(cbv.begin() + i);
   };
@@ -441,10 +445,10 @@ namespace GVars3
   //
   // Builtin commands
 
-  void builtin_shell(void* ptr, string sCommand, string sParams)
+  void builtin_shell(void* /* ptr */, string /* sCommand */, string sParams)
   {
     vector<string> v = ChopAndUnquoteString(sParams);
-
+    
     if(v.size()==0) 
       {
 	cerr <<"? GUI_impl internal shell command: No prog/args given."<< endl; 
@@ -454,41 +458,41 @@ namespace GVars3
     system(sParams.c_str());
   }
 
-  void builtin_ls(void* ptr, string sCommand, string sParams)
+  void builtin_ls(void* ptr, string /*sCommand*/, string sParams)
   {
     GUI_impl* p = (GUI_impl*)ptr;
     p->ParseLine("shell ls " + sParams);	
   }
 
-  void builtin_ll(void* ptr, string sCommand, string sParams)
+  void builtin_ll(void* ptr, string /*sCommand*/, string sParams)
   {
     GUI_impl* p = (GUI_impl*)ptr;
     p->ParseLine("shell ls -l " + sParams);	
   }
 
-  void builtin_try(void* ptr, string sCommand, string sParams)
+  void builtin_try(void* ptr, string /*sCommand*/, string sParams)
   {
     GUI_impl* p = (GUI_impl*)ptr;
     p->ParseLine(sParams, true);
   }
 
-  void builtin_exec(void* ptr, string sCommand, string sParams)
+  void builtin_exec(void* ptr, string /*sCommand*/, string sParams)
   {
     GUI_impl* p = (GUI_impl*)ptr;
     p->LoadFile(sParams);
   }
 
-  void builtin_echo(void* ptr, string sCommand, string sParams)
+  void builtin_echo(void* /*ptr*/, string /*sCommand*/, string sParams)
   {
     cout << sParams << endl;
   }
 
-  void builtin_qmark(void* ptr, string sCommand, string sParams)
+  void builtin_qmark(void* /*ptr*/, string /*sCommand*/, string /*sParams*/)
   {
     cout << "  Perhaps you'd like to type \"commandlist\" or \"gvarlist\"." << endl;
   }
 
-  void builtin_if(void* ptr, string sCommand, string sParams)
+  void builtin_if(void* ptr, string /*sCommand*/, string sParams)
   {
     GUI_impl* p = (GUI_impl*)ptr;
     vector<string> v = ChopAndUnquoteString(sParams);
@@ -518,7 +522,7 @@ namespace GVars3
     return;
   }
 
-  void builtin_ifnot(void* ptr, string sCommand, string sParams)
+  void builtin_ifnot(void* ptr, string /*sCommand*/, string sParams)
   {
     GUI_impl* p = (GUI_impl*)ptr;
     vector<string> v = ChopAndUnquoteString(sParams);
@@ -548,7 +552,7 @@ namespace GVars3
     return;
   }
 
-  void builtin_ifeq(void* ptr, string sCommand, string sParams)
+  void builtin_ifeq(void* ptr, string /*sCommand*/, string sParams)
   {
     GUI_impl* p = (GUI_impl*)ptr;
     vector<string> v = ChopAndUnquoteString(sParams);
@@ -579,9 +583,8 @@ namespace GVars3
     return;
   }
 
-  void builtin_toggle(void* ptr, string sCommand, string sParams)
+  void builtin_toggle(void* /*ptr*/, string /*sCommand*/, string sParams)
   {
-    GUI_impl* p = (GUI_impl*)ptr;
     vector<string> v = ChopAndUnquoteString(sParams);
     if(v.size()!=1) 
       {
@@ -597,13 +600,13 @@ namespace GVars3
   
   };
 
-  void builtin_set(void* ptr, string sCommand, string sParams)
+  void builtin_set(void* /*ptr*/, string /*sCommand*/, string sParams)
   {
     setvar(sParams);
   }
 
 
-  void builtin_gvarlist(void* ptr, string sCommand, string sParams)
+  void builtin_gvarlist(void* /*ptr*/, string sCommand, string sParams)
   {
     bool error = false;
     bool print_all = false;
@@ -639,13 +642,13 @@ namespace GVars3
   }
 
 
-  void builtin_printvar(void* ptr, string sCommand, string sParams)
+  void builtin_printvar(void* /*ptr*/, string /*sCommand*/, string sParams)
   {
     cout << sParams << "=" << GV3::get_var(sParams) << endl;;
   }
 
 
-  void builtin_commandlist(void* ptr, string sCommand, string sParams)
+  void builtin_commandlist(void* ptr, string /*sCommand*/, string /*sParams*/)
   {
     GUI_impl* p = (GUI_impl*)ptr;
 
@@ -662,7 +665,7 @@ namespace GVars3
 	cout << "    " << i->first << endl;
   }
 
-  void builtin_queue(void* ptr, string sCommand, string sParams)
+  void builtin_queue(void* ptr, string /*sCommand*/, string sParams)
   {
     vector<string> vs = ChopAndUnquoteString(sParams);
     if(vs.size() < 2)
@@ -744,13 +747,13 @@ namespace GVars3
   }
 
   void print_history(ostream &ost);
-  void builtin_history(void* ptr, string sCommand, string sParams)
+  void builtin_history(void* /*ptr*/, string /*sCommand*/, string /*sParams*/)
   {
     cout << "History: " << endl;
     print_history(cout);
   };
 
-  void builtin_save_history(void* ptr, string sCommand, string sParams)
+  void builtin_save_history(void* /*ptr*/, string /*sCommand*/, string sParams)
   {
     vector<string> v = ChopAndUnquoteString(sParams);
     if(v.size()!=1) 

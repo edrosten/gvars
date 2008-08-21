@@ -39,7 +39,7 @@ namespace GVars3
 	  // So crack the string in two at the equals sign. Easy.
 	  // SetVar(string,string) is quite tolerant to whitespace.
 	  
-	  int n;
+	  string::size_type n;
 	  n=s.find("=");
 	  if(n>=s.find("//"))  // Perhaps the line is a comment?
 		return;

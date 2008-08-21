@@ -29,7 +29,7 @@ namespace GVars3
     rl_basic_word_break_characters = " \t\n\"\\'`@$><;|&{("; 
   }
   
-  char ** GUI_impl::ReadlineCompletionFunction (const char *text, int start, int end)
+  char ** GUI_impl::ReadlineCompletionFunction (const char *text, int /*start*/, int /*end*/)
   {
     rl_completion_append_character=0;
     char **matches;

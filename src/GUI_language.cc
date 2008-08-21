@@ -176,7 +176,7 @@ namespace GVars3
 			}
 			
 			CallBack(runfunc)
-			void runfunc(string name, string args)
+			void runfunc(string name, string /*args*/)
 			{
 				vector<string> v = functions.get(name);
 				for(unsigned int i=0; i < v.size(); i++)
@@ -201,7 +201,7 @@ namespace GVars3
 
 
 			CallBack(gui_if_else)
-			void gui_if_else(string name, string args)
+			void gui_if_else(string /*name*/, string /*args*/)
 			{
 				ifbit() = collection();
 				if(ifbit().empty())
@@ -210,7 +210,7 @@ namespace GVars3
 			}
 			
 			CallBack(gui_endif)
-			void gui_endif(string name, string args)
+			void gui_endif(string /*name*/, string /*args*/)
 			{
 				if(ifbit().empty())
 					ifbit() = collection();
