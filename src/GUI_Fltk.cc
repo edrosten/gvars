@@ -24,6 +24,7 @@
 #include "gvars3/GStringUtil.h"
 #include <vector>
 #include <string.h>
+#include <cstdlib>
 #include <sstream>
 #include <unistd.h>
 #include <map>
