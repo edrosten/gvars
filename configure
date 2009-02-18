@@ -3573,15 +3573,22 @@ echo "$as_me: error: TooN is required. Visit savannah.nongnu.org/projects/toon" 
    { (exit 1); exit 1; }; }
 fi
 
-{ echo "$as_me:$LINENO: checking for working pthreads" >&5
-echo $ECHO_N "checking for working pthreads... $ECHO_C" >&6; }
-CPPFLAGS="$CPPFLAGS -pthread"
-LIBS="$LIBS -pthread"
-a=0
-cat >conftest.$ac_ext <<_ACEOF
-#include <pthread.h>
-					void*foo(void*){}
-					int main(){pthread_create(0,0,foo,0);return 0;}
+
+	if test "" == ""
+	then
+		{ echo "$as_me:$LINENO: checking if compiler flag -pthread works" >&5
+echo $ECHO_N "checking if compiler flag -pthread works... $ECHO_C" >&6; }
+	else
+		{ echo "$as_me:$LINENO: checking " >&5
+echo $ECHO_N "checking ... $ECHO_C" >&6; }
+	fi
+	save_CXXFLAGS="$CXXFLAGS"
+	CXXFLAGS="$CXXFLAGS -pthread"
+
+
+
+	cat >conftest.$ac_ext <<_ACEOF
+int main(){}
 _ACEOF
 rm -f conftest.$ac_objext
 if { (ac_try="$ac_compile"
@@ -3600,28 +3607,31 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test -z "$ac_cxx_werror_flag" ||
 	 test ! -s conftest.err
        } && test -s conftest.$ac_objext; then
-  a=1
+  cvd_conf_test=1
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-
+	cvd_conf_test=0
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-LIBS="$LIBS -pthread"
-if test $a == 0
-then
-	{ echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-	{ { echo "$as_me:$LINENO: error: pthread is not optional. It should be. Sorry." >&5
-echo "$as_me: error: pthread is not optional. It should be. Sorry." >&2;}
-   { (exit 1); exit 1; }; }
-else
-	{ echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-fi
 
+
+
+
+
+	if test $cvd_conf_test = 1
+	then
+		{ echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+		ts_success=yes
+	else
+		{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+		CXXFLAGS="$save_CXXFLAGS"
+		ts_success=no
+	fi
 
 
 HLIBS="$LIBS"

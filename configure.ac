@@ -153,23 +153,7 @@ then
 	AC_MSG_ERROR(TooN is required. Visit savannah.nongnu.org/projects/toon)
 fi
 
-AC_MSG_CHECKING(for working pthreads)
-CPPFLAGS="$CPPFLAGS -pthread"
-LIBS="$LIBS -pthread"
-a=0
-AC_COMPILE_IFELSE([#include <pthread.h>
-					void*foo(void*){}
-					int main(){pthread_create(0,0,foo,0);return 0;}],[a=1])
-LIBS="$LIBS -pthread"
-if test $a == 0
-then
-	AC_MSG_RESULT(no)
-	AC_MSG_ERROR(pthread is not optional. It should be. Sorry.)
-else
-	AC_MSG_RESULT(yes)
-fi
-
-
+TEST_AND_SET_CXXFLAG(-pthread)
 
 HLIBS="$LIBS"
 
