@@ -23,6 +23,7 @@
 #define GV3_INC_SERIALIZE_H
 #include <gvars3/config.h>
 #include <string>
+#include <vector>
 #include <sstream>
 
 #ifdef GVARS3_HAVE_TOON
@@ -47,13 +48,111 @@ namespace GVars3
 			return o.str();
 		}
 
-		template<class T> int from_string(std::string s, T& result)
+		template<class T> std::istream& from_stream(std::istream& i, T& result)
 		{	
-			std::istringstream i(s);
 			i >> result;
-			return check_stream(i);
+			return i;
 		}
 		
+		//Special reading of strings
+		std::istream& from_stream(std::istream& in, std::string& s);
+
+		template<class T> std::istream& from_stream(std::istream& in, std::vector<T>& v)
+		{
+			using std::ws;
+			using std::ios;
+			v.clear();
+			in >> ws;
+			int c;
+
+			if((c = in.get()) == EOF)
+				return in;
+
+			if(c != '[')
+			{
+				in.setstate(ios::failbit);
+				return in;
+			}
+
+			for(;;)
+			{
+				in >> ws;
+				
+				c = in.get();
+				
+				if(c == EOF || c == ']') 
+					return in;
+
+				in.unget();
+
+				T val;
+				from_stream(in, val);
+
+				if(!in.fail() && !in.bad())
+					v.push_back(val);
+				else
+					return in;
+			}
+		}
+
+		template<class T> std::istream& from_stream(std::istream& in, std::vector<std::vector<T> >& v)
+		{
+			using std::ws;
+			using std::ios;
+			v.clear();
+			in >> ws;
+			int c;
+
+			if((c = in.get()) == EOF)
+				return in;
+
+			if(c != '[')
+			{
+				in.setstate(ios::failbit);
+				return in;
+			}
+
+			std::vector<T> current;
+
+			for(;;)
+			{
+				in >> ws;
+				
+				if((c = in.get()) == EOF || c == ']') 
+				{
+					if(!current.empty())
+						v.push_back(current);
+					return in;
+				}
+				else if(c == ';')
+				{
+					v.push_back(current);
+					current.clear();
+				}
+				else
+					in.unget();
+
+				T val;
+				from_stream(in, val);
+
+				if(!in.fail() && !in.bad())
+					current.push_back(val);
+				else
+					return in;
+			}
+		}
+
+
+
+
+		template<class T> int from_string(std::string s, T& result)
+		{	
+			using GVars3::serialize::from_stream;
+			std::istringstream i(s);
+			from_stream(i, result);
+			return check_stream(i);
+		}
+
 		#ifdef GVARS3_HAVE_TOON
 			template<int N> std::string to_string(const TooN::Vector<N>& m)
 			{

@@ -34,11 +34,11 @@ namespace serialize
 		return s;
 	}
 
-	istream& get_string(istream& in, string& s)
+	istream& from_stream(istream& in, string& s)
 	{	
 		s.clear();
 
-		bool quoted=0;	
+		bool quoted=0;
 		int c;
 
 		//Eat whitespace
@@ -49,61 +49,41 @@ namespace serialize
 
 		if(c == '"')
 			quoted=1;
+		
+		//This variable holds an escape sequence in progress.
+		//empty means no escaping.
+		string escape;
 
+		for(;;)
+		{
+			c = in.get();
+			if(c == EOF || (quoted && escape.empty() && c == '"'))
+				break;
+			else if(escape.empty() && c == '\\')
+				escape = "\\";
+			else if(!escape.empty())
+				escape += c;
+			else
+				s += c;
 
+			//Check escapes
+			if(escape == "\\\\")
+			{
+				s+="\\"; 
+				escape.clear();
+			}
+			else if(escape == "\\n")
+			{
+				s+="\n";
+				escape.clear();
+			}
+		}
+		
+		//Append any trailing parts of an escape sequence
+		s += escape;
 
+		return in;
 	}
-
-        // For reading strings, if there's double quotes, lift the part inside the double quotes.
-        int from_string(std::string s, std::string& so) //Pretty ugly code lifted from GVars2, but works.
-	{
-	  unsigned char c;
-	  int nPos=0;
-	  int nLength = s.length();
-	  
-	  // Find Start....
-	  bool bFoundOpenQuote = false;
-	  while((nPos < nLength) && !bFoundOpenQuote)
-	    {
-	      c = s[nPos];
-	      if(c=='"') bFoundOpenQuote =true;
-	      nPos++;
-	    }
-	  if(!bFoundOpenQuote) // No quotes found - assume that the entire thing is good to go...
-	    {
-	      so = s;
-	      return 0;
-	    }
-	  // Found opening ". Copy until end, or closing "
-	  
-	  std::string sNew("");
-	  for (; nPos < nLength; ++nPos) {
-	      char c = s[nPos];
-	      if (c == '"') {
-		  ++nPos;
-		  break;
-	      }
-	      if (nPos+1<nLength && c == '\\') {
-		  char escaped = s[++nPos];
-		  switch (escaped) {
-		  case 'n': c = '\n'; break;
-		  case 'r': c = '\r'; break;
-		  case 't': c = '\t'; break;
-		  default: c = escaped; break;
-		  }
-	      }
-	      sNew.push_back(c);
-	  }
-	  if (nPos < nLength) {
-	      string rest;
-	      from_string(s.substr(nPos), rest);
-	      sNew += rest;
-	  }
-
-	  so = sNew;
-	  return 0;
-	}
-  
 
 	int check_stream(std::istream& i)
 	{
@@ -121,7 +101,6 @@ namespace serialize
 				return -i.tellg();
 			}
 		}
-
 		return 0;
 	}
 
