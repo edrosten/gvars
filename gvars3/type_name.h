@@ -23,6 +23,11 @@
 #define GV3_INC_TYPE_NAME_H
 
 #include <string>
+#include <gvars3/config.h>
+
+#ifdef GVARS3_HAVE_TOON
+	#include <TooN/TooN.h>
+#endif
 
 namespace GVars3
 {
@@ -46,10 +51,12 @@ namespace GVars3
 		return "string";
 	}
 
-	template<> inline std::string type_name<TooN::Vector<> >()
-	{
-		return "TooN::Vector<>";
-	}
+	#ifdef GVARS3_HAVE_TOON
+		template<> inline std::string type_name<TooN::Vector<> >()
+		{
+			return "TooN::Vector<>";
+		}
+	#endif
 	
 	template <class T> std::string type_name(const T& t)
 	{

@@ -22,7 +22,6 @@
 #include "gvars3/gvars3.h"
 
 using namespace std;
-using namespace TooN;
 
 
 namespace GVars3
@@ -64,7 +63,8 @@ namespace GVars3
 	{
 		return Get<string>(name, default_val, flags);
 	}
-
+	
+	#ifdef GVARS3_HAVE_TOON
 	Vector<>& GVars2::GetVector(const string& name, const Vector<>& default_val, int flags) 
 	{
 		return Get<Vector<> >(name, default_val, flags);
@@ -74,6 +74,7 @@ namespace GVars3
 	{
 		return Get<Matrix<> >(name, default_val, flags);
 	}
+	#endif
 
 
 
@@ -87,6 +88,7 @@ namespace GVars3
 		return Get<double>(name, default_val, flags);
 	}
 
+	#ifdef GVARS3_HAVE_TOON
 	Vector<>& GVars2::GetVector(const string& name, const string& default_val, int flags) 
 	{
 		return Get<Vector<> >(name, default_val, flags);
@@ -96,6 +98,7 @@ namespace GVars3
 	{
 		return Get<Matrix<> >(name, default_val, flags);
 	}
+	#endif
 
 
 

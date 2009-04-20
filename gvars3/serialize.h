@@ -21,10 +21,13 @@
 
 #ifndef GV3_INC_SERIALIZE_H
 #define GV3_INC_SERIALIZE_H
-
+#include <gvars3/config.h>
 #include <string>
 #include <sstream>
-#include <TooN/TooN.h>
+
+#ifdef GVARS3_HAVE_TOON
+	#include <TooN/TooN.h>
+#endif
 
 namespace GVars3
 {
@@ -50,50 +53,52 @@ namespace GVars3
 			i >> result;
 			return check_stream(i);
 		}
+		
+		#ifdef GVARS3_HAVE_TOON
+			template<int N> std::string to_string(const TooN::Vector<N>& m)
+			{
+				std::ostringstream o;
+				o << "[ ";
+				for(int i=0; i<m.size(); i++)
+				  o << m[i] << " ";
+				o << "]";
+				return o.str();
+			}
 
+			template<int N> int from_string(std::string s, TooN::Vector<N>& m);
 
-		template<int N> std::string to_string(const TooN::Vector<N>& m)
-		{
-			std::ostringstream o;
-			o << "[ ";
-			for(int i=0; i<m.size(); i++)
-			  o << m[i] << " ";
-			o << "]";
-			return o.str();
-		}
+			int from_string(std::string s, TooN::Vector<>& m);
+			template<int N> int from_string(std::string s, TooN::Vector<N>& m)
+			{
+				TooN::Vector<> t;
+				int result = from_string(s, t);
+				if( result || t.size() != N )
+					return 1;
+				m = t;
+				return 0;
+			}
 
-		template<int N> int from_string(std::string s, TooN::Vector<N>& m);
+			std::string to_string(const std::string& s);
+			int from_string(std::string s, std::string& so);
 
-		int from_string(std::string s, TooN::Vector<>& m);
-		template<int N> int from_string(std::string s, TooN::Vector<N>& m)
-		{
-			TooN::Vector<> t;
-			int result = from_string(s, t);
-			if( result || t.size() != N )
+			std::string to_string(const TooN::Matrix<>& m);
+			template<int N, int M> std::string to_string(const TooN::Matrix<N,M>& m){
+				TooN::Matrix<> t = m;
+				return to_string(t);
+			}
+			int from_string(std::string s, TooN::Matrix<>& m);
+			template<int N, int M> int from_string(std::string s, TooN::Matrix<N,M>& m)
+			{
+			  TooN::Matrix<> t;
+			  int result = from_string(s,t);
+			  if( result || t.num_rows()!= N || t.num_cols()!= M )
 				return 1;
-			m = t;
-			return 0;
-		}
+			  m = t;
+			  return 0;
+			}
 
-		std::string to_string(const std::string& s);
-		int from_string(std::string s, std::string& so);
-
-		std::string to_string(const TooN::Matrix<>& m);
-		template<int N, int M> std::string to_string(const TooN::Matrix<N,M>& m){
-            TooN::Matrix<> t = m;
-            return to_string(t);
-        }
-		int from_string(std::string s, TooN::Matrix<>& m);
-		template<int N, int M> int from_string(std::string s, TooN::Matrix<N,M>& m)
-		{
-		  TooN::Matrix<> t;
-		  int result = from_string(s,t);
-		  if( result || t.num_rows()!= N || t.num_cols()!= M )
-		    return 1;
-		  m = t;
-		  return 0;
-		}
-		std::string to_string(const TooN::Vector<>& m);
+			std::string to_string(const TooN::Vector<>& m);
+		#endif
 	}
 }
 

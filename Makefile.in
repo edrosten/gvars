@@ -97,7 +97,7 @@ OBJS=\
 	src/serialize.o			\
 	src/@guiobj@.o          \
 	src/GUI_non_readline.o	\
-	src/inst.o
+	src/inst.o\
 
 ifeq (@have_readline@,yes)
 	OBJS+=src/GUI_readline.o
@@ -105,6 +105,11 @@ ifeq (@have_readline@,yes)
 	CPPFLAGS+=-DGUI_HAVE_READLINE
 else
 	OBJS+=src/GUI_impl_noreadline.o
+endif
+
+ifeq (@have_toon@,yes)
+	OBJS+=src/serialize_toon.o
+	HEADLESSOBJS+=src/serialize_toon.o
 endif
 
 	#src/@readlineobj@.o     \

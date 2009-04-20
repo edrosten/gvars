@@ -34,7 +34,6 @@ int fnmatch(const char *, const char *, int ){
 #endif
 
 using namespace std;
-using namespace TooN;
 
 namespace GVars3
 {

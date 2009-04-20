@@ -28,8 +28,7 @@
 #include <vector>
 #include <iostream>
 
-#include <TooN/TooN.h>
-
+#include <gvars3/config.h>
 #include <gvars3/type_name.h>
 #include <gvars3/serialize.h>
 
@@ -97,8 +96,10 @@ enum { SILENT = 1<<0, HIDDEN = 1<<1, FATAL_IF_NOT_DEFINED = 1<<2};
 typedef gvar2<double> gvar2_double;
 typedef gvar2<int> gvar2_int;
 typedef gvar2<std::string> gvar2_string;
+#ifdef GVARS3_HAVE_TOON
 typedef gvar2<TooN::Vector<-1> > gvar2_Vector;
 typedef gvar2<TooN::Matrix<-1> > gvar2_Matrix;
+#endif
 
 template<class T> class gvar3: public gvar2<T>
 {
@@ -301,14 +302,14 @@ class GVars2
 		int& GetInt(const std::string& name, int default_val=0, int flags=0);
 		double& GetDouble(const std::string& name, double default_val=0.0, int flags=0); 
 		std::string& GetString(const std::string& name, const std::string& default_val="", int flags=0); 
-		TooN::Vector<>& GetVector(const std::string& name, const TooN::Vector<>& default_val=TooN::Vector<>(), int flags=0); 
-		TooN::Matrix<>& GetMatrix(const std::string& name, const TooN::Matrix<>& default_val=TooN::Matrix<>(), int flags=0); 
+		//TooN::Vector<>& GetVector(const std::string& name, const TooN::Vector<>& default_val=TooN::Vector<>(), int flags=0); 
+		//TooN::Matrix<>& GetMatrix(const std::string& name, const TooN::Matrix<>& default_val=TooN::Matrix<>(), int flags=0); 
 
 
 		int& GetInt(const std::string& name, const std::string& default_val, int flags=0);
 		double& GetDouble(const std::string& name, const std::string& default_val, int flags=0); 
-		TooN::Vector<>& GetVector(const std::string& name, const std::string& default_val, int flags=0); 
-		TooN::Matrix<>& GetMatrix(const std::string& name, const std::string& default_val, int flags=0);  
+		//TooN::Vector<>& GetVector(const std::string& name, const std::string& default_val, int flags=0); 
+		//TooN::Matrix<>& GetMatrix(const std::string& name, const std::string& default_val, int flags=0);  
 
 		std::string StringValue(const std::string &name, bool no_quotes=false);
 		void PrintVarList(std::ostream& os=std::cout);
