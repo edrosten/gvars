@@ -48,9 +48,9 @@ namespace serialize
 		return os.str();
 	}
 
-	istream& from_stream(istream& in, string& s)
+	string FromStream<string>::from(istream& in)
 	{	
-		s.clear();
+		string s;
 
 		bool quoted=0;
 		int c;
@@ -59,7 +59,7 @@ namespace serialize
 		in >> ws;
 
 		if((c=in.get()) == EOF)
-			return in;
+			return s;
 
 		if(c == '"')
 			quoted=1;
@@ -96,24 +96,20 @@ namespace serialize
 		//Append any trailing parts of an escape sequence
 		s += escape;
 
-		return in;
+		return s;
 	}
 
 	int check_stream(std::istream& i)
 	{
+		if(i.good())
+			return 0;
+
 		if(i.bad())
 			return 1;
 
-		if(i.good())
+		if(i.fail())
 		{
-			i >> ws;
-			char c = i.get();
-
-			if(!i.eof())
-			{	
-				i.putback(c);
-				return -i.tellg();
-			}
+			return -i.tellg();
 		}
 		return 0;
 	}

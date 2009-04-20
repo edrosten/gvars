@@ -29,6 +29,7 @@
 #include <iostream>
 
 #include <gvars3/config.h>
+#include <gvars3/default.h>
 #include <gvars3/type_name.h>
 #include <gvars3/serialize.h>
 
@@ -113,8 +114,6 @@ template<> class gvar3<std::string>: public gvar2<std::string>
 	inline gvar3(const std::string& name, const std::string& default_val = "", int flags=0);
 	inline gvar3(){};
 };
-
-
 class GV3
 {
 	private:
@@ -151,22 +150,52 @@ class GV3
 					else
 						return &(i->second);
 				}
+				
+				//Replace a member using erase then reinsert
+				T& safe_replace(const std::string& n, const T& t)
+				{
+					typename std::map<std::string, T>::iterator i, j;
+					//Keep track of the neighboring point
+					//to pass as a hint to insert.
+					i = data.find(n);
+					j=i;
+
+					if(i != data.end())
+					{
+						j++;
+						data.erase(i);
+					}
+
+					data.insert(j, make_pair(n, t));
+
+					return data.insert(j, make_pair(n, t))->second;
+				}
 
 				//Create a data member
 				T* create(const std::string& n)
 				{
-					data[n] = T();
-					return &data[n];
+					return data.insert(make_pair(n, DefaultValue<T>::val()))->second;
 				}
 			
 				virtual int set_from_string(const std::string& name, const std::string& val)
 				{
-					return	serialize::from_string(val, data[name]); 
+					std::istringstream is(val);
+					T tmp = serialize::from_stream<T>(is);
+					int e = serialize::check_stream(is);
+
+					if(e == 0)
+						safe_replace(name, tmp);
+					return e;
 				}
 
 				virtual std::string get_as_string(const std::string& name)
-				{
-					return serialize::to_string(data[name]);
+				{	
+					typename std::map<std::string, T>::iterator i = data.find(name);
+
+					if(i == data.end())
+						i = data.insert(make_pair(name, DefaultValue<T>::val())).first;
+
+					return serialize::to_string(i->second);
 				}
 
 				virtual std::string name()
@@ -208,6 +237,11 @@ class GV3
 			return d;
 		}
 
+		template<class T> static T& safe_replace(const std::string& name, const T& t)
+		{
+			return TypedMap<T>::instance().safe_replace(name, t);
+		}
+
 		static void add_typemap(BaseMap* m);
 
 		static std::map<std::string, std::string>		unmatched_tags;
@@ -221,11 +255,11 @@ class GV3
 
 	public:
 		//Get references by name
-		template<class T> static T& get(const std::string& name, const T& default_val=T(), int flags=0);
+		template<class T> static T& get(const std::string& name, const T& default_val=DefaultValue<T>::val(), int flags=0);
 		template<class T> static T& get(const std::string& name, std::string default_val, int flags=0);
 		
 		//Register GVars
-		template<class T> static void Register(gvar2<T>& gv, const std::string& name, const T& default_val=T(), int flags=0);
+		template<class T> static void Register(gvar2<T>& gv, const std::string& name, const T& default_val=DefaultValue<T>::val(), int flags=0);
 		template<class T> static void Register(gvar2<T>& gv, const std::string& name, const std::string& default_val, int flags=0);
 		static inline void Register(gvar2<std::string>& gv, const std::string& name, const std::string& default_val="", int flags=0);
 

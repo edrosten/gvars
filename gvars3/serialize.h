@@ -22,13 +22,10 @@
 #ifndef GV3_INC_SERIALIZE_H
 #define GV3_INC_SERIALIZE_H
 #include <gvars3/config.h>
+#include <gvars3/default.h>
 #include <string>
 #include <vector>
 #include <sstream>
-
-#ifdef GVARS3_HAVE_TOON
-	#include <TooN/TooN.h>
-#endif
 
 namespace GVars3
 {
@@ -50,112 +47,114 @@ namespace GVars3
 
 		std::string to_string(const std::string& val);
 
-
-
-		template<class T> std::istream& from_stream(std::istream& i, T& result)
-		{	
-			i >> result;
-			return i;
-		}
+		template<class T> struct FromStream
+		{
+			static T from(std::istream& i)
+			{	
+				T result = DefaultValue<T>::val();
+				i >> result;
+				return result;
+			}
+		};
 		
 		//Special reading of strings
-		std::istream& from_stream(std::istream& in, std::string& s);
-
-		template<class T> std::istream& from_stream(std::istream& in, std::vector<T>& v)
+		template<> struct FromStream<std::string>
 		{
-			using std::ws;
-			using std::ios;
-			v.clear();
-			in >> ws;
-			int c;
+			static std::string from(std::istream& in);
+		};
 
-			if((c = in.get()) == EOF)
-				return in;
-
-			if(c != '[')
-			{
-				in.setstate(ios::failbit);
-				return in;
-			}
-
-			for(;;)
-			{
-				in >> ws;
-				
-				c = in.get();
-				
-				if(c == EOF || c == ']') 
-					return in;
-
-				in.unget();
-
-				T val;
-				from_stream(in, val);
-
-				if(!in.fail() && !in.bad())
-					v.push_back(val);
-				else
-					return in;
-			}
-		}
-
-		template<class T> std::istream& from_stream(std::istream& in, std::vector<std::vector<T> >& v)
+		template<class T> struct FromStream<std::vector<T> >
 		{
-			using std::ws;
-			using std::ios;
-			v.clear();
-			in >> ws;
-			int c;
-
-			if((c = in.get()) == EOF)
-				return in;
-
-			if(c != '[')
+			static std::vector<T> from(std::istream& in)
 			{
-				in.setstate(ios::failbit);
-				return in;
-			}
-
-			std::vector<T> current;
-
-			for(;;)
-			{
+				std::vector<T> v;
+				using std::ws;
+				using std::ios;
+				v.clear();
 				in >> ws;
-				
-				if((c = in.get()) == EOF || c == ']') 
+				int c;
+
+				if((c = in.get()) == EOF)
+					return v;
+
+				if(c != '[')
 				{
-					if(!current.empty())
-						v.push_back(current);
-					return in;
+					in.setstate(ios::failbit);
+					return v;
 				}
-				else if(c == ';')
+
+				for(;;)
 				{
-					v.push_back(current);
-					current.clear();
-				}
-				else
+					in >> ws;
+					
+					c = in.get();
+					
+					if(c == EOF || c == ']') 
+						return v;
+
 					in.unget();
 
-				T val;
-				from_stream(in, val);
+					T val =  FromStream<T>::from(in);
 
-				if(!in.fail() && !in.bad())
-					current.push_back(val);
-				else
-					return in;
+					if(!in.fail() && !in.bad())
+						v.push_back(val);
+					else
+						return v;
+				}
 			}
-		}
+		};
+
+		template<class T> struct FromStream<std::vector<std::vector<T> > >
+		{
+			static std::vector<std::vector<T> > from(std::istream& in)
+			{
+				std::vector<std::vector<T> > v;
+				using std::ws;
+				using std::ios;
+				v.clear();
+				in >> ws;
+				int c;
+
+				if((c = in.get()) == EOF)
+					return in;
+
+				if(c != '[')
+				{
+					in.setstate(ios::failbit);
+					return v;
+				}
+
+				std::vector<T> current;
+
+				for(;;)
+				{
+					in >> ws;
+					
+					if((c = in.get()) == EOF || c == ']') 
+					{
+						if(!current.empty())
+							v.push_back(current);
+						return v;
+					}
+					else if(c == ';')
+					{
+						v.push_back(current);
+						current.clear();
+					}
+					else
+						in.unget();
+
+					T val = FromStream<T>::from(in);
+
+					if(!in.fail() && !in.bad())
+						current.push_back(val);
+					else
+						return v;
+				}
+			}
+		};
 
 
-
-
-		template<class T> int from_string(std::string s, T& result)
-		{	
-			using GVars3::serialize::from_stream;
-			std::istringstream i(s);
-			from_stream(i, result);
-			return check_stream(i);
-		}
 
 		#ifdef GVARS3_HAVE_TOON
 			template<int N> std::string to_string(const TooN::Vector<N>& m)
@@ -187,27 +186,27 @@ namespace GVars3
 				o << "]";
 				return o.str();
 			}
+			
 
-			template<int N> std::istream& from_stream(std::istream& i, TooN::Vector<N>& m)
+			template<int N> struct FromStream<TooN::Vector<N> >
 			{
-				std::vector<double> v;
-				from_stream(i, v);
-
-				if(v.size() != m.size())
+				static TooN::Vector<N> from(std::istream& i)
 				{
-					i.setstate(std::ios::failbit);
-					return i;
-				}
-				else
-				{
-					for(int j=0; j < v.size(); j++)
-						m[j] = v[j];
-					return i;
-				}
-			}
+					std::vector<double> v = FromStream<std::vector<double> >::from(i);
 
+					if(i.fail() || i.bad() || (N != -1 && v.size() != N) || v.size() == 0)
+					{
+						i.setstate(std::ios::failbit);
+						return DefaultValue<TooN::Vector<N> >::val();
+					}
+					else
+					{
+						return TooN::wrapVector(&v[0], v.size());
+					}
+				}
+			};
 
-			template<int N> std::istream& from_stream(std::istream& i, TooN::Matrix<N>& m)
+			/*template<int N> std::istream& from_stream(std::istream& i, TooN::Matrix<N>& m)
 			{
 				std::vector<std::vector<double> > v;
 				from_stream(i, v);
@@ -234,8 +233,21 @@ namespace GVars3
 						m[r][c] = v[r][c];
 					}
 				return i;
-			}
+			}*/
 		#endif
+
+		template<class T> T from_stream(std::istream& i)
+		{
+			return FromStream<T>::from(i);
+		}
+
+		template<class T> int from_string(std::string& s, T& t)
+		{
+			std::istringstream is(s);
+			t = from_stream<T>(is);
+			return check_stream(is);
+		}
+
 	}
 }
 
