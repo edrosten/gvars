@@ -107,11 +107,6 @@ else
 	OBJS+=src/GUI_impl_noreadline.o
 endif
 
-ifeq (@have_toon@,yes)
-	OBJS+=src/serialize_toon.o
-	HEADLESSOBJS+=src/serialize_toon.o
-endif
-
 	#src/@readlineobj@.o     \
 #G++ seems to run constructors in the reverse order
 #so inst needs to be last.

@@ -31,7 +31,21 @@ namespace serialize
 {
 	std::string to_string(const std::string& s)
 	{
-		return s;
+		ostringstream os;
+		os << "\"";
+		
+		for(size_t i=0; i < s.size(); i++)
+		{
+			if(s[i] == '\\')
+				os << "\\\\";
+			else if(s[i] == '\n')
+				os << "\\n";
+			else
+				os << s[i];
+		}
+
+		os << "\"";
+		return os.str();
 	}
 
 	istream& from_stream(istream& in, string& s)

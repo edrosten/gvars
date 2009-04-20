@@ -100,6 +100,20 @@ int main(){TooN::Vector<2> v;return 0;}], [a=1])
 	else
 		AC_MSG_RESULT(no)
 	fi
+
+	AC_MSG_CHECKING([for TooN-2])
+
+	a=
+	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
+int main(){TooN::Vector<2, float> v;return 0;}], [a=1]) 
+
+	if test x$a = x1
+	then
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(GVARS3_HAVE_TOON2)
+	else
+		AC_MSG_RESULT(no)
+	fi
 fi
 
 TEST_AND_SET_CXXFLAG(-pthread)

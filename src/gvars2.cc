@@ -63,19 +63,6 @@ namespace GVars3
 	{
 		return Get<string>(name, default_val, flags);
 	}
-	
-	#ifdef GVARS3_HAVE_TOON
-	TooN::Vector<>& GVars2::GetVector(const string& name, const TooN::Vector<>& default_val, int flags) 
-	{
-		return Get<TooN::Vector<> >(name, default_val, flags);
-	}
-
-	TooN::Matrix<>& GVars2::GetMatrix(const string& name, const TooN::Matrix<>& default_val, int flags)
-	{
-		return Get<TooN::Matrix<> >(name, default_val, flags);
-	}
-	#endif
-
 
 
 	int& GVars2::GetInt(const string& name, const string& default_val, int flags)
@@ -87,20 +74,6 @@ namespace GVars3
 	{
 		return Get<double>(name, default_val, flags);
 	}
-
-	#ifdef GVARS3_HAVE_TOON
-	TooN::Vector<>& GVars2::GetVector(const string& name, const string& default_val, int flags) 
-	{
-		return Get<TooN::Vector<> >(name, default_val, flags);
-	}
-
-	TooN::Matrix<>& GVars2::GetMatrix(const string& name, const string& default_val, int flags)
-	{
-		return Get<TooN::Matrix<> >(name, default_val, flags);
-	}
-	#endif
-
-
 
 	string GVars2::StringValue(const string &name, bool no_quotes)
 	{

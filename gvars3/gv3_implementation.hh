@@ -5,7 +5,7 @@ template<class T> inline void robust_assignment(T& lvalue, T rhs)
   lvalue =rhs;
 };
 
-#ifdef GVARS3_HAVE_TOON
+#if 0 && !defined GVARS3_HAVE_TOON
 // Replacement for operator= which doesn't crash for Vector<-1>; specialisation
 void inline robust_assignment(TooN::Vector<> &lvalue, TooN::Vector<> rhs)
 {

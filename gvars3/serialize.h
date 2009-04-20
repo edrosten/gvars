@@ -48,6 +48,10 @@ namespace GVars3
 			return o.str();
 		}
 
+		std::string to_string(const std::string& val);
+
+
+
 		template<class T> std::istream& from_stream(std::istream& i, T& result)
 		{	
 			i >> result;
@@ -164,39 +168,73 @@ namespace GVars3
 				return o.str();
 			}
 
-			template<int N> int from_string(std::string s, TooN::Vector<N>& m);
-
-			int from_string(std::string s, TooN::Vector<>& m);
-			template<int N> int from_string(std::string s, TooN::Vector<N>& m)
+			template<int N, int M> std::string to_string(const TooN::Matrix<N, M>& m)
 			{
-				TooN::Vector<> t;
-				int result = from_string(s, t);
-				if( result || t.size() != N )
-					return 1;
-				m = t;
-				return 0;
+				std::ostringstream o;
+				o << "[ ";
+				for(int i=0; i<m.num_rows(); i++)
+				{
+					if(i != 0)
+						o << "; ";
+
+					for(int j=0; j<m.num_cols(); j++)
+					{
+						if(j != 0)
+							o << " ";
+						o << m[i][j];
+					}
+				}
+				o << "]";
+				return o.str();
 			}
 
-			std::string to_string(const std::string& s);
-			int from_string(std::string s, std::string& so);
-
-			std::string to_string(const TooN::Matrix<>& m);
-			template<int N, int M> std::string to_string(const TooN::Matrix<N,M>& m){
-				TooN::Matrix<> t = m;
-				return to_string(t);
-			}
-			int from_string(std::string s, TooN::Matrix<>& m);
-			template<int N, int M> int from_string(std::string s, TooN::Matrix<N,M>& m)
+			template<int N> std::istream& from_stream(std::istream& i, TooN::Vector<N>& m)
 			{
-			  TooN::Matrix<> t;
-			  int result = from_string(s,t);
-			  if( result || t.num_rows()!= N || t.num_cols()!= M )
-				return 1;
-			  m = t;
-			  return 0;
+				std::vector<double> v;
+				from_stream(i, v);
+
+				if(v.size() != m.size())
+				{
+					i.setstate(std::ios::failbit);
+					return i;
+				}
+				else
+				{
+					for(int j=0; j < v.size(); j++)
+						m[j] = v[j];
+					return i;
+				}
 			}
 
-			std::string to_string(const TooN::Vector<>& m);
+
+			template<int N> std::istream& from_stream(std::istream& i, TooN::Matrix<N>& m)
+			{
+				std::vector<std::vector<double> > v;
+				from_stream(i, v);
+
+				if(v.size() != m.num_rows())
+				{
+					i.setstate(std::ios::failbit);
+					return i;
+				}
+				
+				for(int r=1; r < m.size(); r++)
+				{
+					if(v[r].size() != m.num_cols())
+					{
+						i.setstate(std::ios::failbit);
+						return i;
+					}
+				}
+
+
+				for(int r=0; r < m.num_rows(); r++)
+					for(int c=0; c < m.num_cols(); c++)
+					{
+						m[r][c] = v[r][c];
+					}
+				return i;
+			}
 		#endif
 	}
 }
