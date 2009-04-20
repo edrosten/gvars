@@ -140,7 +140,7 @@ namespace GVars3
 		else
 		{
 			GUI.ParseLine(line);
-			if(line != "")
+			if(line != string(""))
 				add_history(line);
 		}
 	}
