@@ -302,14 +302,17 @@ class GVars2
 		int& GetInt(const std::string& name, int default_val=0, int flags=0);
 		double& GetDouble(const std::string& name, double default_val=0.0, int flags=0); 
 		std::string& GetString(const std::string& name, const std::string& default_val="", int flags=0); 
-		//TooN::Vector<>& GetVector(const std::string& name, const TooN::Vector<>& default_val=TooN::Vector<>(), int flags=0); 
-		//TooN::Matrix<>& GetMatrix(const std::string& name, const TooN::Matrix<>& default_val=TooN::Matrix<>(), int flags=0); 
+
+		#ifdef GVARS3_HAVE_TOON
+			TooN::Vector<>& GetVector(const std::string& name, const TooN::Vector<>& default_val=TooN::Vector<>(), int flags=0); 
+			TooN::Matrix<>& GetMatrix(const std::string& name, const TooN::Matrix<>& default_val=TooN::Matrix<>(), int flags=0); 
+			TooN::Vector<>& GetVector(const std::string& name, const std::string& default_val, int flags=0); 
+			TooN::Matrix<>& GetMatrix(const std::string& name, const std::string& default_val, int flags=0);  
+		#endif
 
 
 		int& GetInt(const std::string& name, const std::string& default_val, int flags=0);
 		double& GetDouble(const std::string& name, const std::string& default_val, int flags=0); 
-		//TooN::Vector<>& GetVector(const std::string& name, const std::string& default_val, int flags=0); 
-		//TooN::Matrix<>& GetMatrix(const std::string& name, const std::string& default_val, int flags=0);  
 
 		std::string StringValue(const std::string &name, bool no_quotes=false);
 		void PrintVarList(std::ostream& os=std::cout);

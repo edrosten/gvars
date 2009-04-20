@@ -65,14 +65,14 @@ namespace GVars3
 	}
 	
 	#ifdef GVARS3_HAVE_TOON
-	Vector<>& GVars2::GetVector(const string& name, const Vector<>& default_val, int flags) 
+	TooN::Vector<>& GVars2::GetVector(const string& name, const TooN::Vector<>& default_val, int flags) 
 	{
-		return Get<Vector<> >(name, default_val, flags);
+		return Get<TooN::Vector<> >(name, default_val, flags);
 	}
 
-	Matrix<>& GVars2::GetMatrix(const string& name, const Matrix<>& default_val, int flags)
+	TooN::Matrix<>& GVars2::GetMatrix(const string& name, const TooN::Matrix<>& default_val, int flags)
 	{
-		return Get<Matrix<> >(name, default_val, flags);
+		return Get<TooN::Matrix<> >(name, default_val, flags);
 	}
 	#endif
 
@@ -89,14 +89,14 @@ namespace GVars3
 	}
 
 	#ifdef GVARS3_HAVE_TOON
-	Vector<>& GVars2::GetVector(const string& name, const string& default_val, int flags) 
+	TooN::Vector<>& GVars2::GetVector(const string& name, const string& default_val, int flags) 
 	{
-		return Get<Vector<> >(name, default_val, flags);
+		return Get<TooN::Vector<> >(name, default_val, flags);
 	}
 
-	Matrix<>& GVars2::GetMatrix(const string& name, const string& default_val, int flags)
+	TooN::Matrix<>& GVars2::GetMatrix(const string& name, const string& default_val, int flags)
 	{
-		return Get<Matrix<> >(name, default_val, flags);
+		return Get<TooN::Matrix<> >(name, default_val, flags);
 	}
 	#endif
 

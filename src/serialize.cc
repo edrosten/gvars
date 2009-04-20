@@ -34,6 +34,26 @@ namespace serialize
 		return s;
 	}
 
+	istream& get_string(istream& in, string& s)
+	{	
+		s.clear();
+
+		bool quoted=0;	
+		int c;
+
+		//Eat whitespace
+		in >> ws;
+
+		if((c=in.get()) == EOF)
+			return in;
+
+		if(c == '"')
+			quoted=1;
+
+
+
+	}
+
         // For reading strings, if there's double quotes, lift the part inside the double quotes.
         int from_string(std::string s, std::string& so) //Pretty ugly code lifted from GVars2, but works.
 	{
