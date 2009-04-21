@@ -70,7 +70,8 @@ define([TEST_AND_SET_CXXFLAG],[
 TEST_AND_SET_CXXFLAG(-Wall)
 TEST_AND_SET_CXXFLAG(-Wextra)
 
-
+# add prefix include path
+APPEND(CPPFLAGS, [-I"$(eval echo $includedir)"])
 
 
 

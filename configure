@@ -3416,7 +3416,8 @@ echo "${ECHO_T}no" >&6; }
 	fi
 
 
-
+# add prefix include path
+CPPFLAGS="$CPPFLAGS -I"$(eval echo $includedir)""
 
 
 
