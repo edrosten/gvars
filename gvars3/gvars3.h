@@ -158,6 +158,10 @@ class GV3
 					//Keep track of the neighboring point
 					//to pass as a hint to insert.
 					i = data.find(n);
+
+					*i = t;
+					return *i;
+					/*
 					j=i;
 
 					if(i != data.end())
@@ -168,7 +172,7 @@ class GV3
 
 					data.insert(j, make_pair(n, t));
 
-					return data.insert(j, make_pair(n, t))->second;
+					return data.insert(j, make_pair(n, t))->second;*/
 				}
 
 				//Create a data member
