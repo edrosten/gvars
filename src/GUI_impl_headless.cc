@@ -10,7 +10,7 @@ namespace GVars3
   {
   }
 
-  char ** GUI_impl::ReadlineCompletionFunction (const char *text, int start, int end)
+  char ** GUI_impl::ReadlineCompletionFunction (const char *, int, int)
   {
     return NULL;
   }
@@ -20,7 +20,7 @@ namespace GVars3
   }
 
 
-  void print_history(ostream &ost)
+  void print_history(ostream &)
   {
   }
 

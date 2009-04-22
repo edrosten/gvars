@@ -75,8 +75,6 @@ static void poll_callback(void* v)
 
 void* GUI_Fltk2::do_stuff_CB(void* v)
 {
-	GUI_Fltk2* t = (GUI_Fltk2*)v;
-
 	//Add a one shot timeout which makes widgets poll for changes
 	fltk::add_timeout(0.02,  poll_callback,  v);
 
@@ -96,7 +94,7 @@ void* GUI_Fltk2::do_stuff_CB(void* v)
 
 #define UI (*(GUI_Fltk2*)(ptr))
 
-void GUI_Fltk2::InitXInterfaceCB(void* ptr, string sCommand, string sParams)
+void GUI_Fltk2::InitXInterfaceCB(void* ptr, string, string sParams)
 {
 	UI.InitXInterface(sParams);
 }
@@ -160,7 +158,7 @@ bool GUI_Fltk2::check_window(string win_name, string err)
 // Window
 //
 
-void GUI_Fltk2::AddWindowCB(void* ptr, string sCommand, string sParams)
+void GUI_Fltk2::AddWindowCB(void* ptr, string , string sParams)
 {
 	fltk::lock();
 	UI.AddWindow(sParams);
@@ -257,6 +255,7 @@ void GUI_Fltk2::AddWindow(string sParams)
 	w.win = new GUI_Fltk2_win(width, vs[0], sCaption, gui);
 	w.win->end();
 	w.win->show();
+	w.showme=true;
 
 	fltk::check();
 
@@ -271,7 +270,7 @@ void GUI_Fltk2::AddWindow(string sParams)
 	gui->RegisterCommand(vs[0] + ".AddSmallToggleButton", AddSmallToggleCB, this);
 }
 
-void GUI_Fltk2::DestroyWindowCB(void* ptr, string cmd, string args)
+void GUI_Fltk2::DestroyWindowCB(void* ptr, string cmd, string )
 {
 	fltk::lock();
 	UI.DestroyWindow(cmd);
@@ -315,7 +314,7 @@ class cmd_button2 :public fltk::Button
 {
 	public:
 		cmd_button2(string name, string command, class GUI* pgui)
-		:fltk::Button(0, 0, 1, 1),labl(name), cmd(command), gui(pgui)
+		:fltk::Button(0, 0, 1, 1),cmd(command),labl(name), gui(pgui)
 		{
 			label(labl.c_str());
 			callback(my_callback);

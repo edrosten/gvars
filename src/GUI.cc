@@ -128,20 +128,24 @@ namespace GVars3
 
 	//Strip whitespace from around var;
 	string::size_type s=0, e = var.length()-1; 
-	for(; isspace(var[s]) && s < var.length(); s++);
+	for(; isspace(var[s]) && s < var.length(); s++)
+	{}
 	if(s==var.length()) // All whitespace before the `='?
 	  return false; 
-	for(; isspace(var[e]); e--);
+	for(; isspace(var[e]); e--)
+	{}
 	if(e >= s)
 	  {
 	    var = var.substr(s, e-s+1);
 			
 	    //Strip whitespace from around val;			
 	    s = 0, e = val.length() - 1;
-	    for(; isspace(val[s]) && s < val.length(); s++);
+	    for(; isspace(val[s]) && s < val.length(); s++)
+		{}
 	    if( s < val.length())
 	      {
-		for(; isspace(val[e]); e--);
+		for(; isspace(val[e]); e--)
+		{}
 		val = val.substr(s, e-s+1);
 	      }
 	    else val = "";
@@ -606,40 +610,42 @@ namespace GVars3
   }
 
 
-  void builtin_gvarlist(void* /*ptr*/, string sCommand, string sParams)
-  {
-    bool error = false;
-    bool print_all = false;
-    string pattern = "";
-  
-    vector<string> v = ChopAndUnquoteString(sParams);
-    if(v.size() > 0  && v[0][0] == '-')
-      if(v[0].size() == 2)
+	void builtin_gvarlist(void* /*ptr*/, string sCommand, string sParams)
 	{
-	  switch(v[0][1])
-	    {
-	    case 'a':
-	      print_all = true;
-	      break;
-	    default:
-	      error = true;
-	    }
-	  if(!error)
-	    v.erase(v.begin());
+		bool error = false;
+		bool print_all = false;
+		string pattern = "";
+
+		vector<string> v = ChopAndUnquoteString(sParams);
+		if(v.size() > 0  && v[0][0] == '-')
+		{
+			if(v[0].size() == 2)
+			{
+				switch(v[0][1])
+				{
+					case 'a':
+						print_all = true;
+					break;
+					default:
+						error = true;
+				}
+				if(!error)
+					v.erase(v.begin());
+			}
+			else
+				error = true;
+		}
+
+		if(v.size()==1)
+			pattern = v[0];
+		else if(v.size() > 1)
+			error = true;
+
+		if(error)
+			cout << "? GUI_impl internal " << sCommand << ": syntax is " << sCommand << " [-a] [pattern] " << endl;
+		else
+			GV3::print_var_list(cout, pattern, print_all);
 	}
-      else
-	error = true;
-  
-    if(v.size()==1)
-      pattern = v[0];
-    else if(v.size() > 1)
-      error = true;
-  
-    if(error)
-      cout << "? GUI_impl internal " << sCommand << ": syntax is " << sCommand << " [-a] [pattern] " << endl;
-    else
-      GV3::print_var_list(cout, pattern, print_all);
-  }
 
 
   void builtin_printvar(void* /*ptr*/, string /*sCommand*/, string sParams)

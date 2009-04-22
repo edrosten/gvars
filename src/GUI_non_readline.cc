@@ -55,17 +55,18 @@ namespace GVars3
   void* spawn_non_readline_thread::proc(void *)
   {
     char line[1000];
+    line[999]=0;
     GUI.SetupReadlineCompletion();
 
     while(1)
       {
 	cout << "> ";  
-	cin.getline (line, 1000);
+	cin.getline (line, 999);
 	
-	if(quit || !line)
+	if(quit)
 	  break;
 		  
-	if(*line)
+	if(line != string(""))
 	  GUI.ParseLine(line);
       }
     
