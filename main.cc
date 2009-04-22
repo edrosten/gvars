@@ -25,9 +25,10 @@ using namespace GVars3;
 
 #include <gvars3/GUI_readline.h>
 #include <unistd.h>
-#include <TooN/numerics.h>
+#include <TooN/TooN.h>
 
 using namespace std;
+using namespace TooN;
 
 bool bDone;
 

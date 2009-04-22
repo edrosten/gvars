@@ -5,13 +5,13 @@ template<class T> inline void robust_set_var(std::string& name, const T& value)
 };
 
 // TODO: Make the specialisation for matrices as well. 
-template<class T> T* GV3::register_new_gvar(const std::string& name, const T& default_val, int flags)
+template<class T> ValueHolder<T>* GV3::register_new_gvar(const std::string& name, const T& default_val, int flags)
 {
 	std::map<std::string, std::string>::iterator i;
 
 	i = unmatched_tags.find(name);
 
-	T* d;
+	ValueHolder<T>* d;
 
 	registered_type_and_trait[name] = std::pair<BaseMap*, int>(&TypedMap<T>::instance(), flags);
 
@@ -27,7 +27,7 @@ template<class T> T* GV3::register_new_gvar(const std::string& name, const T& de
 		if(!(flags & SILENT))
 			std::cerr << "? GV3::Register: " << type_name<T>() << " " << name << " undefined. Defaults to " << serialize::to_string(default_val) << std::endl;
 
-		d = &safe_replace(name, default_val);
+		d = safe_replace(name, default_val);
 	}
 	else
 	{
@@ -42,7 +42,7 @@ template<class T> T* GV3::register_new_gvar(const std::string& name, const T& de
 			throw gvar_was_not_defined();
 		}
 
-		d = &safe_replace(name, value);
+		d = safe_replace(name, value);
 
 		unmatched_tags.erase(i);
 	}
@@ -51,41 +51,50 @@ template<class T> T* GV3::register_new_gvar(const std::string& name, const T& de
 }
 
 
-template<class T> T* GV3::get_by_val(const std::string& name, const T& default_val, int flags)
+template<class T> ValueHolder<T>* GV3::get_by_val(const std::string& name, const T& default_val, int flags)
 {
-  T* d = attempt_get<T>(name);
-  if(!d)
-    d = register_new_gvar(name, default_val, flags);
-  return d;
+	ValueHolder<T>* d = attempt_get<T>(name);
+	if(d)
+		return d;
+	else
+		return  register_new_gvar(name, default_val, flags);
 }
 
-template<class T> T* GV3::get_by_str(const std::string& name, const std::string& default_val, int flags)
+template<class T> ValueHolder<T>* GV3::get_by_str(const std::string& name, const std::string& default_val, int flags)
 {
-  T* d = attempt_get<T>(name);
-  if(d!=NULL) return d;
-  
-  std::istringstream is(default_val);
-  T def = serialize::from_stream<T>(is);
-  int e = serialize::check_stream(is);
-  
-  parse_warning(e, type_name<T>(), name, default_val);
-  
-  return register_new_gvar(name, def, flags);
+	ValueHolder<T>* d = attempt_get<T>(name);
+	if(d)
+		return d;
+	else
+	{
+		std::istringstream is(default_val);
+		T def = serialize::from_stream<T>(is);
+		int e = serialize::check_stream(is);
+
+		parse_warning(e, type_name<T>(), name, default_val);
+
+		return register_new_gvar(name, def, flags);
+	}
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Public interface
+//
 template<>inline std::string& GV3::get<std::string>(const std::string& name, std::string default_val, int flags)
 {
-	return *get_by_val(name, default_val, flags);
+	return get_by_val(name, default_val, flags)->get();
 }
 
 template<class T> T& GV3::get(const std::string& name, std::string default_val, int flags)
 {
-	return *get_by_str<T>(name, default_val, flags);
+	return get_by_str<T>(name, default_val, flags)->get();
 }
 
 template<class T> T& GV3::get(const std::string& name, const T& default_val, int flags)
 {
-	return *get_by_val(name, default_val, flags);
+	return get_by_val(name, default_val, flags)->get();
 }
 
 

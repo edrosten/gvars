@@ -56,35 +56,36 @@ class BaseMap
 
 template<class T> class gvar2
 {
-  friend class GV3;
- public:
-  gvar2() {data=NULL;}      // Debugging comfort feature, makes unregistered vars more obvious.
-  T& operator*()
-    {
-      return *data;
-    }
-  
-  const T & operator*() const 
-  {
-     return *data;
-  }
-  
-  T* operator->()
-    {
-      return data;
-    }
-  const T * operator->() const 
-  {
-    return data;
-  }
+	friend class GV3;
+	public:
+		gvar2() {data=NULL;}      // Debugging comfort feature, makes unregistered vars more obvious.
+		T& operator*()
+		{
+			return data->get();
+		}
 
-  bool IsRegistered() const
-  {
-    return data!=NULL;
-  }
-   
- protected:
-  T* data;
+		const T & operator*() const 
+		{
+			return data->get();
+		}
+
+		T* operator->()
+		{
+			return data->ptr();
+		}
+
+		const T * operator->() const 
+		{
+			return data->ptr();
+		}
+
+		bool IsRegistered() const
+		{
+			return data!=NULL;
+		}
+
+	protected:
+		ValueHolder<T>* data;
 };
 
 // Bit-masks for gvar registration:
@@ -139,9 +140,9 @@ class GV3
 				}
 
 				//Get a data member	
-				T* get(const std::string& n)
+				ValueHolder<T>* get(const std::string& n)
 				{
-					typename std::map<std::string, T>::iterator i;
+					DataIter i;
 
 					i = data.find(n);
 
@@ -151,34 +152,30 @@ class GV3
 						return &(i->second);
 				}
 				
-				//Replace a member using erase then reinsert
-				T& safe_replace(const std::string& n, const T& t)
+				ValueHolder<T>* safe_replace(const std::string& n, const T& t)
 				{
-					typename std::map<std::string, T>::iterator i, j;
+					DataIter i, j;
 					//Keep track of the neighboring point
 					//to pass as a hint to insert.
 					i = data.find(n);
 
-					*i = t;
-					return *i;
-					/*
-					j=i;
-
-					if(i != data.end())
+					if(i == data.end())
 					{
-						j++;
-						data.erase(i);
+						return &(data.insert(make_pair(n, t)).first->second);
+
+					}
+					else
+					{
+						i->second.set(t);
+						return &(i->second);
 					}
 
-					data.insert(j, make_pair(n, t));
-
-					return data.insert(j, make_pair(n, t))->second;*/
 				}
 
 				//Create a data member
-				T* create(const std::string& n)
+				ValueHolder<T>* create(const std::string& n)
 				{
-					return data.insert(make_pair(n, DefaultValue<T>::val()))->second;
+					return &(data.insert(make_pair(n, DefaultValue<T>::val()))->second);
 				}
 			
 				virtual int set_from_string(const std::string& name, const std::string& val)
@@ -194,12 +191,12 @@ class GV3
 
 				virtual std::string get_as_string(const std::string& name)
 				{	
-					typename std::map<std::string, T>::iterator i = data.find(name);
+					DataIter i = data.find(name);
 
 					if(i == data.end())
 						i = data.insert(make_pair(name, DefaultValue<T>::val())).first;
 
-					return serialize::to_string(i->second);
+					return serialize::to_string(i->second.get());
 				}
 
 				virtual std::string name()
@@ -210,19 +207,21 @@ class GV3
 				virtual std::vector<std::string> list_tags()
 				{
 					std::vector<std::string> l;
-					for(typename std::map<std::string,T>::iterator i=data.begin(); i != data.end(); i++)
+					for(DataIter i=data.begin(); i != data.end(); i++)
 						l.push_back(i->first);
 					return l;
 				}
 
-				std::map<std::string, T>		data;
+				std::map<std::string, ValueHolder<T> >		data;
+				typedef typename std::map<std::string, ValueHolder<T> >::iterator DataIter;
+
 		};
 
 		template<class T> friend class TypedMap;
 
-		template<class T> static T* attempt_get(const std::string& name)
+		template<class T> static ValueHolder<T>* attempt_get(const std::string& name)
 		{
-			T* d = TypedMap<T>::instance().get(name);
+			ValueHolder<T>* d = TypedMap<T>::instance().get(name);
 			
 			if(!d)	 //Data not present in map of the correct type
 			{
@@ -241,7 +240,7 @@ class GV3
 			return d;
 		}
 
-		template<class T> static T& safe_replace(const std::string& name, const T& t)
+		template<class T> static ValueHolder<T>* safe_replace(const std::string& name, const T& t)
 		{
 			return TypedMap<T>::instance().safe_replace(name, t);
 		}
@@ -253,9 +252,9 @@ class GV3
 		static std::list<BaseMap*>				maps;
 
 		
-		template<class T> static T* get_by_val(const std::string& name, const T& default_val, int flags);
-		template<class T> static T* get_by_str(const std::string& name, const std::string& default_val, int flags);
-		template<class T> static T* register_new_gvar(const std::string &name, const T& default_val, int flags);
+		template<class T> static ValueHolder<T>* get_by_val(const std::string& name, const T& default_val, int flags);
+		template<class T> static ValueHolder<T>* get_by_str(const std::string& name, const std::string& default_val, int flags);
+		template<class T> static ValueHolder<T>* register_new_gvar(const std::string &name, const T& default_val, int flags);
 
 	public:
 		//Get references by name
