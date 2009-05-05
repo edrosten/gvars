@@ -63,6 +63,8 @@ namespace serialize
 
 		if(c == '"')
 			quoted=1;
+		else
+			in.unget();
 		
 		//This variable holds an escape sequence in progress.
 		//empty means no escaping.
