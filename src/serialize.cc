@@ -106,10 +106,7 @@ namespace serialize
 		if(i.good())
 			return 0;
 
-		if(i.bad())
-			return 1;
-
-		if(i.fail())
+		if(i.bad() || (i.fail() && !i.eof()))
 		{
 			return -i.tellg();
 		}
