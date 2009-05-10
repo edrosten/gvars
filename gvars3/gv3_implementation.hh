@@ -35,6 +35,7 @@ template<class T> ValueHolder<T>* GV3::register_new_gvar(const std::string& name
 		T value = serialize::from_stream<T>(is);
 		int e = serialize::check_stream(is);
 
+std::cerr << "eeek  " << e << std::endl;
 		parse_warning(e, type_name<T>(), name, i->second);
 		if(e > 0 && flags & FATAL_IF_NOT_DEFINED)
 		{
