@@ -56,6 +56,7 @@ class GUI_Fltk2
 		void AddSlider(std::string cmd, std::string args);
 		void AddSpin(std::string cmd, std::string args);
 		void AddSmallToggle(std::string cmd, std::string args);
+		void AddLabel(std::string cmd, std::string args);
 
 		std::string remove_suffix(std::string cmd, std::string suffix);
 		bool check_window(std::string win_name, std::string fname);
@@ -84,6 +85,7 @@ class GUI_Fltk2
 		static void AddMonitorCB(void*, std::string, std::string);
 		static void AddSpinCB(void*, std::string, std::string);
 		static void AddSmallToggleCB(void*, std::string, std::string);
+		static void AddLabelCB(void*, std::string, std::string);
 		static void* do_stuff_CB(void*);
 };
 

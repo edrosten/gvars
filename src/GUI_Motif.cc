@@ -27,6 +27,7 @@
 #include <Xm/Label.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/ToggleB.h>
+#include <Xm/TextF.h>
 #include <Xm/Protocols.h>
 #include <Xm/AtomMgr.h>
 #include <pthread.h>
@@ -47,12 +48,12 @@ GUI_Motif::GUI_Motif(class GUI *pGUI, GVars2 *pGV2)
 }
 
 
-void GUI_Motif::InitXInterfaceCB(void* ptr, string sCommand, string sParams)
+void GUI_Motif::InitXInterfaceCB(void* ptr, string , string sParams)
 {
   ((GUI_Motif*)(ptr))->InitXInterface(sParams);
 }
 
-void GUI_Motif::AddWindowCB(void* ptr, string sCommand, string sParams)
+void GUI_Motif::AddWindowCB(void* ptr, string , string sParams)
 {
   ((GUI_Motif*)(ptr))->AddWindow(sParams);
 }
@@ -106,8 +107,6 @@ void GUI_Motif::AddWindow(string sParams)
   
   pthread_mutex_lock((pthread_mutex_t*)mpMutex);
   
-  int argc=1;
-  char* argv[] = {""};
   Arg al[10];
   int ac = 0;
   gws.wTopLevel=XtAppCreateShell(sCaption.c_str(), sCaption.c_str(), applicationShellWidgetClass, mpDisplay, al, ac);
@@ -119,7 +118,7 @@ void GUI_Motif::AddWindow(string sParams)
   XtSetArg(al[ac], XmNresizeHeight, True); ac++;
   XtSetArg(al[ac], XmNresizeWidth, False); ac++;
   
-  gws.wRowCol=XmCreateRowColumn(gws.wTopLevel,"GUI_Motif_rowcol",al,ac);
+  gws.wRowCol=XmCreateRowColumn(gws.wTopLevel,("GUI_Motif_rowcol"),al,ac);
   
   XtManageChild(gws.wRowCol);
   XtRealizeWidget(gws.wTopLevel);
@@ -134,7 +133,7 @@ void GUI_Motif::AddWindow(string sParams)
   
   
   Atom delwinAtom1;
-  delwinAtom1 = XmInternAtom (mpDisplay,"WM_DELETE_WINDOW", False);
+  delwinAtom1 = XmInternAtom (mpDisplay,("WM_DELETE_WINDOW"), False);
   XmAddWMProtocolCallback (gws.wTopLevel, delwinAtom1, RemoveWindowCB, this);
   XtVaSetValues(gws.wTopLevel, XmNdeleteResponse, XmDO_NOTHING, NULL);
   
@@ -143,7 +142,9 @@ void GUI_Motif::AddWindow(string sParams)
   mpGUI->RegisterCommand(vs[0] + ".AddPushButton", AddPushButtonCB, this);
   mpGUI->RegisterCommand(vs[0] + ".AddToggleButton", AddToggleButtonCB, this);
   mpGUI->RegisterCommand(vs[0] + ".AddMonitor", AddMonitorCB, this);
+  mpGUI->RegisterCommand(vs[0] + ".AddLabel", AddLabelCB, this);
   mpGUI->RegisterCommand(vs[0] + ".AddSlider", AddSliderCB, this);
+  mpGUI->RegisterCommand(vs[0] + ".AddSpin", AddSpinCB, this);
   mpGUI->RegisterCommand(vs[0] + ".Destroy", DestroyCB, this);
   
   pthread_mutex_unlock((pthread_mutex_t*)mpMutex);
@@ -184,9 +185,7 @@ void GUI_Motif::InitXInterface(string sParams)
 
 	// Ok, set up some widgets!
 	int argc=1;
-	char* argv[] = {""};
-	Arg al[10];
-	int ac = 0;
+	char* argv[] = {0};
 
 	XtToolkitInitialize();
 	mxtac=XtCreateApplicationContext();
@@ -219,12 +218,12 @@ void GUI_Motif::RemoveWindow(Widget w)
 }
 
 
-void GUI_Motif::RemoveWindowCB(Widget w, void* client_data, void* call_data)
+void GUI_Motif::RemoveWindowCB(Widget w, void* client_data, void* )
 {
   ((GUI_Motif *) client_data)->RemoveWindow(w);
 } 
 
-void GUI_Motif::DestroyCB(void* ptr, string sCommand, string sParams)
+void GUI_Motif::DestroyCB(void* ptr, string sCommand, string)
 {
   ((GUI_Motif*)(ptr))->DestroyWindow(sCommand);
 } 
@@ -237,6 +236,7 @@ void GUI_Motif::DestroyWindow(string sCommand)
   mpGUI->UnRegisterCommand(sWindowName + ".AddPushButton");
   mpGUI->UnRegisterCommand(sWindowName + ".AddToggleButton");
   mpGUI->UnRegisterCommand(sWindowName + ".AddMonitor");
+  mpGUI->UnRegisterCommand(sWindowName + ".AddLabel");
   mpGUI->UnRegisterCommand(sWindowName + ".Destroy");
   XtUnrealizeWidget(mmWindows[sWindowName].wTopLevel);
   mmWindows.erase(sWindowName);
@@ -244,6 +244,10 @@ void GUI_Motif::DestroyWindow(string sCommand)
   
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Push buttons
+//
 
 void GUI_Motif::AddPushButtonCB(void* ptr, string sCommand, string sParams)
 {
@@ -262,8 +266,6 @@ void GUI_Motif::AddPushButton(string sCommand, string sParams)
     };
   
 
-  Widget *pwTopLevel;
-  Widget *pwRowCol;
 
   string sWindowName = sCommand;
   string sCommandSuffix(".AddPushButton");
@@ -308,6 +310,105 @@ void GUI_Motif::AddPushButton(string sCommand, string sParams)
   
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Text input boxes
+//
+
+void GUI_Motif::AddSpinCB(void* ptr, string sCommand, string sParams)
+{
+  ((GUI_Motif*)(ptr))->AddSpin(sCommand, sParams);
+}
+
+
+void GUI_Motif::AddSpin(string sCommand, string sParams)
+{
+  
+  vector<string> vs = ChopAndUnquoteString(sParams);
+  if(vs.size() < 3 || vs.size() > 4)
+    {
+      cout << "! GUI_Motif::AddSpin: Need 3--4 params (gvar, min, max [, title])." << endl;
+      return;
+    };
+  
+
+  string sWindowName = sCommand;
+  string sCommandSuffix(".AddSpin");
+  sWindowName.resize(sCommand.length() - sCommandSuffix.length());
+  Widget  w;
+  
+  Arg al[10];
+  int ac = 0;
+  char szName[1000];
+  for(int i=0;i<1000;i++) szName[i]=0;
+  vs[0].copy(szName,999);
+  
+  pthread_mutex_lock((pthread_mutex_t*)mpMutex);
+  
+  
+  w = XmCreateTextField(mmWindows[sWindowName].wRowCol, szName,al,ac);
+  SpinMap[w] = make_pair(vs[0], string(""));
+  XtManageChild(w);
+
+  XtAddCallback(w, XmNvalueChangedCallback, TextBoxCB, this);
+  
+  XWindowAttributes window_attributes_return;
+  XGetWindowAttributes(mpDisplay, XtWindow(w), &window_attributes_return);
+  int nButtonHeight = window_attributes_return.height;
+  XGetWindowAttributes(mpDisplay, XtWindow(mmWindows[sWindowName].wTopLevel), &window_attributes_return);
+  mmWindows[sWindowName].nWidth = (mmWindows[sWindowName].nWidth > window_attributes_return.width) ? mmWindows[sWindowName].nWidth : window_attributes_return.width;
+  mmWindows[sWindowName].nHeight = (mmWindows[sWindowName].nHeight > window_attributes_return.height) ? mmWindows[sWindowName].nHeight : window_attributes_return.height;
+  mmWindows[sWindowName].nHeight += (nButtonHeight + 3);
+  XResizeWindow(mpDisplay, XtWindow(mmWindows[sWindowName].wTopLevel), 
+		mmWindows[sWindowName].nWidth,
+		mmWindows[sWindowName].nHeight);
+  DoMotifEvents();
+  pthread_mutex_unlock((pthread_mutex_t*)mpMutex);
+  
+}
+
+void GUI_Motif::TextBoxCB(Widget w, XtPointer ptrMe, XtPointer xtpCall) 
+{
+  ((GUI_Motif*)ptrMe) -> TextBox(w, xtpCall);
+}
+
+
+
+// Handles the actual callback work
+void GUI_Motif::TextBox(Widget w, XtPointer xtpCall)
+{
+  
+    if(SpinMap.count(w))
+    {
+	  char* c;
+	  XmTextPosition p;
+	  XtVaGetValues(w, XmNvalue, &c, XmNcursorPosition, &p, NULL);
+
+          string cs(c);
+	  if(cs == "")
+	  	cs = "0";
+
+	  p=1;
+
+	  GV3::set_var(SpinMap[w].first, cs.c_str());
+	  string s = GV3::get_var(SpinMap[w].first);
+
+	  if(s != c)
+	  {
+	      SpinMap[w].second = s;
+	      XtRemoveCallback(w, XmNvalueChangedCallback, TextBoxCB, this);
+	      p = min((int)p, (int)s.size());
+	      XtVaSetValues(w, XmNvalue, s.c_str(), XmNcursorPosition, p, NULL);
+	      XtAddCallback(w, XmNvalueChangedCallback, TextBoxCB, this);
+	  }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+
 void GUI_Motif::AddToggleButtonCB(void* ptr, string sCommand, string sParams)
 {
   ((GUI_Motif*)(ptr))->AddToggleButton(sCommand, sParams);
@@ -339,10 +440,12 @@ void GUI_Motif::AddToggleButton(string sCommand, string sParams)
   tms.sName = vs[0];
   int nDefault = 0;
   if(vs.size()==3)
+  {
     if(vs[2]=="true")
       nDefault = 1;
     else
       nDefault = 0;
+  }
 
   mpGV2->Register(tms.gvn,vs[1],nDefault,true);
   tms.nCache = *tms.gvn;
@@ -378,7 +481,10 @@ void GUI_Motif::AddToggleButton(string sCommand, string sParams)
   
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// Monitor
+// 
 void GUI_Motif::AddMonitorCB(void* ptr, string sCommand, string sParams)
 {
   ((GUI_Motif*)(ptr))->AddMonitor(sCommand, sParams);
@@ -436,6 +542,58 @@ void GUI_Motif::AddMonitor(string sCommand, string sParams)
   else
     mms.nDelaySetting = 0;
   mms.nCurrentDelay=0;
+
+  XWindowAttributes window_attributes_return;
+  XGetWindowAttributes(mpDisplay, XtWindow(w), &window_attributes_return);
+  int nButtonHeight = window_attributes_return.height;
+  XGetWindowAttributes(mpDisplay, XtWindow(mmWindows[sWindowName].wTopLevel), &window_attributes_return);
+  mmWindows[sWindowName].nWidth = (mmWindows[sWindowName].nWidth > window_attributes_return.width) ? mmWindows[sWindowName].nWidth : window_attributes_return.width;
+  mmWindows[sWindowName].nHeight = (mmWindows[sWindowName].nHeight > window_attributes_return.height) ? mmWindows[sWindowName].nHeight : window_attributes_return.height;
+  mmWindows[sWindowName].nHeight += (nButtonHeight + 3);
+  XResizeWindow(mpDisplay, XtWindow(mmWindows[sWindowName].wTopLevel), 
+		mmWindows[sWindowName].nWidth,
+		mmWindows[sWindowName].nHeight);
+  DoMotifEvents();
+  pthread_mutex_unlock((pthread_mutex_t*)mpMutex);
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Label
+// 
+void GUI_Motif::AddLabelCB(void* ptr, string sCommand, string sParams)
+{
+  ((GUI_Motif*)(ptr))->AddLabel(sCommand, sParams);
+}
+
+
+void GUI_Motif::AddLabel(string sCommand, string sParams)
+{
+  if(!mpDisplay)
+    {
+      cout << "! GUI_Motif::AddMonitor: GUI_Motif not initialised. " << endl;
+      return;
+    }
+  vector<string> vs = ChopAndUnquoteString(sParams);
+  if(vs.size() != 1)
+    {
+      cout << "! GUI_Motif::AddMonitor: Need 1 params: label " << endl;
+      return;
+    };
+  string sWindowName = sCommand;
+  string sCommandSuffix(".AddLabel");
+  sWindowName.resize(sCommand.length() - sCommandSuffix.length());
+
+  pthread_mutex_lock((pthread_mutex_t*)mpMutex);
+
+  labels.push_back(vs[0]);
+  
+  Widget w;
+  Arg al[10];
+  int ac = 0;
+  w = XmCreateLabel(mmWindows[sWindowName].wRowCol,const_cast<char*>(labels.back().c_str()),al,ac);
+  XtManageChild(w);
 
   XWindowAttributes window_attributes_return;
   XGetWindowAttributes(mpDisplay, XtWindow(w), &window_attributes_return);
@@ -593,8 +751,7 @@ void GUI_Motif::ButtonHandler(Widget w, XtPointer xtpCall)
 	  ost << (dRawValue / 300.0) * (sms.dMax-sms.dMin) + sms.dMin;
 	  mpGV2->SetVar(sms.sVarName, ost.str(), 1);
 	  sms.sCachedValue = mpGV2->StringValue(sms.sVarName);
-	};
-      //
+	}
     };
   
 }
@@ -672,11 +829,28 @@ void GUI_Motif::poll()
     };
   DoMotifEvents();
 
+   for(map<Widget, pair<string, string> >::iterator i=SpinMap.begin(); i != SpinMap.end(); i++)
+   {
+   	if(i->second.second != GV3::get_var(i->second.first))
+	{
+	      XmTextPosition p;
+	      XtVaGetValues(i->first, XmNcursorPosition, &p, NULL);
+
+	      string s = GV3::get_var(i->second.first);
+
+	      i->second.second = s;
+	      XtRemoveCallback(i->first, XmNvalueChangedCallback, TextBoxCB, this);
+	      p = min((int)p, (int)s.size());
+	      XtVaSetValues(i->first, XmNvalue, s.c_str(), XmNcursorPosition, p, NULL);
+	      XtAddCallback(i->first, XmNvalueChangedCallback, TextBoxCB, this);
+	}
+   }
 
 } 
 void* GUI_Motif::GUI_Motif_Thread_CB(void* ptr)
 {
   ((GUI_Motif*) ptr)->GUI_Motif_Thread();
+  return 0;
 }
 
 void GUI_Motif::DoMotifEvents()

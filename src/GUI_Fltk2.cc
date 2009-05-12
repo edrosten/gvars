@@ -267,6 +267,7 @@ void GUI_Fltk2::AddWindow(string sParams)
 	gui->RegisterCommand(vs[0] + ".AddSlider", AddSliderCB, this);
 	gui->RegisterCommand(vs[0] + ".AddMonitor", AddMonitorCB, this);
 	gui->RegisterCommand(vs[0] + ".AddSpin", AddSpinCB, this);
+	gui->RegisterCommand(vs[0] + ".AddLabel", AddLabelCB, this);
 	gui->RegisterCommand(vs[0] + ".AddSmallToggleButton", AddSmallToggleCB, this);
 }
 
@@ -291,6 +292,7 @@ void GUI_Fltk2::DestroyWindow(string cmd)
 	gui->UnRegisterCommand(win_name + ".AddMonitor");
 	gui->UnRegisterCommand(win_name + ".AddSpin");
 	gui->UnRegisterCommand(win_name + ".AddSmallToggleButton");
+	gui->UnRegisterCommand(win_name + ".AddLabel");
 
     windows[win_name].win->destroy();
 	//delete windows[win_name].win;
@@ -773,6 +775,55 @@ void GUI_Fltk2::AddSmallToggle(string cmd, string args)
 	fltk::Widget* b = new small_toggle2( vs[1], vs[0], gv2, vs[2]);
 	w.win->add(b);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Labels
+//
+
+
+void GUI_Fltk2::AddLabelCB(void* ptr, string cmd, string args)
+{
+	fltk::lock();
+	UI.AddLabel(cmd, args);
+	fltk::unlock();
+}
+
+class label: public fltk::Widget
+{
+	public:
+		label(string t)
+		:fltk::Widget(0, 0, 1, 1), title(t)
+		{
+			align(fltk::ALIGN_CENTER);
+			fltk::Widget::label(title.c_str());
+		}
+        private:
+            string title;
+};
+
+
+void GUI_Fltk2::AddLabel(string cmd, string args)
+{
+    string win_name = remove_suffix(cmd, ".AddLabel");
+
+	vector<string> vs = ChopAndUnquoteString(args);
+	if(vs.size() != 1)
+	{
+		cout << "! GUI_Fltk::AddLabel: Need 1 params (label)." << endl;
+		return;
+	}
+
+	if(!check_window(win_name, "AddLabel"))
+		return;
+
+	window& w = windows[win_name];
+
+	fltk::Widget* m = new label(vs[0]);
+	w.win->add(m);
+}
+
+
 
 //Instantiations
 class GUI_Fltk2 GUI_Fltk2_instance(&GUI, &GV2);

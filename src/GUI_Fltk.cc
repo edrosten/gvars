@@ -272,7 +272,6 @@ void GUI_Fltk::AddWindow(string sParams)
 	GUI.RegisterCommand(vs[0] + ".AddMonitor", AddMonitorCB, this);
 	GUI.RegisterCommand(vs[0] + ".AddSpin", AddSpinCB, this);
 	GUI.RegisterCommand(vs[0] + ".AddLabel", AddLabelCB, this);
-	//gui->RegisterCommand(vs[0] + ".AddSmallToggleButton", AddSmallToggleCB, this);
 }
 
 void GUI_Fltk::DestroyWindowCB(void* ptr, string cmd, string args)
@@ -296,7 +295,6 @@ void GUI_Fltk::DestroyWindow(string cmd)
 	GUI.UnRegisterCommand(win_name + ".AddMonitor");
 	GUI.UnRegisterCommand(win_name + ".AddSpin");
 	GUI.UnRegisterCommand(win_name + ".AddLabel");
-	//gui->UnRegisterCommand(win_name + ".AddSmallToggleButton");
 
 
 	delete windows[win_name].win;
