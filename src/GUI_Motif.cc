@@ -104,6 +104,7 @@ void GUI_Motif::AddWindow(string sParams)
 	};      
     }
   gws.nHeight = 30;
+  gws.die=0;
   
   pthread_mutex_lock((pthread_mutex_t*)mpMutex);
   
@@ -239,7 +240,7 @@ void GUI_Motif::DestroyWindow(string sCommand)
   mpGUI->UnRegisterCommand(sWindowName + ".AddLabel");
   mpGUI->UnRegisterCommand(sWindowName + ".Destroy");
   XtUnrealizeWidget(mmWindows[sWindowName].wTopLevel);
-  mmWindows.erase(sWindowName);
+  mmWindows[sWindowName].die=1;
   DoMotifEvents();
   
 };
@@ -347,7 +348,7 @@ void GUI_Motif::AddSpin(string sCommand, string sParams)
   
   
   w = XmCreateTextField(mmWindows[sWindowName].wRowCol, szName,al,ac);
-  SpinMap[w] = make_pair(vs[0], string(""));
+  mmWindows[sWindowName].SpinMap[w] = make_pair(vs[0], string(""));
   XtManageChild(w);
 
   XtAddCallback(w, XmNvalueChangedCallback, TextBoxCB, this);
@@ -377,31 +378,34 @@ void GUI_Motif::TextBoxCB(Widget w, XtPointer ptrMe, XtPointer xtpCall)
 // Handles the actual callback work
 void GUI_Motif::TextBox(Widget w, XtPointer xtpCall)
 {
-  
-    if(SpinMap.count(w))
-    {
-	  char* c;
-	  XmTextPosition p;
-	  XtVaGetValues(w, XmNvalue, &c, XmNcursorPosition, &p, NULL);
+	for(map<string, GUIWindowStruct>::iterator i=mmWindows.begin(); i != mmWindows.end(); i++)
+	{
+ 
+		if(i->second.SpinMap.count(w))
+		{
+			char* c;
+			XmTextPosition p;
+			XtVaGetValues(w, XmNvalue, &c, XmNcursorPosition, &p, NULL);
 
-          string cs(c);
-	  if(cs == "")
-	  	cs = "0";
+			string cs(c);
+			if(cs == "")
+				cs = "0";
 
-	  p=1;
+			p=1;
 
-	  GV3::set_var(SpinMap[w].first, cs.c_str());
-	  string s = GV3::get_var(SpinMap[w].first);
+			GV3::set_var(i->second.SpinMap[w].first, cs.c_str());
+			string s = GV3::get_var(i->second.SpinMap[w].first);
 
-	  if(s != c)
-	  {
-	      SpinMap[w].second = s;
-	      XtRemoveCallback(w, XmNvalueChangedCallback, TextBoxCB, this);
-	      p = min((int)p, (int)s.size());
-	      XtVaSetValues(w, XmNvalue, s.c_str(), XmNcursorPosition, p, NULL);
-	      XtAddCallback(w, XmNvalueChangedCallback, TextBoxCB, this);
-	  }
-    }
+			if(s != c)
+			{
+				i->second.SpinMap[w].second = s;
+				XtRemoveCallback(w, XmNvalueChangedCallback, TextBoxCB, this);
+				p = min((int)p, (int)s.size());
+				XtVaSetValues(w, XmNvalue, s.c_str(), XmNcursorPosition, p, NULL);
+				XtAddCallback(w, XmNvalueChangedCallback, TextBoxCB, this);
+			}
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -825,27 +829,39 @@ void GUI_Motif::poll()
 			       0,0,0,False);	      
 	  delete pdNewValue;
 	};
+
+
+       for(map<Widget, pair<string, string> >::iterator i=w->second.SpinMap.begin(); i != w->second.SpinMap.end(); i++)
+       {
+	    if(i->second.second != GV3::get_var(i->second.first))
+	    {
+		  XmTextPosition p;
+		  XtVaGetValues(i->first, XmNcursorPosition, &p, NULL);
+
+		  string s = GV3::get_var(i->second.first);
+
+		  i->second.second = s;
+		  XtRemoveCallback(i->first, XmNvalueChangedCallback, TextBoxCB, this);
+		  p = min((int)p, (int)s.size());
+		  XtVaSetValues(i->first, XmNvalue, s.c_str(), XmNcursorPosition, p, NULL);
+		  XtAddCallback(i->first, XmNvalueChangedCallback, TextBoxCB, this);
+	    }
+       }
+
       
     };
   DoMotifEvents();
+  
+  //Now kill any windows in need of killing
+  for(map<string,GUIWindowStruct>::iterator tmp, w=mmWindows.begin();w!=mmWindows.end();)
+  {
+  	tmp = w;
+	w++;
+	if(tmp->second.die)
+		mmWindows.erase(tmp);
+  }
 
-   for(map<Widget, pair<string, string> >::iterator i=SpinMap.begin(); i != SpinMap.end(); i++)
-   {
-   	if(i->second.second != GV3::get_var(i->second.first))
-	{
-	      XmTextPosition p;
-	      XtVaGetValues(i->first, XmNcursorPosition, &p, NULL);
-
-	      string s = GV3::get_var(i->second.first);
-
-	      i->second.second = s;
-	      XtRemoveCallback(i->first, XmNvalueChangedCallback, TextBoxCB, this);
-	      p = min((int)p, (int)s.size());
-	      XtVaSetValues(i->first, XmNvalue, s.c_str(), XmNcursorPosition, p, NULL);
-	      XtAddCallback(i->first, XmNvalueChangedCallback, TextBoxCB, this);
-	}
-   }
-
+  DoMotifEvents();
 } 
 void* GUI_Motif::GUI_Motif_Thread_CB(void* ptr)
 {

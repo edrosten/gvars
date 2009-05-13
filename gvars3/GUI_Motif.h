@@ -92,15 +92,16 @@ class GUI_Motif
     Widget wRowCol;
     int nWidth;
     int nHeight;
+	bool die;
     std::map<Widget, std::string> PushButtonMap;
     std::map<Widget, monitorMapStruct> MonitorMap;
     std::map<Widget, toggleMapStruct > ToggleButtonMap;
     std::map<Widget, sliderMapStruct > SliderMap;
+    std::map<Widget, std::pair<std::string, std::string> > SpinMap;
   } GUIWindowStruct;
   
   std::map<std::string, GUIWindowStruct> mmWindows;
   std::list<std::string> labels;
-  std::map<Widget, std::pair<std::string, std::string> > SpinMap;
   
 };
 
