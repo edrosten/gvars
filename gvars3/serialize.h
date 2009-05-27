@@ -104,6 +104,16 @@ namespace GVars3
 			}
 		};
 
+		template<typename T> std::string to_string( const std::vector<T> & v)
+		{
+			std::ostringstream o;
+			o << "[ ";
+			for(unsigned i = 0; i < v.size(); ++i)
+				o << to_string(v[i]) << " ";
+			o << "]";
+			return o.str();
+		}
+
 		template<class T> struct FromStream<std::vector<std::vector<T> > >
 		{
 			static std::vector<std::vector<T> > from(std::istream& in)
@@ -194,7 +204,7 @@ namespace GVars3
 				{
 					std::vector<double> v = FromStream<std::vector<double> >::from(i);
 
-					if(i.fail() || i.bad() || (N != -1 && v.size() != N) || v.size() == 0)
+					if(i.fail() || i.bad() || (N != -1 && (int)v.size() != N) || v.size() == 0)
 					{
 						i.setstate(std::ios::failbit);
 						return DefaultValue<TooN::Vector<N> >::val();
