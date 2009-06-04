@@ -77,19 +77,24 @@ namespace GVars3
 				if((c = in.get()) == EOF)
 					return v;
 
+				bool bracket=1;
+
 				if(c != '[')
 				{
-					in.setstate(ios::failbit);
-					return v;
+					bracket = 0;
+					in.unget();
 				}
-
+					
 				for(;;)
 				{
 					in >> ws;
+
+					if(in.eof())
+						return v;
 					
 					c = in.get();
 					
-					if(c == EOF || c == ']') 
+					if(c == EOF || (bracket && c == ']')) 
 						return v;
 
 					in.unget();
@@ -126,7 +131,7 @@ namespace GVars3
 				int c;
 
 				if((c = in.get()) == EOF)
-					return in;
+					return v;
 
 				if(c != '[')
 				{
@@ -207,6 +212,7 @@ namespace GVars3
 					if(i.fail() || i.bad() || (N != -1 && (int)v.size() != N) || v.size() == 0)
 					{
 						i.setstate(std::ios::failbit);
+						i.setstate(std::ios::badbit);
 						return DefaultValue<TooN::Vector<N> >::val();
 					}
 					else
@@ -251,7 +257,7 @@ namespace GVars3
 			return FromStream<T>::from(i);
 		}
 
-		template<class T> int from_string(std::string& s, T& t)
+		template<class T> int from_string(const std::string& s, T& t)
 		{
 			std::istringstream is(s);
 			t = from_stream<T>(is);
