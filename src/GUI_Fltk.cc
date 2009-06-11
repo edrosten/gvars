@@ -31,8 +31,6 @@
 #include <set>
 #include <string>
 
-#include <error.h>
-
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 #include <FL/Fl_Window.H>
