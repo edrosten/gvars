@@ -119,7 +119,7 @@ void GUI_Motif::AddWindow(string sParams)
   XtSetArg(al[ac], XmNresizeHeight, True); ac++;
   XtSetArg(al[ac], XmNresizeWidth, False); ac++;
   
-  gws.wRowCol=XmCreateRowColumn(gws.wTopLevel,("GUI_Motif_rowcol"),al,ac);
+  gws.wRowCol=XmCreateRowColumn(gws.wTopLevel,const_cast<char*>("GUI_Motif_rowcol"),al,ac);
   
   XtManageChild(gws.wRowCol);
   XtRealizeWidget(gws.wTopLevel);
@@ -134,7 +134,7 @@ void GUI_Motif::AddWindow(string sParams)
   
   
   Atom delwinAtom1;
-  delwinAtom1 = XmInternAtom (mpDisplay,("WM_DELETE_WINDOW"), False);
+  delwinAtom1 = XmInternAtom (mpDisplay,const_cast<char*>("WM_DELETE_WINDOW"), False);
   XmAddWMProtocolCallback (gws.wTopLevel, delwinAtom1, RemoveWindowCB, this);
   XtVaSetValues(gws.wTopLevel, XmNdeleteResponse, XmDO_NOTHING, NULL);
   
@@ -376,7 +376,7 @@ void GUI_Motif::TextBoxCB(Widget w, XtPointer ptrMe, XtPointer xtpCall)
 
 
 // Handles the actual callback work
-void GUI_Motif::TextBox(Widget w, XtPointer xtpCall)
+void GUI_Motif::TextBox(Widget w, XtPointer )
 {
 	for(map<string, GUIWindowStruct>::iterator i=mmWindows.begin(); i != mmWindows.end(); i++)
 	{
@@ -527,7 +527,7 @@ void GUI_Motif::AddMonitor(string sCommand, string sParams)
   Widget w;
   Arg al[10];
   int ac = 0;
-  w = XmCreateLabel(mmWindows[sWindowName].wRowCol,"(wait)",al,ac);
+  w = XmCreateLabel(mmWindows[sWindowName].wRowCol,const_cast<char*>("(wait)"),al,ac);
   XtManageChild(w);
   monitorMapStruct &mms =  mmWindows[sWindowName].MonitorMap[w];
   mms.sLabel = vs[0];
@@ -685,7 +685,7 @@ void GUI_Motif::AddSlider(string sCommand, string sParams)
   XtSetArg(al[ac], XmNmaximum, 310);  ac++;  
   XtSetArg(al[ac], XmNsliderSize, 10);  ac++;  
   
-  w = XmCreateScrollBar(mmWindows[sWindowName].wRowCol,"SliderName",al,ac);
+  w = XmCreateScrollBar(mmWindows[sWindowName].wRowCol,const_cast<char*>("SliderName"),al,ac);
   XtManageChild(w);
   XtAddCallback(w, XmNdragCallback, ButtonHandlerCB, this);
   XtAddCallback(w, XmNvalueChangedCallback, ButtonHandlerCB, this);
@@ -754,7 +754,8 @@ void GUI_Motif::ButtonHandler(Widget w, XtPointer xtpCall)
 	  ost.str()="";
 	  ost << (dRawValue / 300.0) * (sms.dMax-sms.dMin) + sms.dMin;
 	  mpGV2->SetVar(sms.sVarName, ost.str(), 1);
-	  sms.sCachedValue = mpGV2->StringValue(sms.sVarName);
+	  sms.sCachedValue = GV3::get_var(sms.sVarName);
+
 	}
     };
   
@@ -813,21 +814,23 @@ void GUI_Motif::poll()
       for(map < Widget, sliderMapStruct>::iterator i = w->second.SliderMap.begin(); i!=w->second.SliderMap.end(); i++)
 	{
 	  sliderMapStruct &sms = i->second;
-	  string sNewValue = mpGV2->StringValue(sms.sVarName);
+	  string sNewValue = GV3::get_var(sms.sVarName);
 	  if(sNewValue == sms.sCachedValue)
 	    continue;
 	  sms.sCachedValue = sNewValue;
-	  double *pdNewValue = ParseAndAllocate<double>(sNewValue);
-	  if(!pdNewValue) continue;
-	  double dFraction = ((*pdNewValue - sms.dMin)/ (sms.dMax-sms.dMin));
-	  if(dFraction > 1.0)
-	    sms.dMax = *pdNewValue;
-	  if(dFraction < 0.0)
-	    sms.dMin = *pdNewValue;
-	  XmScrollBarSetValues(i->first, 
-			       (int)(((*pdNewValue - sms.dMin)/ (sms.dMax-sms.dMin))*300.0),
-			       0,0,0,False);	      
-	  delete pdNewValue;
+
+	  double pdNewValue;
+	  int err = GVars3::serialize::from_string(sNewValue, pdNewValue);
+
+	  if(err)
+	  	continue;
+
+	  sms.dMax = max(sms.dMax, pdNewValue);
+	  sms.dMin = min(sms.dMin, pdNewValue);
+
+	  double dFraction = ((pdNewValue - sms.dMin)/ (sms.dMax-sms.dMin));
+
+	  XmScrollBarSetValues(i->first, (int)(300 * dFraction), 0, 0, 0, False);
 	};
 
 
