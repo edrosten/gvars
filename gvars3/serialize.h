@@ -74,6 +74,7 @@ namespace GVars3
 				in >> ws;
 				int c;
 
+
 				if((c = in.get()) == EOF)
 					return v;
 
@@ -222,34 +223,43 @@ namespace GVars3
 				}
 			};
 
-			/*template<int N> std::istream& from_stream(std::istream& i, TooN::Matrix<N>& m)
+			template<int R, int C, class Precision> struct FromStream<TooN::Matrix<R, C, Precision> >
 			{
-				std::vector<std::vector<double> > v;
-				from_stream(i, v);
+				static TooN::Matrix<R, C, Precision> from(std::istream& i)
+				{
+					using std::vector;
+					vector<vector<double> > v = FromStream<vector<vector<double> > >::from(i);
 
-				if(v.size() != m.num_rows())
-				{
-					i.setstate(std::ios::failbit);
-					return i;
-				}
-				
-				for(int r=1; r < m.size(); r++)
-				{
-					if(v[r].size() != m.num_cols())
+					if(i.fail() || i.bad())
+						 goto fail;
+
+					for(int r=1; r < v.size(); r++)
+						if(v[r].size() != v[0].size())
+							goto fail;
+
+					if(R != -1 && v.size() != R)
+						goto fail;
+
+					if(C != -1 && v[0].size() != C)
+						goto fail;
+
 					{
+						TooN::Matrix<R, C, Precision> retval(v.size(), v[0].size());
+
+						for(int r=0; r < retval.num_rows(); r++)
+							for(int c=0; c < retval.num_cols(); c++)
+								retval[r][c] = v[r][c];
+
+						return retval;
+					}
+
+					fail:
 						i.setstate(std::ios::failbit);
-						return i;
-					}
+						i.setstate(std::ios::badbit);
+						return DefaultValue<TooN::Matrix<R, C, Precision> >::val();
 				}
+			};
 
-
-				for(int r=0; r < m.num_rows(); r++)
-					for(int c=0; c < m.num_cols(); c++)
-					{
-						m[r][c] = v[r][c];
-					}
-				return i;
-			}*/
 		#endif
 
 		template<class T> T from_stream(std::istream& i)
