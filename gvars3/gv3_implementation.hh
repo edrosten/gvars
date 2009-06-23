@@ -70,8 +70,11 @@ template<class T> ValueHolder<T>* GV3::get_by_str(const std::string& name, const
 		std::istringstream is(default_val);
 		T def = serialize::from_stream<T>(is);
 		int e = serialize::check_stream(is);
-
-		parse_warning(e, type_name<T>(), name, default_val);
+		
+		//Don't bother to warn if FATAL_IF_NOT_DEFINED is defined, since
+		//the bad value will never be used.
+		if(!(flags & FATAL_IF_NOT_DEFINED))
+			parse_warning(e, type_name<T>(), name, default_val);
 
 		return register_new_gvar(name, def, flags);
 	}
