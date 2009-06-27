@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <cstdio>
 
 namespace GVars3
 {
