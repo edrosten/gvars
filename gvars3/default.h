@@ -38,6 +38,10 @@ template<class C> struct DefaultValue
 	}
 };
 
+template <class C> inline const C defaultValue() {
+	return C();
+}
+
 template<class C> struct IsAwkward
 {
 	static const int is=0;
@@ -47,11 +51,15 @@ template<class C> struct IsAwkward
 #ifdef GVARS3_HAVE_TOON
 template<> struct DefaultValue<TooN::Vector<-1> >
 {
-	inline static const TooN::Vector<-1> val()
+	static inline const TooN::Vector<-1> val()
 	{
 		return TooN::makeVector(0);
 	}
 };
+
+template <> inline const TooN::Vector<-1> defaultValue() {
+	return TooN::makeVector(0);
+}
 
 template<> struct IsAwkward<TooN::Vector<-1> >
 {
