@@ -111,8 +111,7 @@ endif
 #G++ seems to run constructors in the reverse order
 #so inst needs to be last.
 
-
-
+DEBUG_OBJS=$(OBJS:src%=debug/%)
 
 
 ifeq (@build_cpu@,x86_64)
@@ -121,6 +120,10 @@ endif
 
 
 ifeq (@osx_hacks@,yes)
+	dsoname=libGVars3_debug.dylib
+	dsoname1=libGVars3_debug-@major@.dylib
+	dsoname2=libGVars3_debug-@major@.@minor@.dylib
+
 	hsoname=libGVars3_headless.dylib
 	hsoname1=libGVars3_headless-@major@.dylib
 	hsoname2=libGVars3_headless-@major@.@minor@.dylib
@@ -130,6 +133,10 @@ ifeq (@osx_hacks@,yes)
 	soname2=libGVars3-@major@.@minor@.dylib
 	shared=-dynamiclib
 else
+	dsoname=libGVars3_debug.so
+	dsoname1=libGVars3_debug.so.@major@
+	dsoname2=libGVars3_debug.so.@major@.@minor@
+
 	hsoname=libGVars3_headless.so
 	hsoname1=libGVars3_headless.so.@major@
 	hsoname2=libGVars3_headless.so.@major@.@minor@
@@ -142,6 +149,7 @@ endif
 
 archive=libGVars3.a
 harchive=libGVars3_headless.a
+darchive=libGVars3_debug.a
 
 sos= $(soname) $(soname1) $(soname2)
 hsos= $(hsoname) $(hsoname1) $(hsoname2)
@@ -154,9 +162,22 @@ ifeq (@make_headless@,yes)
 	install_shared+=install-shared-headless
 endif
 
-all: $(archive) $(soname) $(HEADLESS)
+ifeq (@make_debug@,yes)
+	DEBUG=$(darchive) $(dsoname)
+	Darchive=$(darchive)
+	install_shared+=install-shared-debug
+endif
 
-$(hsoname): $(OBJS)
+all: $(archive) $(soname) $(HEADLESS) $(DEBUG)
+
+$(dsoname): $(DEBUG_OBJS)
+	rm -f $(dsos)
+	$(CXX) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LIBS)
+	ln -s $(dsoname2) $(dsoname1)
+	ln -s $(dsoname1) $(dsoname)
+
+
+$(hsoname): $(HEADLESSOBJS)
 	rm -f $(hsos)
 	$(CXX) $(shared) -o $(hsoname2) $(HEADLESSOBJS) $(HLIBS)
 	ln -s $(hsoname2) $(hsoname1)
@@ -188,18 +209,33 @@ install-shared-headless: $(hsoname)
 	ln -fs  $(DESTDIR)/$(libdir)/$(hsoname2) $(DESTDIR)/$(libdir)/$(hsoname1)
 	ln -fs  $(DESTDIR)/$(libdir)/$(hsoname1) $(DESTDIR)/$(libdir)/$(hsoname)
 	
+install-shared-debug: $(dsoname) 
+	mkdir -p $(DESTDIR)/$(libdir)
+	cp $(dsoname2) $(DESTDIR)/$(libdir)
+	ln -fs  $(DESTDIR)/$(libdir)/$(dsoname2) $(DESTDIR)/$(libdir)/$(dsoname1)
+	ln -fs  $(DESTDIR)/$(libdir)/$(dsoname1) $(DESTDIR)/$(libdir)/$(dsoname)
+	
 install-headers:
 	mkdir -p $(DESTDIR)/$(includedir)
 	cp -r gvars3 $(DESTDIR)/$(includedir)
 	
+$(darchive): $(DEBUG_OBJS)
+	$(AR) crvs $(darchive) $(DEBUG_OBJS)
+
 $(harchive): $(HEADLESSOBJS)
 	$(AR) crvs $(harchive) $(HEADLESSOBJS)
 
 $(archive): $(OBJS)
 	$(AR) crvs $(archive) $(OBJS)
 
+debug:
+	mkdir debug
+
+debug/%.o : src/%.cc debug
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -O0 -D_GLIBCXX_DEBUG -c $< -o $@
+
 clean:
-	rm -f *.a src/*.o *.so *.so.? test *.o *.so.?.? main
+	rm -f *.a src/*.o *.so *.so.? test *.o *.so.?.? main debug/*
 
 main:  main.cc
 	$(CXX) $(CXXFLAGS) -o main -lGVars3 main.cc

@@ -241,6 +241,12 @@ fi
 # The rest
 #
 
+AC_ARG_WITH(debug,   [  --with-debug            Build additional debug library          ])
+if test "$with_debug" == "yes"
+then
+	AC_SUBST(make_debug,yes)
+fi
+
 AC_ARG_WITH(headless,   [  --without-headless      Do not build additional headless library])
 if test "$with_headless" != "no"
 then
