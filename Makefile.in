@@ -153,6 +153,7 @@ darchive=libGVars3_debug.a
 
 sos= $(soname) $(soname1) $(soname2)
 hsos= $(hsoname) $(hsoname1) $(hsoname2)
+dsos= $(dsoname) $(dsoname1) $(dsoname2)
 
 install_shared=install-shared-normal
 
@@ -228,10 +229,13 @@ $(harchive): $(HEADLESSOBJS)
 $(archive): $(OBJS)
 	$(AR) crvs $(archive) $(OBJS)
 
-debug:
-	mkdir debug
+debug: debug/foo
+	
+debug/foo:
+	mkdir -p debug
+	touch debug/foo
 
-debug/%.o : src/%.cc debug
+debug/%.o : src/%.cc debug/foo
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -O0 -D_GLIBCXX_DEBUG -c $< -o $@
 
 clean:
