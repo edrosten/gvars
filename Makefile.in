@@ -112,6 +112,7 @@ endif
 #so inst needs to be last.
 
 DEBUG_OBJS=$(OBJS:src%=debug/%)
+DEBUG_HEADLESS_OBJS=$(HEADLESSOBJS:src%=debug/%)
 
 
 ifeq (@build_cpu@,x86_64)
@@ -120,6 +121,11 @@ endif
 
 
 ifeq (@osx_hacks@,yes)
+
+	dhsoname=libGVars3_debug_headless.dylib
+	dhsoname1=libGVars3_debug_headless-@major@.dylib
+	dhsoname2=libGVars3_debug_headless-@major@.@minor@.dylib
+	 
 	dsoname=libGVars3_debug.dylib
 	dsoname1=libGVars3_debug-@major@.dylib
 	dsoname2=libGVars3_debug-@major@.@minor@.dylib
@@ -133,6 +139,10 @@ ifeq (@osx_hacks@,yes)
 	soname2=libGVars3-@major@.@minor@.dylib
 	shared=-dynamiclib
 else
+	dhsoname=libGVars3_debug_headless.so
+	dhsoname1=libGVars3_debug_headless.so.@major@
+	dhsoname2=libGVars3_debug_headless.so.@major@.@minor@
+
 	dsoname=libGVars3_debug.so
 	dsoname1=libGVars3_debug.so.@major@
 	dsoname2=libGVars3_debug.so.@major@.@minor@
@@ -150,10 +160,12 @@ endif
 archive=libGVars3.a
 harchive=libGVars3_headless.a
 darchive=libGVars3_debug.a
+dharchive=libGVars3_debug_headless.a
 
-sos= $(soname) $(soname1) $(soname2)
-hsos= $(hsoname) $(hsoname1) $(hsoname2)
-dsos= $(dsoname) $(dsoname1) $(dsoname2)
+sos=   $(soname)   $(soname1)   $(soname2)
+hsos=  $(hsoname)  $(hsoname1)  $(hsoname2)
+dsos=  $(dsoname)  $(dsoname1)  $(dsoname2)
+dhsos= $(dhsoname) $(dhsoname1) $(dhsoname2)
 
 install_shared=install-shared-normal
 
@@ -169,7 +181,20 @@ ifeq (@make_debug@,yes)
 	install_shared+=install-shared-debug
 endif
 
-all: $(archive) $(soname) $(HEADLESS) $(DEBUG)
+ifeq (@make_headless@@make_debug@,yesyes)
+	DEBUG_HEADLESS=$(dharchive) $(dhsoname)
+	DHarchive=$(dharchive)
+	install_shared+=install-shared-debug-headless
+endif
+
+
+all: $(archive) $(soname) $(HEADLESS) $(DEBUG) $(DEBUG_HEADLESS)
+
+$(dhsoname): $(DEBUG_HEADLESS_OBJS)
+	rm -f $(dhsos)
+	$(CXX) $(shared) -o $(dhsoname2) $(DEBUG_HEADLESS_OBJS) $(LIBS)
+	ln -s $(dhsoname2) $(dhsoname1)
+	ln -s $(dhsoname1) $(dhsoname)
 
 $(dsoname): $(DEBUG_OBJS)
 	rm -f $(dsos)
@@ -196,7 +221,7 @@ install:install-static $(install_shared) install-headers
 
 install-static: $(archive) $(Harchive)
 	mkdir -p $(DESTDIR)/$(libdir)
-	cp $(archive) $(Harchive) $(DESTDIR)/$(libdir)
+	cp $(archive) $(Harchive) $(dharchive) $(darchive) $(DESTDIR)/$(libdir)
 
 install-shared-normal: $(soname) 
 	mkdir -p $(DESTDIR)/$(libdir)
@@ -215,19 +240,29 @@ install-shared-debug: $(dsoname)
 	cp $(dsoname2) $(DESTDIR)/$(libdir)
 	ln -fs  $(DESTDIR)/$(libdir)/$(dsoname2) $(DESTDIR)/$(libdir)/$(dsoname1)
 	ln -fs  $(DESTDIR)/$(libdir)/$(dsoname1) $(DESTDIR)/$(libdir)/$(dsoname)
+
+install-shared-debug-headless: $(dhsoname) 
+	mkdir -p $(DESTDIR)/$(libdir)
+	cp $(dhsoname2) $(DESTDIR)/$(libdir)
+	ln -fs  $(DESTDIR)/$(libdir)/$(dhsoname2) $(DESTDIR)/$(libdir)/$(dhsoname1)
+	ln -fs  $(DESTDIR)/$(libdir)/$(dhsoname1) $(DESTDIR)/$(libdir)/$(dhsoname)
+	
 	
 install-headers:
 	mkdir -p $(DESTDIR)/$(includedir)
 	cp -r gvars3 $(DESTDIR)/$(includedir)
 	
 $(darchive): $(DEBUG_OBJS)
-	$(AR) crvs $(darchive) $(DEBUG_OBJS)
+	$(AR) crvs $@ $^
 
 $(harchive): $(HEADLESSOBJS)
-	$(AR) crvs $(harchive) $(HEADLESSOBJS)
+	$(AR) crvs $@ $^
+
+$(dharchive): $(DEBUG_HEADLESS_OBJS)
+	$(AR) crvs $@ $^
 
 $(archive): $(OBJS)
-	$(AR) crvs $(archive) $(OBJS)
+	$(AR) crvs $@ $^
 
 debug: debug/foo
 	
