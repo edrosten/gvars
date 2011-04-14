@@ -234,7 +234,7 @@ namespace GVars3
 					if(i.fail() || i.bad())
 						 goto fail;
 
-					for(int r=1; r < v.size(); r++)
+					for(unsigned int r=1; r < v.size(); r++)
 						if(v[r].size() != v[0].size())
 							goto fail;
 
