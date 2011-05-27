@@ -27,6 +27,7 @@
 #include <vector>
 #include <sstream>
 #include <cstdio>
+#include <iomanip>
 
 namespace GVars3
 {
@@ -35,18 +36,28 @@ namespace GVars3
 		/// Checks a stream and returns a statis code
 		/// @param input stream to check.
 		int check_stream(std::istream& i);
+
+		
+		/// Function which sets a stream into "precise" mode. This will losslessly
+		/// save any numbers up to and including double precision.
+		inline void generic_setup(std::ostream& o, bool b)
+		{
+			if(b)
+				o << std::setprecision(20) << std::scientific;
+		}
 			
 		//Define a serializer for everything that works with iostreams
 		//override to add new types with unusual serializers
-		template<class T> std::string to_string(const T& val)
+		template<class T> std::string to_string(const T& val, bool precise)
 		{
 		         
 			std::ostringstream o;
+			generic_setup(o,precise);
 			o << val;
 			return o.str();
 		}
 
-		std::string to_string(const std::string& val);
+		std::string to_string(const std::string& val, bool);
 
 		template<class T> struct FromStream
 		{
@@ -111,9 +122,10 @@ namespace GVars3
 			}
 		};
 
-		template<typename T> std::string to_string( const std::vector<T> & v)
+		template<typename T> std::string to_string( const std::vector<T> & v, bool precise)
 		{
 			std::ostringstream o;
+			generic_setup(o, precise);
 			o << "[ ";
 			for(unsigned i = 0; i < v.size(); ++i)
 				o << to_string(v[i]) << " ";
@@ -174,9 +186,10 @@ namespace GVars3
 
 
 		#ifdef GVARS3_HAVE_TOON
-			template<int N> std::string to_string(const TooN::Vector<N>& m)
+			template<int N> std::string to_string(const TooN::Vector<N>& m, bool precise)
 			{
 				std::ostringstream o;
+				generic_setup(o, precise);
 				o << "[ ";
 				for(int i=0; i<m.size(); i++)
 				  o << m[i] << " ";
@@ -184,9 +197,10 @@ namespace GVars3
 				return o.str();
 			}
 
-			template<int N, int M> std::string to_string(const TooN::Matrix<N, M>& m)
+			template<int N, int M> std::string to_string(const TooN::Matrix<N, M>& m, bool precise)
 			{
 				std::ostringstream o;
+				generic_setup(o, precise);
 				o << "[ ";
 				for(int i=0; i<m.num_rows(); i++)
 				{

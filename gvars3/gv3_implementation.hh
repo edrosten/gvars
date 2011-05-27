@@ -25,7 +25,7 @@ template<class T> ValueHolder<T>* GV3::register_new_gvar(const std::string& name
 		};
 
 		if(!(flags & SILENT))
-			std::cerr << "? GV3::Register: " << type_name<T>() << " " << name << " undefined. Defaults to " << serialize::to_string(default_val) << std::endl;
+			std::cerr << "? GV3::Register: " << type_name<T>() << " " << name << " undefined. Defaults to " << serialize::to_string(default_val,0) << std::endl;
 
 		d = safe_replace(name, default_val);
 	}

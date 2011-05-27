@@ -52,7 +52,7 @@ namespace GVars3
 	string GV3::get_var(string name)
 	{
 		if(registered_type_and_trait.count(name))
-			return registered_type_and_trait[name].first->get_as_string(name);
+			return registered_type_and_trait[name].first->get_as_string(name, 0);
 		else if(unmatched_tags.count(name))
 			return unmatched_tags[name];
 		else
@@ -85,7 +85,7 @@ namespace GVars3
 		for(map<string, std::pair<BaseMap*,int> >::iterator i=registered_type_and_trait.begin(); i != registered_type_and_trait.end(); i++)
 		  if(show_all || !(i->second.second & HIDDEN))
 		    if(no_pattern || !fnmatch(pattern.c_str(), i->first.c_str(), FNM_CASEFOLD))
-		      o << i->first << "=" << get_var(i->first) << endl;
+		      o << i->first << "=" << i->second.first->get_as_string(i->first, 1) << endl;
 
 		if(show_all)
 		  {

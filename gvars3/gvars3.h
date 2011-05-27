@@ -47,7 +47,7 @@ class GV3;
 class BaseMap
 {
 	public:
-		virtual std::string get_as_string(const std::string& name)=0;
+		virtual std::string get_as_string(const std::string& name, bool precise)=0;
 		virtual int set_from_string(const std::string& name, const std::string& val)=0;
 		virtual std::string name()=0;
 		virtual std::vector<std::string> list_tags()=0;
@@ -189,14 +189,14 @@ class GV3
 					return e;
 				}
 
-				virtual std::string get_as_string(const std::string& name)
+				virtual std::string get_as_string(const std::string& name, bool precise)
 				{	
 					DataIter i = data.find(name);
 
 					if(i == data.end())
 						i = data.insert(make_pair(name, DefaultValue<T>::val())).first;
 
-					return serialize::to_string(i->second.get());
+					return serialize::to_string(i->second.get(), precise);
 				}
 
 				virtual std::string name()

@@ -29,7 +29,7 @@ namespace GVars3
 {
 namespace serialize
 {
-	std::string to_string(const std::string& s)
+	std::string to_string(const std::string& s, bool)
 	{
 		ostringstream os;
 		os << "\"";
