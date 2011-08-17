@@ -219,9 +219,9 @@ $(soname): $(OBJS)
 
 install:install-static $(install_shared) install-headers
 
-install-static: $(archive) $(Harchive)
+install-static: $(archive) $(Harchive) $(DHarchive) $(Darchive)
 	mkdir -p $(DESTDIR)/$(libdir)
-	cp $(archive) $(Harchive) $(dharchive) $(darchive) $(DESTDIR)/$(libdir)
+	cp $(archive) $(Harchive) $(DHarchive) $(Darchive) $(DESTDIR)/$(libdir)
 
 install-shared-normal: $(soname) 
 	mkdir -p $(DESTDIR)/$(libdir)
