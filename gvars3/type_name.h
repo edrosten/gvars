@@ -58,7 +58,7 @@ namespace GVars3
 		}
 	#endif
 	
-	template <class T> std::string type_name(const T& t)
+	template <class T> std::string type_name(const T&)
 	{
 	  return type_name<T>();
 	}
