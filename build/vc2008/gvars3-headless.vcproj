@@ -161,11 +161,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\GUI_impl_noreadline.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\GUI_non_readline.cc"
+				RelativePath="..\..\src\GUI_impl_headless.cc"
 				>
 			</File>
 			<File
