@@ -34,14 +34,16 @@ namespace GVars3
 
 	template <class T> std::string type_name() 
 	{
-#ifdef WIN32
+#ifdef _MSC_VER
       static std::string funcname = std::string(__FUNCSIG__);
       static std::string::size_type begin = funcname.find("type_name<")+10;
       static std::string name = funcname.substr(begin, funcname.rfind(">") - begin);
-#else
+#elif defined __GNUC__
       std::string funcname = std::string(__PRETTY_FUNCTION__);
       std::string bname = funcname.substr(funcname.rfind(" = ")+3);
 	  std::string name = bname.substr(0, bname.length()-1);
+#else
+	#error no good way of getting a type name
 #endif
 	  return name;
 	}

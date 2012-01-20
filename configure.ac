@@ -241,6 +241,20 @@ fi
 # The rest
 #
 
+AC_ARG_WITH(head,   [  --without-head          Do not build normal, non headless version])
+if test "$with_head" == "no"
+then
+	AC_SUBST(make_normal,no)
+fi
+
+AC_ARG_WITH(lang,   [  --with-debug            Build nasty hacky builtin language])
+if test "$with_lang" == "yes"
+then
+	AC_SUBST(make_lang,yes)
+fi
+
+
+
 AC_ARG_WITH(debug,   [  --with-debug            Build additional debug library          ])
 if test "$with_debug" == "yes"
 then

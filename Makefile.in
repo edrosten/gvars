@@ -77,27 +77,32 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = gtar
 GZIP_ENV = --best
 
+optional_objs=
+ifeq (@make_lang@,yes)
+	optional_objs+=src/GUI_language.o
+endif
+
 HEADLESSOBJS=\
 	src/gvars3.o			\
 	src/GUI.o				\
 	src/GStringUtil.o		\
 	src/gvars2.o			\
-	src/GUI_language.o		\
 	src/serialize.o			\
 	src/GUI_none.o			\
 	src/GUI_impl_headless.o\
 	src/inst.o				\
+	$(optional_objs)
 
 OBJS=\
 	src/gvars3.o			\
 	src/GUI.o				\
 	src/GStringUtil.o		\
 	src/gvars2.o			\
-	src/GUI_language.o		\
 	src/serialize.o			\
 	src/@guiobj@.o          \
 	src/GUI_non_readline.o	\
 	src/inst.o\
+	$(optional_objs)
 
 ifeq (@have_readline@,yes)
 	OBJS+=src/GUI_readline.o
@@ -167,7 +172,13 @@ hsos=  $(hsoname)  $(hsoname1)  $(hsoname2)
 dsos=  $(dsoname)  $(dsoname1)  $(dsoname2)
 dhsos= $(dhsoname) $(dhsoname1) $(dhsoname2)
 
-install_shared=install-shared-normal
+install_shared=
+
+ifneq (@make_normal@,no)
+	NORMAL=$(archive) $(snoame)
+	install_shared+=install-shared-normal
+	Narchive=$(archive)
+endif
 
 ifeq (@make_headless@,yes)
 	HEADLESS=$(harchive) $(hsoname)
@@ -188,7 +199,7 @@ ifeq (@make_headless@@make_debug@,yesyes)
 endif
 
 
-all: $(archive) $(soname) $(HEADLESS) $(DEBUG) $(DEBUG_HEADLESS)
+all: $(NORMAL) $(HEADLESS) $(DEBUG) $(DEBUG_HEADLESS)
 
 $(dhsoname): $(DEBUG_HEADLESS_OBJS)
 	rm -f $(dhsos)
@@ -219,7 +230,7 @@ $(soname): $(OBJS)
 
 install:install-static $(install_shared) install-headers
 
-install-static: $(archive) $(Harchive) $(DHarchive) $(Darchive)
+install-static: $(Narchive) $(Harchive) $(DHarchive) $(Darchive) 
 	mkdir -p $(DESTDIR)/$(libdir)
 	cp $(archive) $(Harchive) $(DHarchive) $(Darchive) $(DESTDIR)/$(libdir)
 
