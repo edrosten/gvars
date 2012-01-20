@@ -34,7 +34,10 @@ HLIBS = @HLIBS@ -lm @LDFLAGS@
 INSTALL = @INSTALL@
 AR=ar
 
-DESTDIR =
+ifneq "$(DESTDIR)" ""
+DESTDIR+=/
+endif
+
 
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -231,37 +234,37 @@ $(soname): $(OBJS)
 install:install-static $(install_shared) install-headers
 
 install-static: $(Narchive) $(Harchive) $(DHarchive) $(Darchive) 
-	mkdir -p $(DESTDIR)/$(libdir)
-	cp $(archive) $(Harchive) $(DHarchive) $(Darchive) $(DESTDIR)/$(libdir)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp $(Narchive) $(Harchive) $(DHarchive) $(Darchive) $(DESTDIR)$(libdir)
 
 install-shared-normal: $(soname) 
-	mkdir -p $(DESTDIR)/$(libdir)
-	cp $(soname2) $(DESTDIR)/$(libdir)
-	ln -fs  $(DESTDIR)/$(libdir)/$(soname2) $(DESTDIR)/$(libdir)/$(soname1)
-	ln -fs  $(DESTDIR)/$(libdir)/$(soname1) $(DESTDIR)/$(libdir)/$(soname)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp $(soname2) $(DESTDIR)$(libdir)
+	ln -fs  $(DESTDIR)$(libdir)/$(soname2) $(DESTDIR)$(libdir)/$(soname1)
+	ln -fs  $(DESTDIR)$(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(soname)
 	
 install-shared-headless: $(hsoname) 
-	mkdir -p $(DESTDIR)/$(libdir)
-	cp $(hsoname2) $(DESTDIR)/$(libdir)
-	ln -fs  $(DESTDIR)/$(libdir)/$(hsoname2) $(DESTDIR)/$(libdir)/$(hsoname1)
-	ln -fs  $(DESTDIR)/$(libdir)/$(hsoname1) $(DESTDIR)/$(libdir)/$(hsoname)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp $(hsoname2) $(DESTDIR)$(libdir)
+	ln -fs  $(DESTDIR)$(libdir)/$(hsoname2) $(DESTDIR)$(libdir)/$(hsoname1)
+	ln -fs  $(DESTDIR)$(libdir)/$(hsoname1) $(DESTDIR)$(libdir)/$(hsoname)
 	
 install-shared-debug: $(dsoname) 
-	mkdir -p $(DESTDIR)/$(libdir)
-	cp $(dsoname2) $(DESTDIR)/$(libdir)
-	ln -fs  $(DESTDIR)/$(libdir)/$(dsoname2) $(DESTDIR)/$(libdir)/$(dsoname1)
-	ln -fs  $(DESTDIR)/$(libdir)/$(dsoname1) $(DESTDIR)/$(libdir)/$(dsoname)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp $(dsoname2) $(DESTDIR)$(libdir)
+	ln -fs  $(DESTDIR)$(libdir)/$(dsoname2) $(DESTDIR)$(libdir)/$(dsoname1)
+	ln -fs  $(DESTDIR)$(libdir)/$(dsoname1) $(DESTDIR)$(libdir)/$(dsoname)
 
 install-shared-debug-headless: $(dhsoname) 
-	mkdir -p $(DESTDIR)/$(libdir)
-	cp $(dhsoname2) $(DESTDIR)/$(libdir)
-	ln -fs  $(DESTDIR)/$(libdir)/$(dhsoname2) $(DESTDIR)/$(libdir)/$(dhsoname1)
-	ln -fs  $(DESTDIR)/$(libdir)/$(dhsoname1) $(DESTDIR)/$(libdir)/$(dhsoname)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp $(dhsoname2) $(DESTDIR)$(libdir)
+	ln -fs  $(DESTDIR)$(libdir)/$(dhsoname2) $(DESTDIR)$(libdir)/$(dhsoname1)
+	ln -fs  $(DESTDIR)$(libdir)/$(dhsoname1) $(DESTDIR)$(libdir)/$(dhsoname)
 	
 	
 install-headers:
-	mkdir -p $(DESTDIR)/$(includedir)
-	cp -r gvars3 $(DESTDIR)/$(includedir)
+	mkdir -p $(DESTDIR)$(includedir)
+	cp -r gvars3 $(DESTDIR)$(includedir)
 	
 $(darchive): $(DEBUG_OBJS)
 	$(AR) crvs $@ $^
