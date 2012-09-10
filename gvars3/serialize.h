@@ -128,7 +128,7 @@ namespace GVars3
 			generic_setup(o, precise);
 			o << "[ ";
 			for(unsigned i = 0; i < v.size(); ++i)
-				o << to_string(v[i]) << " ";
+				o << to_string(v[i], precise) << " ";
 			o << "]";
 			return o.str();
 		}
