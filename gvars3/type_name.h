@@ -39,9 +39,17 @@ namespace GVars3
       static std::string::size_type begin = funcname.find("type_name<")+10;
       static std::string name = funcname.substr(begin, funcname.rfind(">") - begin);
 #elif defined __GNUC__
+	//Output format of __PRETTY_FUNCTION__ changed at 4.5.0 to have the return 
+	//type included.
+	#if __GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__ < 450
       std::string funcname = std::string(__PRETTY_FUNCTION__);
       std::string bname = funcname.substr(funcname.rfind(" = ")+3);
 	  std::string name = bname.substr(0, bname.length()-1);
+	#else
+      std::string funcname = std::string(__PRETTY_FUNCTION__);
+      std::string bname = funcname.substr(funcname.rfind("T = ")+3);
+	  std::string name = bname.substr(0, bname.find(", "));
+	#endif
 #else
 	#error no good way of getting a type name
 #endif
