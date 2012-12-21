@@ -32,12 +32,13 @@ namespace GVars3
 {
 
 
-
+	class GUI_language;
 
 	class GUI_impl
 	{
 		public:
 			GUI_impl();
+			void post_init();
 			GUI_impl(GVars2*);//Dummy gvars2
 
 			void RegisterCommand(std::string sCommandName, GUICallbackProc callback, void* thisptr=NULL);
@@ -83,6 +84,7 @@ namespace GVars3
 			GUICallbackProc cbp;
 
 			static void *mpParserThread;
+			GUI_language* lang;
 
 			std::map<std::string, CallbackVector > mmCallBackMap;
 			std::set<std::string> builtins;
@@ -99,7 +101,10 @@ namespace GVars3
 		{
 			static GUI_impl* inst = 0;
 			if(!inst)
+			{
 				inst = new GUI_impl;
+				inst->post_init();
+			}
 			return *inst;
 		}
 	};

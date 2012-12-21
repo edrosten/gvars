@@ -34,6 +34,9 @@
 using namespace std;
 namespace GVars3
 {
+	GUI_language* get_new_lang();
+	void remove_lang(GUI_language* l);
+
 
   GUI::GUI(GVars2* /* v2 */){
     }
@@ -745,6 +748,12 @@ namespace GVars3
   GUI_impl::GUI_impl()
   {
     do_builtins();
+	lang=0;
+  }
+  
+  void GUI_impl::post_init()
+  {
+  	lang = get_new_lang();
   }
 
   GUI_impl::GUI_impl(GVars2*)

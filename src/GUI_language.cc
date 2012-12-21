@@ -239,7 +239,15 @@ namespace GVars3
 
 
 	};
-		
-	GUI_language GUI_language_instance;
+	
+	GUI_language* get_new_lang()
+	{
+		return new GUI_language;
+	}
 
+	void remove_lang(GUI_language* l)
+	{
+		delete l;
+	}
+	//GUI_language GUI_language_instance;
 }
