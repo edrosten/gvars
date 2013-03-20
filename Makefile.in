@@ -83,6 +83,8 @@ GZIP_ENV = --best
 optional_objs=
 ifeq (@make_lang@,yes)
 	optional_objs+=src/GUI_language.o
+else
+	optional_objs+=src/GUI_no_language.o
 endif
 
 HEADLESSOBJS=\

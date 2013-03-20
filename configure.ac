@@ -247,7 +247,7 @@ then
 	AC_SUBST(make_normal,no)
 fi
 
-AC_ARG_WITH(lang,   [  --without-lang          Do not build nasty hacky builtin language])
+AC_ARG_WITH(lang,   [  --with-lang          Do not build nasty hacky builtin language])
 if test "$with_lang" == "yes"
 then
 	AC_SUBST(make_lang,yes)

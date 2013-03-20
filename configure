@@ -1327,7 +1327,7 @@ Optional Packages:
   --without-readline      Disable use of libreadline
   --with-x                use the X Window System
   --without-head          Do not build normal, non headless version
-  --without-lang          Do not build nasty hacky builtin language
+  --with-lang          Do not build nasty hacky builtin language
   --with-debug            Build additional debug library
   --without-headless      Do not build additional headless library
 
