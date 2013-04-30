@@ -27,6 +27,7 @@
 #include <list>
 #include <vector>
 #include <iostream>
+#include <stdexcept>
 
 #include <gvars3/config.h>
 #include <gvars3/default.h>
@@ -37,8 +38,21 @@ namespace GVars3
 {
 void parse_warning(int e, std::string type, std::string name, std::string from);
 
-struct type_mismatch{};
-struct gvar_was_not_defined{};
+struct type_mismatch: public std::logic_error
+{
+	type_mismatch(const std::string& e)	
+	:std::logic_error("gvar error getting " + e)
+	{
+	}
+};
+
+struct gvar_was_not_defined: public std::runtime_error
+{
+	gvar_was_not_defined(const std::string& s)
+	:std::runtime_error("gvar " + s + " was not defined")
+	{
+	}
+};
 
 
 class GV3;
@@ -228,10 +242,13 @@ class GV3
 				//Does it exist with a different type?
 				if(registered_type_and_trait.count(name))
 				{		//Yes: programmer error.
-					std::cerr << "GV3:Error: type mismatch while getting " << type_name<T>() << " " << name << ": already registered "
-							"as type " << registered_type_and_trait[name].first->name() << ". Fix your code.\n";
 
-					throw type_mismatch();
+					std::string err = type_name<T>() + " " + name + ": already registered "
+							"as type " + registered_type_and_trait[name].first->name();
+
+					std::cerr << "GV3:Error: type mismatch while getting " << err << ". Fix your code.\n";
+
+					throw type_mismatch(err);
 				}
 				else
 					return NULL;

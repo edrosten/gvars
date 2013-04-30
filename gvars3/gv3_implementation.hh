@@ -21,7 +21,7 @@ template<class T> ValueHolder<T>* GV3::register_new_gvar(const std::string& name
 		if(flags & FATAL_IF_NOT_DEFINED)
 		{
 			std::cerr << "!!GV3::Register: " << type_name<T>() << " " << name << " must be defined. Exception. " << std::endl;
-			throw gvar_was_not_defined();
+			throw gvar_was_not_defined(name);
 		};
 
 		if(!(flags & SILENT))
@@ -39,7 +39,7 @@ template<class T> ValueHolder<T>* GV3::register_new_gvar(const std::string& name
 		if(e > 0 && flags & FATAL_IF_NOT_DEFINED)
 		{
 			std::cerr << "!!GV3::Register: " << type_name<T>() << " " << name << " must be defined. Exception. " << std::endl;
-			throw gvar_was_not_defined();
+			throw gvar_was_not_defined(name);
 		}
 
 		d = safe_replace(name, value);
