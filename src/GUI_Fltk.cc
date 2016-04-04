@@ -37,9 +37,9 @@
 #include <FL/Fl_Widget.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Check_Button.H>
-#include <Fl/Fl_Value_Slider.H>
-#include <Fl/Fl_Value_Input.H>
-#include <Fl/Fl_Box.H>
+#include <FL/Fl_Value_Slider.H>
+#include <FL/Fl_Value_Input.H>
+#include <FL/Fl_Box.H>
 
 
 #define POLL_UPDATE 1
