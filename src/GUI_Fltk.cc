@@ -1,4 +1,4 @@
-/*                       
+/*						 
 	This file is part of the GVars3 Library.
 
 	Copyright (C) 2005 The Authors
@@ -16,7 +16,7 @@
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
 	Foundation, Inc., 
-    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+	51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "gvars3/instances.h"
@@ -68,8 +68,6 @@ void poll_callback(void* v)
 
 void* GUI_Fltk::do_stuff_CB(void* v)
 {
-	GUI_Fltk* t = (GUI_Fltk*)v;
-
 	//Add a one shot timeout which makes widgets poll for changes
 	Fl::add_timeout(0.02,  poll_callback,  v);
 	
@@ -89,7 +87,7 @@ void* GUI_Fltk::do_stuff_CB(void* v)
 
 #define UI (*(GUI_Fltk*)(ptr))
 
-void GUI_Fltk::InitXInterfaceCB(void* ptr, string sCommand, string sParams)
+void GUI_Fltk::InitXInterfaceCB(void* ptr, string, string sParams)
 {
 	UI.InitXInterface(sParams);
 }
@@ -153,7 +151,7 @@ bool GUI_Fltk::check_window(string win_name, string err)
 // Window
 //
 
-void GUI_Fltk::AddWindowCB(void* ptr, string sCommand, string sParams)
+void GUI_Fltk::AddWindowCB(void* ptr, string, string sParams)
 {
 	//Fl::lock();
 	UI.AddWindow(sParams);
@@ -172,10 +170,10 @@ class GUI_Fltk_win:public Fl_Window
 
 		void add(Fl_Widget* widg)
 		{
-            int lw = 0, lh = 0;
+			int lw = 0, lh = 0;
 
-            if((widg->align() & FL_ALIGN_LEFT) && !(widg->align() & FL_ALIGN_INSIDE) )
-                widg->measure_label(lw, lh);
+			if((widg->align() & FL_ALIGN_LEFT) && !(widg->align() & FL_ALIGN_INSIDE) )
+				widg->measure_label(lw, lh);
 
 
 
@@ -198,7 +196,7 @@ class GUI_Fltk_win:public Fl_Window
 		}
 
 	private:
-		string  win_name, labl;
+		string	win_name, labl;
 		
 		static void my_callback(Fl_Widget* w)
 		{
@@ -272,7 +270,7 @@ void GUI_Fltk::AddWindow(string sParams)
 	GUI.RegisterCommand(vs[0] + ".AddLabel", AddLabelCB, this);
 }
 
-void GUI_Fltk::DestroyWindowCB(void* ptr, string cmd, string args)
+void GUI_Fltk::DestroyWindowCB(void* ptr, string cmd, string)
 {
 	//Fl::lock();
 	UI.DestroyWindow(cmd);
@@ -326,8 +324,8 @@ class cmd_button:public Fl_Button
 		}
 
 	private:
-		//The button label just stores the pointer, so we need to store the string here	
-		string cmd, labl;
+		//The button label just stores the pointer, so we need to store the string here 
+		string labl, cmd;
 		static void my_callback(Fl_Widget* w, long what_shall_I_do)
 		{
 			if(what_shall_I_do == POLL_UPDATE)
@@ -395,8 +393,8 @@ class toggle_button: public Fl_Check_Button
 		}
 
 	private:
-		gvar3<int> my_int;
 		string labl;
+		gvar3<int> my_int;
 
 		static void my_callback(Fl_Widget* w, long what_shall_I_do)
 		{
@@ -450,7 +448,7 @@ typedef Fl_Slider slider_type;
 class slider_bar: public slider_type
 {
 	public:
-    slider_bar(string gvar_name, double min, double max, bool show_val_)
+	slider_bar(string gvar_name, double min, double max, bool show_val_)
 	:slider_type(0, 0, 1, 1),varname(gvar_name), show_val(show_val_)
 		{
 			type(FL_HORIZONTAL);
@@ -462,24 +460,24 @@ class slider_bar: public slider_type
 			poll_update();
 		}
 
-    double compute_slider_frac()
-    {
+	double compute_slider_frac()
+	{
 	fl_font(labelfont(), labelsize());
 	double lw = fl_width(label());
 	double s_size = lw + 5;
 	return s_size / w();	
-    }
+	}
 
-    void resize(int x_, int y_, int w_, int h_)
-    {
+	void resize(int x_, int y_, int w_, int h_)
+	{
 	slider_type::resize(x_,y_,w_,h_);
 	if (show_val)
-	    slider_size(compute_slider_frac());
-    }
+		slider_size(compute_slider_frac());
+	}
 
 
 		void poll_update()
-		{		    
+		{			
 			string crnt=GV3::get_var(varname);
 			
 			if(crnt != cached_value)
@@ -493,9 +491,9 @@ class slider_bar: public slider_type
 				if(newval < minimum()) minimum(newval);
 
 				if (show_val) {
-				    label(cached_value.c_str());
-				    double new_frac = compute_slider_frac();
-				    if (new_frac > slider_size())
+					label(cached_value.c_str());
+					double new_frac = compute_slider_frac();
+					if (new_frac > slider_size())
 					slider_size(new_frac);
 				}
 				value(newval);
@@ -513,7 +511,7 @@ class slider_bar: public slider_type
 
 	private:
 		string varname, cached_value;
-    bool show_val;
+	bool show_val;
 
 		static void my_callback(Fl_Widget* w, long what_shall_I_do)
 		{
@@ -622,7 +620,7 @@ void GUI_Fltk::AddMonitor(string cmd, string args)
 	w.win->add(m);
 }
 
-//GUI_Fltk  Gui_Fltk(&GUI);
+//GUI_Fltk	Gui_Fltk(&GUI);
 
 
 
@@ -718,8 +716,8 @@ void GUI_Fltk::AddSpin(string cmd, string args)
 	serialize::from_string(vs[1], min);
 	serialize::from_string(vs[2], max);
 
-    if( vs.size() == 4)
-        title = vs[3];
+	if(vs.size() == 4)
+		title = vs[3];
 
 	Fl_Widget* b = new spin2(vs[0], title, min, max);
 
@@ -742,15 +740,15 @@ class label: public Fl_Box
 		:Fl_Box(0, 0, 1, 1), title(t)
 		{
 			align(FL_ALIGN_CENTER);
-                        Fl_Box::label(title.c_str());
+						Fl_Box::label(title.c_str());
 		}
-        private:
-            string title;
+		private:
+			string title;
 };
 
 void GUI_Fltk::AddLabel(string cmd, string args)
 {
-    string win_name = remove_suffix(cmd, ".AddLabel");
+	string win_name = remove_suffix(cmd, ".AddLabel");
 
 	vector<string> vs = ChopAndUnquoteString(args);
 	if(vs.size() != 1)

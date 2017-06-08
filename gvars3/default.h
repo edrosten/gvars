@@ -95,7 +95,7 @@ template<class C, int PainInTheNeck = IsAwkward<C>::is> struct ValueHolder
 
 template<class C> struct ValueHolder<C, 1>
 {
-	std::auto_ptr<C> val;
+	std::unique_ptr<C> val;
 
 	C& get()
 	{ 
@@ -120,7 +120,7 @@ template<class C> struct ValueHolder<C, 1>
 
 	void set(const C& c)
 	{
-		val = std::auto_ptr<C>(new C(c));
+		val = std::unique_ptr<C>(new C(c));
 	}
 
 	C* ptr()

@@ -19,26 +19,18 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __GUI_H
-#define __GUI_H
+#ifndef GVARS_INCLUDE_GUI_H
+#define GVARS_INCLUDE_GUI_H
 
 #include <gvars3/gvars3.h>
 #include <vector>
 #include <iostream>
+#include <functional>
 #include <set>
 
 namespace GVars3
 {
 	typedef void (*GUICallbackProc)(void* ptr, std::string sCommand, std::string sParams);
-
-	typedef struct 
-	{
-	  GUICallbackProc cbp;
-	  void* thisptr;
-	} CallbackInfoStruct;
-
-	typedef std::vector<CallbackInfoStruct> CallbackVector;
-
 
 	
 	class GUI_impl;
@@ -52,6 +44,7 @@ namespace GVars3
 			GUI(GVars2*);//Dummy gvars2
 
 			void RegisterCommand(std::string sCommandName, GUICallbackProc callback, void* thisptr=NULL);
+			void RegisterCommand(std::string sCommandName, std::function<void(std::string,std::string)>);
 			void UnRegisterAllCommands(void* thisptr);
 			void UnRegisterCommand(std::string sCommandName, void* thisptr);
 			void UnRegisterCommand(std::string sCommandName);

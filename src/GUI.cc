@@ -54,7 +54,10 @@ namespace GVars3
 	{
 		I().RegisterCommand(cmd, c, p);
 	}
-
+	void GUI::RegisterCommand(std::string cmd, std::function<void(string,string)> f)
+	{
+		I().RegisterCommand(cmd, f);
+	}
 
 	void GUI::UnRegisterAllCommands(void* p)
 	{
@@ -184,6 +187,15 @@ namespace GVars3
       if(cbv[i].thisptr == thisptr)
 	cbv.erase(cbv.begin() + i);
   };
+
+  void GUI_impl::RegisterCommand(string sCommandName, std::function<void(string, string)> func)
+  {
+  	callback_functions.push_back(func);
+
+	RegisterCommand(sCommandName, [](void* ptr, std::string cmd, std::string params){
+		(*static_cast<std::function<void(string, string)>*>(ptr))(cmd, params);
+	}, &callback_functions.back());
+  }
 
   void GUI_impl::RegisterCommand(string sCommandName, GUICallbackProc callback, void* thisptr)
   {

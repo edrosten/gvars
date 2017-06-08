@@ -27,9 +27,20 @@
 #include <vector>
 #include <iostream>
 #include <set>
+#include <list>
+#include <functional>
 
 namespace GVars3
 {
+	typedef struct 
+	{
+	  GUICallbackProc cbp;
+	  void* thisptr;
+	} CallbackInfoStruct;
+
+	typedef std::vector<CallbackInfoStruct> CallbackVector;
+
+
 
 
 	class GUI_language;
@@ -42,6 +53,7 @@ namespace GVars3
 			GUI_impl(GVars2*);//Dummy gvars2
 
 			void RegisterCommand(std::string sCommandName, GUICallbackProc callback, void* thisptr=NULL);
+			void RegisterCommand(std::string sCommandName, std::function<void(std::string,std::string)>);
 			void UnRegisterAllCommands(void* thisptr);
 			void UnRegisterCommand(std::string sCommandName, void* thisptr);
 			void UnRegisterCommand(std::string sCommandName);
@@ -89,6 +101,7 @@ namespace GVars3
 			std::map<std::string, CallbackVector > mmCallBackMap;
 			std::set<std::string> builtins;
 			std::map<std::string, std::vector<std::string> > mmQueues;
+			std::list<std::function<void(std::string,std::string)>> callback_functions;
 
 			friend void builtin_commandlist(void* ptr, std::string sCommand, std::string sParams);
 			friend void builtin_queue(void* ptr, std::string sCommand, std::string sParams);
