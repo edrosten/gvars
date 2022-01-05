@@ -208,26 +208,26 @@ all: $(NORMAL) $(HEADLESS) $(DEBUG) $(DEBUG_HEADLESS)
 
 $(dhsoname): $(DEBUG_HEADLESS_OBJS)
 	rm -f $(dhsos)
-	$(CXX) $(shared) -o $(dhsoname2) $(DEBUG_HEADLESS_OBJS) $(LIBS)
+	$(CXX) $(shared) -Wl,-soname,$(dhsoname1) -o $(dhsoname2) $(DEBUG_HEADLESS_OBJS) $(LIBS)
 	ln -s $(dhsoname2) $(dhsoname1)
 	ln -s $(dhsoname1) $(dhsoname)
 
 $(dsoname): $(DEBUG_OBJS)
 	rm -f $(dsos)
-	$(CXX) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LIBS)
+	$(CXX) $(shared) -Wl,-soname,$(dsoname1) -o $(dsoname2) $(DEBUG_OBJS) $(LIBS)
 	ln -s $(dsoname2) $(dsoname1)
 	ln -s $(dsoname1) $(dsoname)
 
 
 $(hsoname): $(HEADLESSOBJS)
 	rm -f $(hsos)
-	$(CXX) $(shared) -o $(hsoname2) $(HEADLESSOBJS) $(HLIBS)
+	$(CXX) $(shared) -Wl,-soname,$(hsoname1) -o $(hsoname2) $(HEADLESSOBJS) $(HLIBS)
 	ln -s $(hsoname2) $(hsoname1)
 	ln -s $(hsoname1) $(hsoname)
 
 $(soname): $(OBJS)
 	rm -f $(sos)
-	$(CXX) $(shared) -o $(soname2) $(OBJS) $(LIBS)
+	$(CXX) $(shared) -Wl,-soname,$(soname1) -o $(soname2) $(OBJS) $(LIBS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 

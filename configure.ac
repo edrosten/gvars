@@ -286,6 +286,8 @@ echo $gui
 echo
 changequote([,])
 
+AC_DEFINE([GVARS3_HAVE_TOON], [], [Description])
+AC_DEFINE([GVARS3_HAVE_TOON2], [], [Description])
 
 AC_CONFIG_HEADERS(gvars3/config.h)
 AC_OUTPUT(Makefile)
